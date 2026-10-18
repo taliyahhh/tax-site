@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sources | Taxonomy</title>
+  <meta name="description" content="Where every number on the site comes from, and how spending is sorted into categories.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="on-results">
+  <main class="results sources">
+    <header class="results-head sources-head">
+      <a class="back" href="./">Back to the map</a>
+      <div class="place">
+        <h1 class="place-zip">Sources</h1>
+        <p class="place-name">Where every number comes from</p>
+      </div>
+    </header>
+
+    <div class="frame">
+      <p class="level-line">Every number on this site comes from a government agency's own published data. Federal and state numbers are typed in from official reports. City numbers are pulled automatically from two public datasets once a month.</p>
+
+      <h2 class="src-h">The data</h2>
+      <div class="table-wrap">
+        <table class="src-table">
+          <thead>
+            <tr><th>Level</th><th>What it covers</th><th>Year</th><th>Source</th><th>How it updates</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Nation</td>
+              <td>All federal spending, actual</td>
+              <td>Fiscal 2026 (Oct 2025 to Sep 2026)</td>
+              <td><a href="https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/" target="_blank" rel="noopener">U.S. Treasury, Final Monthly Treasury Statement</a></td>
+              <td>By hand, each October when the year closes</td>
+            </tr>
+            <tr>
+              <td>California</td>
+              <td>State General Fund (paid mostly by income and sales tax), enacted budget</td>
+              <td>Fiscal 2025-26 (Jul 2025 to Jun 2026)</td>
+              <td><a href="https://ebudget.ca.gov/" target="_blank" rel="noopener">CA Department of Finance</a>, as tabled in the <a href="https://src.senate.ca.gov/sites/src.senate.ca.gov/files/2025-26%20Budget%20Act%20Highlights%20and%20Analysis%20-%20End-of-Session%20Update_0.pdf" target="_blank" rel="noopener">Senate Republican Fiscal Office's 2025-26 budget analysis</a></td>
+              <td>By hand, each summer</td>
+            </tr>
+            <tr>
+              <td>New York</td>
+              <td>State funds, actual spending (cash basis)</td>
+              <td>Fiscal 2026 (Apr 2025 to Mar 2026)</td>
+              <td><a href="https://www.osc.ny.gov/files/reports/finance/pdf/2026-financial-condition-report.pdf" target="_blank" rel="noopener">NY State Comptroller, 2026 Financial Condition Report, Appendix 1</a></td>
+              <td>By hand, each summer</td>
+            </tr>
+            <tr>
+              <td>California cities (all 482)</td>
+              <td>Governmental funds, actual spending</td>
+              <td>Fiscal 2023-24</td>
+              <td><a href="https://bythenumbers.sco.ca.gov/" target="_blank" rel="noopener">California State Controller's Office, By the Numbers: City Expenditures</a> (open data API)</td>
+              <td>Automatically, monthly</td>
+            </tr>
+            <tr>
+              <td>Every other city, town, and village in the US</td>
+              <td>Actual spending by function</td>
+              <td>Fiscal 2022</td>
+              <td><a href="https://www.census.gov/data/datasets/2022/econ/local/public-use-datasets.html" target="_blank" rel="noopener">U.S. Census Bureau, 2022 Census of Governments: Finance, Individual Unit File</a></td>
+              <td>Automatically, monthly. The Census counts every government every five years</td>
+            </tr>
+            <tr>
+              <td>Map</td>
+              <td>The location of every US zip code</td>
+              <td>&nbsp;</td>
+              <td><a href="https://www.npmjs.com/package/zipcodes" target="_blank" rel="noopener">zipcodes</a> package, drawn with the <a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener">d3-geo</a> Albers USA projection</td>
+              <td>When the package updates</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="src-h">How spending is sorted into categories</h2>
+      <p class="src-p">Each government labels its spending differently. We match their labels to our categories like this.</p>
+      <div class="table-wrap">
+        <table class="src-table">
+          <thead>
+            <tr><th>Category</th><th>Federal</th><th>State</th><th>City</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Roads &amp; bridges</td><td>Federal Highway Administration</td><td>Transportation (NY includes transit aid)</td><td>Streets, highways, storm drains, street lights, parking</td></tr>
+            <tr><td>Public transit</td><td>Federal Transit Administration, rail</td><td>Not separated in state reports</td><td>Public transit systems</td></tr>
+            <tr><td>Parks &amp; recreation</td><td>National Park Service</td><td>Grouped with environment</td><td>Parks, community centers, golf courses, marinas</td></tr>
+            <tr><td>Education</td><td>Department of Education</td><td>Schools, community colleges, universities</td><td>Schools, where the city runs them (like New York City)</td></tr>
+            <tr><td>Housing &amp; homelessness</td><td>Department of Housing and Urban Development</td><td>Housing programs</td><td>Housing and redevelopment</td></tr>
+            <tr><td>Emergency services</td><td>FEMA</td><td>&nbsp;</td><td>Fire, paramedics, disaster preparedness</td></tr>
+            <tr><td>Police &amp; public safety</td><td>Department of Justice, Homeland Security (minus FEMA)</td><td>Prisons, courts, state police</td><td>Police, jails, courts, animal control, inspections</td></tr>
+            <tr><td>Libraries &amp; culture</td><td>Smithsonian, Library of Congress, NEA, NEH</td><td>&nbsp;</td><td>Libraries and museums</td></tr>
+            <tr><td>Public health</td><td>Medicare, Medicaid, NIH, CDC</td><td>Medicaid / Medi-Cal and public health</td><td>Health departments and hospitals</td></tr>
+            <tr><td>Water &amp; environment</td><td>EPA, Interior, Army Corps of Engineers</td><td>Natural resources, CAL FIRE, environment</td><td>Sewers, garbage, natural resources</td></tr>
+            <tr><td>Government operations</td><td>Congress, federal courts, IRS operations</td><td>Legislature, governor, state operations</td><td>Council, city manager, finance, planning, buildings</td></tr>
+            <tr><td>Defense &amp; veterans</td><td>Military and Veterans Affairs</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>Social Security</td><td>Social Security</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>Safety net</td><td>Food aid, tax credits, unemployment</td><td>Welfare, in-home care, developmental services</td><td>Welfare and job programs</td></tr>
+            <tr><td>Paying off debt</td><td>Interest on the national debt</td><td>Bond payments</td><td>Debt payments</td></tr>
+            <tr><td>Everything else</td><td>Science, agriculture, foreign aid, and the rest</td><td>Business regulation, revenue sharing</td><td>Anything without a clear category</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="src-h">What's left out</h2>
+      <ul class="src-list">
+        <li>City-run utilities, airports, and seaports. Customer bills and fees pay for these, not taxes.</li>
+        <li>Federal money passed through to states. It's counted once, at the federal level.</li>
+        <li>Counties, school districts, and special districts (like transit or water districts). They're separate governments with their own budgets. A future version could add them, since the Census file includes them.</li>
+        <li>Zip codes in unincorporated areas, where there's no city government. The county provides city services there.</li>
+      </ul>
+
+      <h2 class="src-h">Keeping it current</h2>
+      <p class="src-p">City numbers are rebuilt automatically on the first of every month by a script that runs on GitHub (<code>scripts/build-city-data.mjs</code>). It downloads both datasets, sorts each line into a category, and saves the results with the site. Federal and state numbers are updated by hand when each new year's report comes out.</p>
+      <p class="src-p">Numbers are rounded, and a few categories are judgment calls. This site is for learning, not tax or financial advice.</p>
+
+      <h2 class="src-h">Credits</h2>
+      <ul class="src-list">
+        <li>Stand-in images: <a href="https://github.com/microsoft/fluentui-emoji" target="_blank" rel="noopener">Microsoft Fluent Emoji</a> (MIT license)</li>
+        <li>Fonts: <a href="https://fonts.google.com/specimen/Shrikhand" target="_blank" rel="noopener">Shrikhand</a> and <a href="https://fonts.google.com/specimen/Archivo" target="_blank" rel="noopener">Archivo</a> (SIL Open Font License)</li>
+        <li>Map interaction inspired by Ben Fry's <a href="https://benfry.com/zipdecode/" target="_blank" rel="noopener">zipdecode</a></li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

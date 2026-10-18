@@ -53,48 +53,34 @@ window.BUDGETS = {
       paidBy: "Mostly California income tax, plus sales tax and corporate tax. Roads, parks, and transit are paid mostly from gas taxes, fees, and bonds, which aren't shown here.",
       notes: "General Fund only. About $175 billion in federal money also passes through the state.",
       source: { name: "CA Department of Finance, 2025-26 Enacted Budget", url: "https://ebudget.ca.gov/" }
+    },
+    NY: {
+      name: "New York State",
+      short: "New York",
+      period: "Fiscal year 2026 (Apr 2025 to Mar 2026), actual spending from state funds",
+      unit: 1e6, // millions
+      total: 163897,
+      values: {
+        education: 55688,  // School aid, SUNY, CUNY
+        health: 51537,     // Includes Medicaid 39,286
+        government: 18570, // General government, including state employee benefits and pensions
+        roads: 10349,      // Transportation: highways plus aid to the MTA and other transit (not split out in the report)
+        safetynet: 9248,   // Public welfare
+        police: 6998,      // Public safety: State Police, prisons, courts
+        debt: 5786,        // Repaying borrowed money
+        water: 1975,       // Environment and recreation (includes state parks)
+        other: 3746        // Business regulation and economic development 2,632 + revenue sharing with local governments 1,114
+      },
+      paidBy: "Mostly New York income tax and sales tax. Another $95 billion in federal money, mostly for Medicaid, is not included.",
+      notes: "State funds only, on a cash basis. Transportation includes transit aid and parks are grouped with environment, as the Comptroller reports them.",
+      source: { name: "NY State Comptroller, 2026 Financial Condition Report, Appendix 1", url: "https://www.osc.ny.gov/files/reports/finance/pdf/2026-financial-condition-report.pdf" }
     }
   },
 
+  // Hand-entered city budgets. These override the generated data in data/cities/ (built by
+  // scripts/build-city-data.mjs from the Census and the California State Controller).
   // Cities are matched by name and state from the zip code lookup.
   cities: {
-    "San Jose|CA": {
-      name: "San José",
-      short: "San José",
-      period: "Fiscal year 2025-26 (Jul 2025 to Jun 2026), proposed General Fund",
-      unit: 1e6,
-      total: 1685.6,
-      values: {
-        police: 567.0,
-        reserves: 345.2,   // Reserves, transfers, and citywide expenses
-        emergency: 296.6,  // Fire department
-        government: 219.6, // General government 142.8 + public works 57.6 + planning & permits 19.2
-        parks: 137.9,
-        culture: 59.4,     // Libraries 51.8 + economic development & cultural affairs 7.6
-        roads: 53.5,       // Department of Transportation (streets, signals)
-        water: 5.8,        // Environmental services 4.5 + energy 1.3
-        housing: 0.6       // Housing dept (most housing money comes from other funds)
-      },
-      paidBy: "Mostly property tax and sales tax, plus utility taxes, hotel tax, and fees.",
-      notes: "General Fund only. Airport, sewer, and other fee-funded services have their own budgets.",
-      source: { name: "City of San José, 2025-2026 Proposed Operating Budget", url: "https://www.sanjoseca.gov/your-government/departments-offices/office-of-the-city-manager/budget" }
-    },
-    "Santa Clara|CA": {
-      name: "Santa Clara",
-      short: "Santa Clara",
-      period: "Fiscal year 2025-26 (Jul 2025 to Jun 2026), adopted operating budget",
-      unit: 1e6,
-      total: 485.5,
-      values: {
-        police: 181.7,     // Police and fire together
-        government: 128.9,
-        roads: 98.2,       // Public works
-        parks: 39.1,       // Libraries, parks & recreation together
-        housing: 37.6      // Community development (planning, permits, housing)
-      },
-      paidBy: "Property tax and sales tax pay for most of these. The city's electric, water, and sewer utilities ($950 million) are paid by utility bills and left out.",
-      notes: "The city reports police and fire as one number, and libraries with parks.",
-      source: { name: "City of Santa Clara, FY 2025/26 Adopted Budget-in-Brief", url: "https://www.santaclaraca.gov/our-city/departments-a-f/finance/budget-and-financial-reports" }
-    }
+    // Example: "Springfield|IL": { name, short, period, unit, total, values: {...}, paidBy, notes, source }
   }
 };

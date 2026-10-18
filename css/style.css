@@ -412,3 +412,48 @@ body:not(.on-results) .site-foot { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* =========================================================
+   SOURCES PAGE
+   ========================================================= */
+.sources-head { grid-template-columns: auto 1fr; }
+.sources .frame { display: grid; gap: 14px; }
+.src-h {
+  margin: 18px 0 0;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.1;
+}
+.src-p { margin: 0; max-width: 68ch; }
+.src-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
+.sources a { color: var(--ink); font-weight: 700; }
+.table-wrap { overflow-x: auto; border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+.src-table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 15px; background: var(--paper); }
+.src-table th {
+  text-align: left;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+  font-stretch: 112%;
+  padding: 10px 12px;
+}
+.src-table td { padding: 10px 12px; border-top: 2px solid #e2e2e2; vertical-align: top; }
+.src-table td:first-child { font-weight: 800; white-space: nowrap; }
+.src-table tbody tr:nth-child(odd) td { background: #fff9d6; }
+
+/* Sources link on the map */
+.map-sources {
+  position: absolute;
+  z-index: 2;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  color: #e6e1b0;
+  font-weight: 700;
+  font-size: 14px;
+  background: #1d1d1dcc;
+  padding: 4px 10px;
+  border: 1.5px solid #e6e1b0;
+}
+.map-sources:hover { background: #e6e1b0; color: var(--night); }
+.site-foot a { color: inherit; font-weight: 700; }
