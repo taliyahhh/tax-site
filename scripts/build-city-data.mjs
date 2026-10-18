@@ -155,8 +155,12 @@ async function census() {
   for (const line of fs.readFileSync(`${WORK}/census/${datFile}`, "latin1").split(/\r?\n/)) {
     const u = units.get(line.slice(0, 12));
     if (!u) continue;
-    const cat = censusCategory(line.slice(12, 15));
+    const item = line.slice(12, 15);
+    let cat = censusCategory(item);
     if (!cat) continue;
+    // States: the Census files Medicaid under welfare payments (function 79). Medicaid is most of that
+    // money, and the federal, California, and New York tabs count Medicaid as health, so states match.
+    if (u.type === "0" && item.slice(1) === "79") cat = "health";
     const amt = parseInt(line.slice(15, 27), 10) / 1000; // -> millions
     if (amt) u.values[cat] = (u.values[cat] || 0) + amt;
   }

@@ -18,7 +18,7 @@
     </header>
 
     <div class="frame">
-      <p class="level-line">Every number on this site comes from a government agency's own published data. Federal and state numbers are typed in from official reports. City numbers are pulled automatically from two public datasets once a month.</p>
+      <p class="level-line">Every number on this site comes from a government agency's own published data. Federal, California, and New York numbers are typed in from official reports. Every other state, city, town, and county is pulled automatically from public datasets once a month.</p>
 
       <h2 class="src-h">The data</h2>
       <div class="table-wrap">
@@ -49,6 +49,13 @@
               <td>By hand, each summer</td>
             </tr>
             <tr>
+              <td>Every other state</td>
+              <td>State government spending, including aid sent to cities, counties, and schools</td>
+              <td>Fiscal 2022</td>
+              <td><a href="https://www.census.gov/data/datasets/2022/econ/local/public-use-datasets.html" target="_blank" rel="noopener">U.S. Census Bureau, 2022 Census of Governments: Finance</a></td>
+              <td>Automatically, monthly</td>
+            </tr>
+            <tr>
               <td>California cities (all 482)</td>
               <td>Governmental funds, actual spending</td>
               <td>Fiscal 2023-24</td>
@@ -61,6 +68,20 @@
               <td>Fiscal 2022</td>
               <td><a href="https://www.census.gov/data/datasets/2022/econ/local/public-use-datasets.html" target="_blank" rel="noopener">U.S. Census Bureau, 2022 Census of Governments: Finance, Individual Unit File</a></td>
               <td>Automatically, monthly. The Census counts every government every five years</td>
+            </tr>
+            <tr>
+              <td>Counties</td>
+              <td>Shown when a zip code has no city government (unincorporated areas)</td>
+              <td>Fiscal 2022</td>
+              <td><a href="https://www.census.gov/data/datasets/2022/econ/local/public-use-datasets.html" target="_blank" rel="noopener">U.S. Census Bureau, 2022 Census of Governments: Finance</a></td>
+              <td>Automatically, monthly</td>
+            </tr>
+            <tr>
+              <td>Zip code to city</td>
+              <td>Which city and county each zip code falls in. A zip counts as part of a city when the city covers at least 30% of its land</td>
+              <td>2020</td>
+              <td><a href="https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html" target="_blank" rel="noopener">U.S. Census Bureau, 2020 ZCTA relationship files</a></td>
+              <td>Automatically, monthly</td>
             </tr>
             <tr>
               <td>Map</td>
@@ -89,7 +110,7 @@
             <tr><td>Emergency services</td><td>FEMA</td><td>&nbsp;</td><td>Fire, paramedics, disaster preparedness</td></tr>
             <tr><td>Police &amp; public safety</td><td>Department of Justice, Homeland Security (minus FEMA)</td><td>Prisons, courts, state police</td><td>Police, jails, courts, animal control, inspections</td></tr>
             <tr><td>Libraries &amp; culture</td><td>Smithsonian, Library of Congress, NEA, NEH</td><td>&nbsp;</td><td>Libraries and museums</td></tr>
-            <tr><td>Public health</td><td>Medicare, Medicaid, NIH, CDC</td><td>Medicaid / Medi-Cal and public health</td><td>Health departments and hospitals</td></tr>
+            <tr><td>Public health</td><td>Medicare, Medicaid, NIH, CDC</td><td>Medicaid / Medi-Cal and public health (for states from the Census, all welfare payments, which are mostly Medicaid)</td><td>Health departments and hospitals</td></tr>
             <tr><td>Water &amp; environment</td><td>EPA, Interior, Army Corps of Engineers</td><td>Natural resources, CAL FIRE, environment</td><td>Sewers, garbage, natural resources</td></tr>
             <tr><td>Government operations</td><td>Congress, federal courts, IRS operations</td><td>Legislature, governor, state operations</td><td>Council, city manager, finance, planning, buildings</td></tr>
             <tr><td>Defense &amp; veterans</td><td>Military and Veterans Affairs</td><td>&nbsp;</td><td>&nbsp;</td></tr>
@@ -105,8 +126,8 @@
       <ul class="src-list">
         <li>City-run utilities, airports, and seaports. Customer bills and fees pay for these, not taxes.</li>
         <li>Federal money passed through to states. It's counted once, at the federal level.</li>
-        <li>Counties, school districts, and special districts (like transit or water districts). They're separate governments with their own budgets. A future version could add them, since the Census file includes them.</li>
-        <li>Zip codes in unincorporated areas, where there's no city government. The county provides city services there.</li>
+        <li>School districts and special districts (like transit or water districts). They're separate governments with their own budgets.</li>
+        <li>Counties, unless the zip code has no city government. Where there's a city, the site shows the city, even though the county also serves those residents.</li>
       </ul>
 
       <h2 class="src-h">Keeping it current</h2>

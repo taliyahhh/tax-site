@@ -59,10 +59,9 @@
     if (!file) return null;
 
     const geo = zipMap(info.state, file).get(info.zip); // [place, county] from Census geography
-    let key = null;
-    if (geo && geo[0]) key = file.places[geo[0]];
-    else if (!geo) key = cityKeyFor(info);              // zip not in the geography files (PO boxes): match by name
-    const c = key && file.cities[key];
+    let key = geo && geo[0] ? file.places[geo[0]] : null;
+    if (!key || !file.cities[key]) key = cityKeyFor(info); // no city by geography (or a town/township): try the post office name
+    const c = file.cities[key];
     if (c) {
       const name = key === "NEW YORK" && info.state === "NY" ? "New York City" : c.name;
       return {
@@ -90,7 +89,7 @@
     const name = STATE_NAMES[st] || g.name;
     return {
       name, short: name, period: S.meta.period, unit: 1e6, total: g.total, values: g.values,
-      paidBy: "State income, sales, and business taxes, plus federal grants. Includes money the state sends to cities, counties, and school districts.",
+      paidBy: "State taxes (like sales, income, and business taxes) plus federal grants. Includes money the state sends to cities, counties, and school districts.",
       notes: S.meta.notes.replace("city-run", "government-run"), source: S.meta.source
     };
   }
