@@ -112,6 +112,26 @@
   }
   input.addEventListener("input", update);
 
+  // Or click (tap) a dot on the map to pick that zip code
+  const mapCanvas = document.getElementById("map");
+  let hoverFrame = 0;
+  mapCanvas.addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse") return;
+    cancelAnimationFrame(hoverFrame);
+    hoverFrame = requestAnimationFrame(() => {
+      mapCanvas.style.cursor = TaxMap.hoverAt(e.clientX, e.clientY) ? "pointer" : "default";
+    });
+  });
+  mapCanvas.addEventListener("pointerleave", () => TaxMap.setHover(-1));
+  mapCanvas.addEventListener("click", e => {
+    const zip = TaxMap.zipAt(e.clientX, e.clientY, e.pointerType === "mouse" ? 14 : 28);
+    if (!zip) return;
+    TaxMap.setHover(-1);
+    input.value = zip;
+    update();
+    go.focus({ preventScroll: true });
+  });
+
   // Typing anywhere on the landing page goes into the zip box
   document.addEventListener("keydown", e => {
     if (landing.hidden || e.target === input || e.metaKey || e.ctrlKey) return;

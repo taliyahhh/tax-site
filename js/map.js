@@ -32,6 +32,8 @@
   let introStart = performance.now();
   let raf = null;
   let focusY = 0;
+  let hover = -1;                    // dot under the pointer
+  let last = { s: 1, ox: 0, oy: 0 }; // last drawn transform, for turning a click into a zip
 
   function baseScale() {
     // fit the whole country, leaving room for the logo on small screens
@@ -91,7 +93,7 @@
   }
 
   function describe() {
-    if (!prefix) return { text: "Every dot is a zip code.", zip: null };
+    if (!prefix) return { text: "Every dot is a zip code. Click one, or type yours.", zip: null };
     if (!hits.length) return { text: "No zip codes start with " + prefix + ".", zip: null };
     if (prefix.length === 5) {
       const p = placeOf(hits[0]);
@@ -131,6 +133,7 @@
     const s = baseScale() * view.s;
     focusY += (focusBand().cy - focusY) * k;
     const ox = W / 2 - view.x * s, oy = focusY - view.y * s;
+    last = { s, ox, oy };
     const r = Math.max(1, Math.min(1.1 + view.s * 0.18, 4));
     const hitSet = prefix ? new Set(hits) : null;
 
@@ -152,23 +155,49 @@
       }
     }
     // One exact zip: draw a ring and its name
-    if (prefix.length === 5 && hits.length) {
-      const i = hits[0];
-      const px = xs[i] * s + ox, py = ys[i] * s + oy;
-      ctx.strokeStyle = "#ff2e63"; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.arc(px, py, 22, 0, Math.PI * 2); ctx.stroke();
-      const p = placeOf(i);
-      const label = titleCase(p.city) + ", " + p.state;
-      ctx.font = "800 18px Archivo, sans-serif";
-      const tw = ctx.measureText(label).width;
-      ctx.fillStyle = "#ff2e63"; ctx.fillRect(px + 30, py - 15, tw + 20, 30);
-      ctx.fillStyle = "#fff"; ctx.fillText(label, px + 40, py + 6);
+    const picked = prefix.length === 5 && hits.length ? hits[0] : -1;
+    if (picked >= 0) {
+      const p = placeOf(picked);
+      marker(xs[picked] * s + ox, ys[picked] * s + oy, 22, titleCase(p.city) + ", " + p.state, "#ff2e63", "#fff");
+    }
+    // The dot under the pointer: a smaller ring with its zip and town
+    if (hover >= 0 && hover !== picked) {
+      const p = placeOf(hover);
+      marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#fff2a0", "#1d1d1d");
     }
     if (moving || intro < 1 || Math.abs(focusBand().cy - focusY) > 0.5) kick();
   }
 
+  function marker(px, py, radius, label, bg, fg) {
+    ctx.strokeStyle = bg; ctx.lineWidth = radius > 15 ? 4 : 3;
+    ctx.beginPath(); ctx.arc(px, py, radius, 0, Math.PI * 2); ctx.stroke();
+    ctx.font = (radius > 15 ? "800 18px" : "700 15px") + " Archivo, sans-serif";
+    const tw = ctx.measureText(label).width, h = radius > 15 ? 30 : 24;
+    let lx = px + radius + 8;
+    if (lx + tw + 20 > W - 8) lx = px - radius - 8 - tw - 20; // flip to the left near the right edge
+    ctx.fillStyle = bg; ctx.fillRect(lx, py - h / 2, tw + 20, h);
+    ctx.fillStyle = fg; ctx.fillText(label, lx + 10, py + (radius > 15 ? 6 : 5));
+  }
+
+  // Nearest visible dot to a point on the screen, within `reach` pixels
+  function nearest(clientX, clientY, reach) {
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left, y = clientY - rect.top;
+    let best = -1, bestD = reach * reach;
+    for (let i = 0; i < N; i++) {
+      const dx = xs[i] * last.s + last.ox - x, dy = ys[i] * last.s + last.oy - y;
+      const d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return best;
+  }
+  function setHover(i) { if (i !== hover) { hover = i; kick(); } }
+
   window.addEventListener("resize", resize);
   resize();
 
-  window.TaxMap = { setPrefix, lookup, zoomIn() { target.s *= 3; kick(); }, replayIntro() { introStart = performance.now(); kick(); } };
+  window.TaxMap = {
+    setPrefix, lookup, setHover,
+    zipAt(clientX, clientY, reach) { const i = nearest(clientX, clientY, reach); return i >= 0 ? zips[i] : null; },
+    hoverAt(clientX, clientY) { setHover(nearest(clientX, clientY, 14)); return hover >= 0; }, zoomIn() { target.s *= 3; kick(); }, replayIntro() { introStart = performance.now(); kick(); } };
 })();
