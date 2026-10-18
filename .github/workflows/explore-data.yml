@@ -1,0 +1,56 @@
+name: Explore data sources
+# Downloads samples of the raw government datasets so we can read their layouts.
+# Results are committed to the "explore" branch (not main).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/explore-data.yml"]
+permissions:
+  contents: write
+jobs:
+  explore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and sample
+        run: |
+          set -x
+          mkdir -p out && cd out
+          # --- Census of Governments 2022, Individual Unit File ---
+          curl -sSL -o iuf.zip https://www2.census.gov/programs-surveys/gov-finances/tables/2022/2022_Individual_Unit_File.zip
+          unzip -l iuf.zip > census_zip_listing.txt
+          mkdir census && unzip -q iuf.zip -d census
+          find census -type f -exec ls -la {} \; > census_files.txt
+          for f in $(find census -type f); do
+            b=$(basename "$f")
+            case "$f" in
+              *.txt|*.TXT|*.csv|*.dat|*.DAT) head -c 6000 "$f" > "census_head_$b.txt"; wc -l "$f" >> census_linecounts.txt ;;
+              *) cp "$f" "census_doc_$b" 2>/dev/null || true ;;
+            esac
+          done
+          # pdf docs to text
+          sudo apt-get install -y -qq poppler-utils >/dev/null 2>&1 || true
+          for f in census_doc_*.pdf; do [ -f "$f" ] && pdftotext -layout "$f" "$f.txt"; done
+          # lines mentioning San Jose / Santa Clara / Buffalo in any text file
+          grep -rih "san jose\|santa clara\|buffalo\|ALBANY" census | head -60 > census_grep_names.txt || true
+          # --- Census government units directory (names, FIPS) ---
+          curl -sSL -o gid.zip https://www2.census.gov/programs-surveys/gus/datasets/2022/govt_units_2022.ZIP || true
+          unzip -l gid.zip > gid_listing.txt 2>&1 || true
+          # --- California State Controller (SODA API) ---
+          B="https://bythenumbers.sco.ca.gov/resource/ju3w-4gxp.json"
+          curl -sSG "$B" --data-urlencode "\$select=category,subcategory_1,subcategory_2,sum(value)" \
+            --data-urlencode "\$where=entity_name='San Jose' AND fiscal_year='2024'" \
+            --data-urlencode "\$group=category,subcategory_1,subcategory_2" --data-urlencode "\$limit=500" > ca_sanjose_2024.json
+          curl -sSG "$B" --data-urlencode "\$select=fiscal_year,count(distinct entity_name)" \
+            --data-urlencode "\$group=fiscal_year" --data-urlencode "\$order=fiscal_year DESC" --data-urlencode "\$limit=5" > ca_years.json
+          curl -sSG "$B" --data-urlencode "\$select=entity_name,line_description,value" \
+            --data-urlencode "\$where=entity_name='San Jose' AND fiscal_year='2024' AND category='General Government and Public Safety'" \
+            --data-urlencode "\$limit=200" > ca_sanjose_lines.json
+          ls -la
+      - name: Commit to explore branch
+        run: |
+          cd out && rm -rf census iuf.zip gid.zip
+          git init -q && git checkout -q -b explore
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add -A && git commit -q -m "Data exploration samples"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" explore
