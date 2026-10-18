@@ -18,38 +18,19 @@ jobs:
           mkdir -p out && cd out
           # --- Census of Governments 2022, Individual Unit File ---
           curl -sSL -o iuf.zip https://www2.census.gov/programs-surveys/gov-finances/tables/2022/2022_Individual_Unit_File.zip
-          unzip -l iuf.zip > census_zip_listing.txt
-          mkdir census && unzip -q iuf.zip -d census
-          find census -type f -exec ls -la {} \; > census_files.txt
-          for f in $(find census -type f); do
-            b=$(basename "$f")
-            case "$f" in
-              *.txt|*.TXT|*.csv|*.dat|*.DAT) head -c 6000 "$f" > "census_head_$b.txt"; wc -l "$f" >> census_linecounts.txt ;;
-              *) cp "$f" "census_doc_$b" 2>/dev/null || true ;;
-            esac
-          done
-          # pdf docs to text
+          mkdir census && unzip -q -j iuf.zip -d census
           sudo apt-get install -y -qq poppler-utils >/dev/null 2>&1 || true
-          for f in census_doc_*.pdf; do [ -f "$f" ] && pdftotext -layout "$f" "$f.txt"; done
-          # lines mentioning San Jose / Santa Clara / Buffalo in any text file
-          grep -rih "san jose\|santa clara\|buffalo\|ALBANY" census | head -60 > census_grep_names.txt || true
-          # --- Census government units directory (names, FIPS) ---
-          curl -sSL -o gid.zip https://www2.census.gov/programs-surveys/gus/datasets/2022/govt_units_2022.ZIP || true
-          unzip -l gid.zip > gid_listing.txt 2>&1 || true
-          # --- California State Controller (SODA API) ---
-          B="https://bythenumbers.sco.ca.gov/resource/ju3w-4gxp.json"
-          curl -sSG "$B" --data-urlencode "\$select=category,subcategory_1,subcategory_2,sum(value)" \
-            --data-urlencode "\$where=entity_name='San Jose' AND fiscal_year='2024'" \
-            --data-urlencode "\$group=category,subcategory_1,subcategory_2" --data-urlencode "\$limit=500" > ca_sanjose_2024.json
-          curl -sSG "$B" --data-urlencode "\$select=fiscal_year,count(distinct entity_name)" \
-            --data-urlencode "\$group=fiscal_year" --data-urlencode "\$order=fiscal_year DESC" --data-urlencode "\$limit=5" > ca_years.json
-          curl -sSG "$B" --data-urlencode "\$select=entity_name,line_description,value" \
-            --data-urlencode "\$where=entity_name='San Jose' AND fiscal_year='2024' AND category='General Government and Public Safety'" \
-            --data-urlencode "\$limit=200" > ca_sanjose_lines.json
-          ls -la
+          find census -name "*.pdf" -print0 | while IFS= read -r -d '' f; do pdftotext -layout "$f" "doc_$(basename "$f" .pdf | tr ' &' '__').txt"; done
+          PID=census/Fin_PID_2022.txt; DAT=$(ls census/2022FinEstDAT*.txt)
+          grep -E "^06.{10}(SAN JOSE|SANTA CLARA|LOS ANGELES|OAKLAND)" $PID > pid_ca.txt || true
+          grep -E "^33" $PID | head -40 > pid_ny_head.txt
+          grep -E "^33.{10}(NEW YORK|BUFFALO|ALBANY|ROCHESTER|YONKERS|SYRACUSE)" $PID > pid_ny.txt || true
+          cut -c1-3 $PID | sort | uniq -c > pid_state_type_counts.txt
+          for id in $(cut -c1-12 pid_ca.txt pid_ny.txt); do grep "^$id" $DAT; done > dat_selected.txt
+          cut -c13-15 $DAT | sort | uniq -c > dat_item_codes.txt
       - name: Commit to explore branch
         run: |
-          cd out && rm -rf census iuf.zip gid.zip
+          cd out && rm -rf census iuf.zip
           git init -q && git checkout -q -b explore
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git add -A && git commit -q -m "Data exploration samples"
