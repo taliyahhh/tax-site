@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taxonomy</title>
+  <meta name="description" content="Type your zip code and see where your federal, state, and city tax dollars went.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============ LANDING: the map ============ -->
+  <section id="landing" class="landing" aria-label="Enter your zip code">
+    <canvas id="map" class="map" aria-hidden="true"></canvas>
+
+    <div class="landing-center">
+      <div class="logo-wrap">
+        <h1 class="logo" id="logo" aria-label="Taxonomy">Taxonomy</h1>
+        <div class="sticker" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <defs><path id="ring" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
+            <circle cx="100" cy="100" r="96" class="sticker-edge"/>
+            <circle cx="100" cy="100" r="58" class="sticker-core"/>
+            <text class="sticker-text"><textPath href="#ring" textLength="462" lengthAdjust="spacing">where did my tax dollars go? &#8226; where did it go? &#8226;</textPath></text>
+          </svg>
+          <img src="assets/cutouts/interest.png" alt="">
+        </div>
+      </div>
+
+      <form id="zip-form" class="zip-form" autocomplete="off">
+        <label for="zip" class="zip-label">Type your zip code</label>
+        <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
+        <p id="zip-readout" class="zip-readout" aria-live="polite">Every dot is a zip code.</p>
+        <button type="submit" id="go" class="go" disabled>Show me</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS: the collage ============ -->
+  <section id="results" class="results" hidden aria-label="Where your tax dollars went">
+    <header class="results-head">
+      <button type="button" id="back" class="back">New zip code</button>
+      <div class="place">
+        <p class="place-zip" id="place-zip">95050</p>
+        <p class="place-name" id="place-name">Santa Clara, California</p>
+      </div>
+      <nav class="levels" id="levels" aria-label="Level of government"></nav>
+    </header>
+
+    <div class="frame">
+      <p class="level-line" id="level-line"></p>
+      <div class="collage" id="collage"></div>
+
+      <div class="barely" id="barely">
+        <p class="barely-title" id="barely-title">Barely any money here</p>
+        <ul id="barely-list"></ul>
+      </div>
+    </div>
+
+    <footer class="level-foot" id="level-foot"></footer>
+  </section>
+
+  <dialog id="detail" class="detail">
+    <form method="dialog"><button class="detail-close" aria-label="Close">Close</button></form>
+    <img id="detail-img" alt="">
+    <h2 id="detail-title"></h2>
+    <p id="detail-about"></p>
+    <ul id="detail-levels" class="detail-levels"></ul>
+  </dialog>
+
+  <footer class="site-foot">
+    <p>Numbers come from official budget documents, linked under each collage. Stand-in images: Microsoft Fluent Emoji (MIT license). Not tax advice.</p>
+  </footer>
+
+  <script src="data/zips.js"></script>
+  <script src="data/categories.js"></script>
+  <script src="data/budgets.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/collage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
