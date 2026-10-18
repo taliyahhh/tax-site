@@ -108,6 +108,7 @@
     readout.textContent = info.text;
     current = info.zip ? TaxMap.lookup(info.zip) : null;
     landing.classList.toggle("typing", v.length > 0);
+    $("map-reset").hidden = v.length === 0;
     go.disabled = !current;
   }
   input.addEventListener("input", update);
@@ -123,14 +124,29 @@
     });
   });
   mapCanvas.addEventListener("pointerleave", () => TaxMap.setHover(-1));
+  // Mouse: a click picks that zip code.
+  // Touch: the first tap zooms into the area (the zip codes sharing its first 3 digits),
+  // the next tap picks a town, since single dots are too small to hit on a phone.
+  let lastPointer = "mouse";
+  mapCanvas.addEventListener("pointerdown", e => { lastPointer = e.pointerType; });
   mapCanvas.addEventListener("click", e => {
-    const zip = TaxMap.zipAt(e.clientX, e.clientY, e.pointerType === "mouse" ? 14 : 28);
+    const touch = lastPointer !== "mouse";
+    const zip = TaxMap.zipAt(e.clientX, e.clientY, touch ? 40 : 24);
     if (!zip) return;
     TaxMap.setHover(-1);
+    if (touch && input.value.length < 3) {
+      input.value = zip.slice(0, 3);
+      update();
+      readout.textContent += ". Tap your town.";
+      return;
+    }
     input.value = zip;
     update();
     go.focus({ preventScroll: true });
   });
+
+  // "Whole map" button resets the zoom
+  $("map-reset").addEventListener("click", () => { input.value = ""; update(); });
 
   // Typing anywhere on the landing page goes into the zip box
   document.addEventListener("keydown", e => {

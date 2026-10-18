@@ -36,8 +36,9 @@
   let last = { s: 1, ox: 0, oy: 0 }; // last drawn transform, for turning a click into a zip
 
   function baseScale() {
-    // fit the whole country, leaving room for the logo on small screens
-    return Math.min(W / D.width, H / D.height) * 0.94;
+    // fit the whole country; on phones fit it into the middle band
+    const h = W < 820 ? H * 0.42 : H;
+    return Math.min(W / D.width, h / D.height) * 0.94;
   }
 
   function resize() {
@@ -66,6 +67,7 @@
 
   // While typing, the logo moves up and the zip box moves down; the map focuses in between.
   function focusBand() {
+    if (W < 820) return { cy: H * 0.44, h: H * 0.42 };   // phones: the map always sits between logo and zip box
     if (!prefix) return { cy: H / 2, h: H };
     const top = H * (W < 700 ? 0.2 : 0.22), bottom = H * (W < 700 ? 0.62 : 0.66);
     return { cy: (top + bottom) / 2, h: bottom - top };
@@ -93,11 +95,19 @@
   }
 
   function describe() {
-    if (!prefix) return { text: "Every dot is a zip code. Click one, or type yours.", zip: null };
+    if (!prefix) return { text: "Every dot is a zip code. Tap the map, or type yours.", zip: null };
     if (!hits.length) return { text: "No zip codes start with " + prefix + ".", zip: null };
     if (prefix.length === 5) {
       const p = placeOf(hits[0]);
       return { text: titleCase(p.city) + ", " + p.state, zip: zips[hits[0]], place: p };
+    }
+    if (prefix.length >= 3) {
+      // Name the area after its most common town
+      const count = {};
+      let top = null;
+      for (const i of hits) { const k = D.places[place[i]]; count[k] = (count[k] || 0) + 1; if (!top || count[k] > count[top]) top = k; }
+      const [city, st] = top.split("|");
+      return { text: hits.length.toLocaleString() + " zip codes around " + titleCase(city) + ", " + st, zip: null };
     }
     const states = [...new Set(hits.map(i => placeOf(i).state))];
     const where = states.length <= 3 ? states.join(", ") : states.length + " states";
@@ -199,5 +209,5 @@
   window.TaxMap = {
     setPrefix, lookup, setHover,
     zipAt(clientX, clientY, reach) { const i = nearest(clientX, clientY, reach); return i >= 0 ? zips[i] : null; },
-    hoverAt(clientX, clientY) { setHover(nearest(clientX, clientY, 14)); return hover >= 0; }, zoomIn() { target.s *= 3; kick(); }, replayIntro() { introStart = performance.now(); kick(); } };
+    hoverAt(clientX, clientY) { setHover(nearest(clientX, clientY, 24)); return hover >= 0; }, zoomIn() { target.s *= 3; kick(); }, replayIntro() { introStart = performance.now(); kick(); } };
 })();
