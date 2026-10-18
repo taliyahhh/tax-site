@@ -31,20 +31,20 @@
   const target = { x: D.width / 2, y: D.height / 2, s: 1 }; // where we're animating to
   let introStart = performance.now();
   let raf = null;
-  let focusY = 0;
+  let settled = false; // after the intro, the logo moves up and the map shrinks into the middle band
+  let mix = 0;          // 0 = map fills the screen, 1 = map fits the middle band (animated)
   let hover = -1;                    // dot under the pointer
   let last = { s: 1, ox: 0, oy: 0 }; // last drawn transform, for turning a click into a zip
 
-  function baseScale() {
-    // fit the whole country; on phones fit it into the middle band
-    const h = W < 820 ? H * 0.42 : H;
+  function baseScale(m = mix) {
+    // fit the whole country into the full screen, or into the middle band once things settle
+    const h = H + (band().h - H) * m;
     return Math.min(W / D.width, h / D.height) * 0.94;
   }
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = canvas.clientWidth; H = canvas.clientHeight;
-    if (!focusY) focusY = H / 2;
     if (prefix) fit(hits);
     canvas.width = W * dpr; canvas.height = H * dpr;
     kick();
@@ -58,20 +58,18 @@
       if (ys[i] < y0) y0 = ys[i]; if (ys[i] > y1) y1 = ys[i];
     }
     // Fit the matches into the band of screen left open between the logo and the zip box
-    const band = focusBand();
     const w = Math.max(x1 - x0, 4), h = Math.max(y1 - y0, 4);
-    const b = baseScale();
+    const b = baseScale(1);
     target.x = (x0 + x1) / 2; target.y = (y0 + y1) / 2;
-    target.s = Math.min((W * 0.8) / (w * b), (band.h * 0.85) / (h * b), 12);
+    target.s = Math.min((W * 0.8) / (w * b), (band().h * 0.85) / (h * b), 12);
   }
 
-  // While typing, the logo moves up and the zip box moves down; the map focuses in between.
-  function focusBand() {
-    if (W < 820) return { cy: H * 0.44, h: H * 0.42 };   // phones: the map always sits between logo and zip box
-    if (!prefix) return { cy: H / 2, h: H };
-    const top = H * (W < 700 ? 0.2 : 0.22), bottom = H * (W < 700 ? 0.62 : 0.66);
+  // The open space between the logo (moved up) and the zip box (moved down)
+  function band() {
+    const top = H * (W < 820 ? 0.17 : 0.2), bottom = H * (W < 820 ? 0.6 : 0.68);
     return { cy: (top + bottom) / 2, h: bottom - top };
   }
+  const wantMix = () => (settled || prefix ? 1 : 0);
 
   function matches() {
     if (!prefix) return [];
@@ -140,9 +138,10 @@
     ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, W, H);
 
+    mix += (wantMix() - mix) * k;
     const s = baseScale() * view.s;
-    focusY += (focusBand().cy - focusY) * k;
-    const ox = W / 2 - view.x * s, oy = focusY - view.y * s;
+    const cy = H / 2 + (band().cy - H / 2) * mix;
+    const ox = W / 2 - view.x * s, oy = cy - view.y * s;
     last = { s, ox, oy };
     const r = Math.max(1, Math.min(1.1 + view.s * 0.18, 4));
     const hitSet = prefix ? new Set(hits) : null;
@@ -175,7 +174,7 @@
       const p = placeOf(hover);
       marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#fff2a0", "#1d1d1d");
     }
-    if (moving || intro < 1 || Math.abs(focusBand().cy - focusY) > 0.5) kick();
+    if (moving || intro < 1 || Math.abs(wantMix() - mix) > 0.001) kick();
   }
 
   function marker(px, py, radius, label, bg, fg) {
@@ -208,6 +207,7 @@
 
   window.TaxMap = {
     setPrefix, lookup, setHover,
+    settle() { settled = true; kick(); },
     zipAt(clientX, clientY, reach) { const i = nearest(clientX, clientY, reach); return i >= 0 ? zips[i] : null; },
     hoverAt(clientX, clientY) { setHover(nearest(clientX, clientY, 24)); return hover >= 0; }, zoomIn() { target.s *= 3; kick(); }, replayIntro() { introStart = performance.now(); kick(); } };
 })();

@@ -98,6 +98,11 @@
   const logo = $("logo");
   logo.innerHTML = [...logo.textContent].map((ch, i) => `<span style="--i:${i}" aria-hidden="true">${ch}</span>`).join("");
 
+  // ---- Intro: the logo plays its animation over the map, holds a beat, then moves up out of the way ----
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function settle() { landing.classList.add("settled"); TaxMap.settle(); }
+  setTimeout(settle, reducedMotion ? 0 : 3200);
+
   // ---- Zip entry ----
   let current = null; // lookup result for a complete zip
 

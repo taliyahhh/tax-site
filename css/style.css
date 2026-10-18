@@ -67,8 +67,8 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .logo-wrap { position: relative; transition: transform 0.5s cubic-bezier(.3, 1.3, .5, 1); }
 .zip-form { transition: transform 0.5s cubic-bezier(.3, 1.3, .5, 1); }
 /* While typing, the logo shrinks to the top and the zip box drops to the bottom so the map shows through */
-.landing.typing .logo-wrap { transform: translateY(-25vh) scale(0.42); }
-.landing.typing .zip-form { transform: translateY(20vh); }
+.landing.typing .logo-wrap, .landing.settled .logo-wrap { transform: translateY(-25vh) scale(0.42); }
+.landing.typing .zip-form, .landing.settled .zip-form { transform: translateY(21vh); }
 .landing.leaving { animation: leave 0.45s ease-in forwards; }
 @keyframes leave { to { opacity: 0; transform: scale(1.08); } }
 .logo {
@@ -409,10 +409,9 @@ body:not(.on-results) .site-foot { display: none; }
   .frame { padding: 14px; border-width: 10px; }
   .level-line { font-size: 19px; }
   .sticker { width: 74px; top: -95%; left: -2%; }
-  /* Phones: logo at the top, zip box at the bottom, the map gets the middle of the screen */
-  .landing-center { place-content: space-between center; padding-block: 56px 64px; }
-  .landing.typing .logo-wrap { transform: scale(0.8); }
-  .landing.typing .zip-form { transform: none; }
+  /* Phones: after the intro, logo to the top, zip box to the bottom, map in the middle */
+  .landing.typing .logo-wrap, .landing.settled .logo-wrap { transform: translateY(-23vh) scale(0.8); }
+  .landing.typing .zip-form, .landing.settled .zip-form { transform: translateY(19vh); }
 }
 
 @media (prefers-reduced-motion: reduce) {
