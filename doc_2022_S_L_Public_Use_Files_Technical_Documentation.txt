@@ -1,0 +1,465 @@
+                      Federal, State, and Local Governments
+                         2022 State and Local Government Finances
+                                  Technical Documentation
+
+
+Individual Unit Data File (Public Use Format)
+
+This is an ASCII fixed length text file. It contains amount for each finance item code within each
+government unit for all respondents and non-respondents in the sample. This large file can be useful
+for programming and database applications.
+
+For 2022, the file name is 2022FinEstDAT_07152026modp.txt and contains a standard 32-character
+public-use format record layout. It is about 46 megabytes. Below is a detailed record layout for the
+file.
+
+
+ Characteristic             Value
+ File Type                  ASCII
+
+ Rec Length                 32 characters
+
+ Data Fields per Record     1 (each record shows an amount for one item code for one government)
+
+ Record Type                Fixed Length, No Delimiter
+
+
+        Description                                             Positions   Length   Value
+      ID (positions 1-2 = FIPS state, position 3 = type,
+    1 positions 4-6 = FIPS county or county-type area where       1-12          12 Char
+      government is located, positions 7-12 = unit identifier
+    2 Item code                                                  13-15           3 Char
+        Amount (in thousands of dollars; 1027008 represents
+    3                                                            16-27          12 Num
+        $1,027,008,000)
+    4 Year of data                                               28-31           4 Char
+    5 Imputation type/item data flag                               32            1 Char
+Public-use Format File (State by level of estimate)
+
+This file is an ASCII fixed length text file. It contains aggregated estimates of item codes by level of
+estimate for each state.
+
+For 2022, the file name is 22statetypepu.txt and contains a standard 35-character format record
+layout. It is about 1 megabyte. Below is a detailed record layout for the file.
+
+        Description                                            Positions     Length      Value
+    1 FIPS state code                                             1-2             2 Char
+    2 Level of estimate code                                       3              1 Char
+    3 Item code                                                   5-7             3 Char
+    4 Amount (in thousands of dollars)                           9-20            12 Num
+    5 Coefficient of variation                                  23-32            10 Num
+    6 Last two digits of survey year                            34-35             2 Char
+
+State code – see “State Code Definitions” below.
+
+
+                                         Level of Estimate Codes
+
+                 Level Code                                                Description
+
+                      1                       State and local government total
+
+                      2                       State government total
+
+                      3                       Local government total
+
+                      5                       County government total
+
+                      6                       City/municipality government total
+
+                      7                       Township government total
+
+                      8                       Special district government total
+
+                      9                       School district government total
+PID Directory Information File (Basic identifier information for corresponding finance survey)
+
+This file is an ASCII fixed length text file. It contains basic identifier information for each unit of
+government in the corresponding individual unit file in the annual finance survey.
+
+For 2022, the file name is Fin_PID_2022.txt and contains a standard 146-character public-use format
+record layout. It is about 13 megabytes. Below is a detailed record layout for the file.
+
+         Description                                             Positions   Length      Value
+       ID (positions 1-2 = FIPS state, position 3 = type,
+     1 positions 4-6 = FIPS county or county-type area where        1-12          12 Char
+       government is located, positions 7-12 = unit identifier
+     2 ID name                                                     13-76          64 Char
+     3 County name                                                77-111          35 Char
+     4 FIPS place code                                            112-116          5 Char
+     5 Population                                                 117-125          9 Num
+     6 Population year                                            126-127          2 Char
+     7 Enrollment                                                 128-134          7 Num
+     8 Enrollment year                                            135-136          2 Char
+     9 Function code for special districts                        137-138          2 Char
+   10 School level code                                           139-140          2 Char
+   11 Fiscal year ending                                          141-144          4 Char
+   12 Survey year                                                 145-146          2 Char
+ FIPS=Federal Information Processing Standards
+State Code Definitions
+
+                           State Abbreviations (used in first two digits of ID)
+
+              State Name                      Abbreviation                        FIPS State Code
+United States                                     US                                    00
+Alabama                                           AL                                    01
+Alaska                                            AK                                    02
+Arizona                                           AZ                                    04
+Arkansas                                          AR                                    05
+California                                        CA                                    06
+Colorado                                          CO                                    08
+Connecticut                                       CT                                    09
+Delaware                                          DE                                    10
+District of Columbia                              DC                                    11
+Florida                                            FL                                   12
+Georgia                                           GA                                    13
+Hawaii                                             HI                                   15
+Idaho                                              ID                                   16
+Illinois                                           IL                                   17
+Indiana                                            IN                                   18
+Iowa                                               IA                                   19
+Kansas                                            KS                                    20
+Kentucky                                          KY                                    21
+Louisiana                                         LA                                    22
+Maine                                             ME                                    23
+Maryland                                          MD                                    24
+Massachusetts                                     MA                                    25
+Michigan                                           MI                                   26
+Minnesota                                         MN                                    27
+Mississippi                                       MS                                    28
+Missouri                                          MO                                    29
+Montana                                           MT                                    30
+Nebraska                                          NE                                    31
+Nevada                                            NV                                    32
+New Hampshire                                     NH                                    33
+New Jersey                                        NJ                                    34
+New Mexico                                        NM                                    35
+New York                                           NY                               36
+North Carolina                                     NC                               37
+North Dakota                                       ND                               38
+Ohio                                               OH                               39
+Oklahoma                                           OK                               40
+Oregon                                             OR                               41
+Pennsylvania                                       PA                               42
+Rhode Island                                       RI                               44
+South Carolina                                     SC                               45
+South Dakota                                       SD                               46
+Tennessee                                          TN                               47
+Texas                                              TX                               48
+Utah                                               UT                               49
+Vermont                                            VT                               50
+Virginia                                           VA                               51
+Washington                                         WA                               53
+West Virginia                                      WV                               54
+Wisconsin                                          WI                               55
+Wyoming                                            WY                               56
+
+
+
+                     Individual Unit – Type of Government Codes (3rd digit of ID)
+
+                 Type Code                                        Description
+
+                    0                      State
+
+                    1                      County
+
+                    2                      City
+
+                    3                      Township
+
+                    4                      Special District
+
+                    5                      Independent School District or Educational Service Agency
+Below are item codes and their titles, as included in the Census of Governments Finance survey data
+files. Additional information about these codes, as well as descriptions and definitions, can be found in the
+https://www2.census.gov/govs/pubs/classification/2006_classification_manual.pdf
+
+
+                                     Item Codes and Short Descriptions
+
+ Item Code                                             Description
+19U          Beg LT Debt O/S NEC
+29U          LTD ISS-Unsp-Other NEC
+39U          LTD Ret-Unsp-Other NEC
+49U          LTD Debt O/S-Unsp-Other NEC
+61V          Short Term Debt O/S-Beginning
+64V          Short Term Debt O/S-End of FY
+A01          Air Transportation Charges
+A03          Misc Comrcial Act NEC Charges
+A09          Elem Sec Ed Sch Lunch Charges
+A10          Elem Sec Educ Tuition and Transportation Charges
+A12          Elem Sec Educ NEC Charges
+A16          Higher Educ Auxiliary Charges
+A18          Higher Educ Tuition Charges
+A21          Education Other State Charges NEC
+A36          Hospital Charges
+A44          Regular Highway Charges
+A45          Toll Highway Charges
+A50          Housing & Comm Dev Charges
+A59          Nat Resources NEC Charges
+A60          Parking Facilities Charges
+A61          Parks & Recreation Charges
+A80          Sewerage Charges
+A81          Solid Waste Charges
+A87          Water Trans & Terminal Charges
+A89          All Other NEC Charges
+A90          Liquor Stores Revenue
+A91          Water Utilities Revenue
+A92          Electric Utilities Revenue
+A93          Gas Utilities Revenue
+A94          Transit Utilities Revenue
+B01          Federal IG Air Transportation
+B21          Federal IG Education
+B22   Federal IG Emp Security Admin 1/
+B30   Federal IG General Support
+B42   Federal IG Health & Hospitals
+B46   Federal IG Highways
+B50   Fed IG Housing & Comm Dev
+B59   Fed IG Other Natural Resources
+B79   Fed IG Public Welfare
+B80   Federal IG Sewerage
+B89   Federal IG Other
+C89   State IG Other
+D11   School Intergovernmental - Interschool System
+D21   Local IG Education
+D30   Local IG General Support
+D42   Local IG Health & Hospitals
+D46   Local IG Highways
+D50   Local IG Housing & Comm Dev
+D79   Local IG Public Welfare
+D80   Local IG Sewerage
+D89   Local IG Other
+E01   Air Trans Current Operation
+E03   Misc Comm Act-Current Oper
+E04   Correction Insts-Current Oper
+E05   Correction NEC-Current Oper
+E12   Elem Sec Educ-Current Oper
+E16   Higher Education-Aux-Cur Oper
+E18   Higher Educ Current Operation
+E21   State Education-NEC-Current Oper
+E22   Employment Sec Admin-Cur Op 1/
+E23   Financial Adm-Curr Operation
+E24   Local Fire Protection Curr Operation
+E25   Judicial-Current Operation
+E29   Central Staff-Curr Operation
+E31   General Public Bldg-Curr Oper
+E32   Health-Current Operation
+E36   Hospitals-Current Oper
+E44   Regular Highways-Current Oper
+E45   Toll Highways-Current Oper
+E50   Housing & Comm Dev-Curr Oper
+E52   Libraries-Current Operation
+E59   Natural Resources NEC-Cur Op
+E60   Parking-Current Operation
+E61   Parks & Rec-Current Operation
+E62   Police Protection-Current Oper
+E66   Protective Inspection-Curr Op
+E77   Welfare Insts-Curr Operation
+E79   Welfare NEC-Current Operation
+E80   Sewerage-Current Operation
+E81   Solid Waste Mgt - Current Oper
+E85   State Veterans' Assistance-Current Op
+E87   Water Transport-Current Oper
+E89   General NEC-Current Operation
+E90   Liquor Stores-Current Oper
+E91   Water Utilities-Current Oper
+E92   Electric Utilities-Current Op
+E93   Gas Utilities-Current Oper
+E94   Transit Utilities-Current Op
+F01   Air Trans Construction
+F03   Misc Comm Act-Construction
+F04   Correction Insts-Construction
+F05   Correction-NEC-Construction
+F12   Elem Sec Educ-Construction
+F16   Higher Education-Aux-Constr
+F18   Higher Educ Construction
+F21   State Education-NEC-Construction
+F22   Employment Sec Adm-Const
+F23   Financial Adm-Construction
+F24   Local Fire Protection Construction
+F25   Judicial-Construction
+F29   Central Staff-Construction
+F31   General Public Bldg-Constr
+F32   Health-Construction
+F36   Hospitals-Construction
+F44   Regular Highways-Construction
+F45   Toll Highways-Construction
+F50   Housing & Comm Dev-Constr
+F52   Libraries-Construction
+F59   Natural Resources NEC-Constr
+F60   Parking-Construction
+F61   Parks & Rec-Construction
+F62   Police Protection-Construction
+F66   Protective Inspection-Constr
+F77   Welfare Insts-Construction
+F79   Welfare NEC-Construction
+F80   Sewerage-Construction
+F81   Solid Waste Mgt-Construction
+F85   State Veterans' Assistance-Construction
+F87   Water Transport-Construction
+F89   General NEC-Construction
+F90   Liquor Stores-Construction
+F91   Water Utilities-Construction
+F92   Electric Utilities-Constr
+F93   Gas Utilities-Construction
+F94   Transit Utilities-Construction
+I89   General Interest on Debt
+I91   Water Utilities-Interest
+I92   Electric Utilities-Interest
+I93   Gas Utilities-Interest on Debt
+I94   Transit Utilities-Interest
+J19   Scholarships & Other Subsidies
+L89   General NEC-IG to State
+M01   Air Trans IG to Local NEC
+M04   Correctional Instituions IG to Local
+M05   Correction-NEC-IG to Local NEC
+M12   Elem Sec Educ-IG to Local NEC
+M18   Higher Educ IG to Local NEC
+M21   State Education-NEC-IG to Local NEC
+M23   Financial Adm-IG-Local NEC
+M25   Judicial-IG to Local NEC
+M29   Central Staff-IG to Local NEC
+M30   General Support-IG-Local NEC
+M32   Health-IG to Local NEC
+M36   Hospitals-IG to Local
+M44   Regular Highways-IG-Local Nec
+M50   Housing & Comm Dev-IG-Loc NEC
+M52   Libraries-IG to Local NEC
+M59   Natural Rec NEC-IG-Local NEC
+M60   Parking-IG to Local NEC
+M61   Parks & Rec-IG to Local NEC
+M62   Police Protect-IG to Local NEC
+M66   Protective Insp-IG-Local Nec
+M79   Welfare NEC-IG to Local NEC
+M80   Sewerage-IG to Local NEC
+M81   Solid Waste Mgt-IG to Locl NEC
+M87   Water Transport-IG-Local NEC
+M89   General NEC-IG-Local NEC
+Q12   Elem Sec Educ-State IG to Sch Dists (Was this ever decided?)
+Q18   Higher Educ State IG to Sch Dists
+S89   General NEC-IG to Federal
+T01   Property Tax
+T09   Total General Sales Taxes
+T10   Alcoholic Beverage Sales Tax
+T11   Amusement Tax
+T12   Insurance Premium Tax
+T13   Motor Fuels Sales Tax
+T14   Parimutuels Tax
+T15   Public Utilities Tax
+T16   Tobacco Sales Tax
+T19   Other Selective Sales Taxes
+T20   Alcoholic Beverage License Tax
+T21   Amusement License Tax
+T22   Corporation License Tax
+T23   Hunting & Fishing License
+T24   Motor Vehicle License
+T25   Motor Vehicle Operators Lic
+T27   Public Utility License Tax
+T28   Occup & Business License, NEC
+T29   Other License Tax
+T40   Indiv Income Tax
+T41   Corporation Net Income Tax
+T50   Death & Gift Tax
+T51   Documentary & Stock Trans Tax
+T53   Severance Tax
+T99   Taxes, NEC
+U01   Special Assessments
+U11   Sale of Property 2/
+U20   Interest Earnings
+U30   Fines & Forfeits
+U40   Rents
+U41   Royalties
+U50   Donations From Private Sources
+U95   Net Lottery Revenue
+U99   Misc General Revenue NEC
+Y01   Unemployment-Contribution
+Y02   Unemployment-Interest Revenue
+Y04   Unemployment-Federal Advances
+Y05   Unemployment-Benefit Payments
+Y06   Unemployment-Ext & Spec Pmts
+Y07   Unemployment-Bal In US Treas
+Y08   Unempl-Other Bal-Pos or Neg
+Y11   Workers Comp-Other Contribs
+Y12   Workers Comp-Interest Earnings
+Y14   Workers Comp-Benefit Pmts
+Y21   'Workers Comp-Cash & Assets
+Y51   Other In Trst-Other Ctrb
+Y52   Other In Trust-Interest Rev
+Y53   Other Ins Trst-Benefit Paymts
+Y61   Other Ins Trust-Cash&Deposits
+Function Code for Special Districts
+  Indicates type of service provided; this field applies only to special districts (records with type=4).
+       01         Air transportation (airports)
+       02         Cemeteries
+       03         Miscellaneous commercial activities
+       04         Correctional institutions
+       05         Other corrections
+       09         Education (school building authorities)
+       24         Fire protection
+       32         Health
+       40         Hospitals
+       41         Industrial development
+       42         Mortgage credit
+       44         Regular highways
+       45         Toll highways
+       50         Housing and community development
+       51         Drainage
+       52         Libraries
+       59         Other natural resources
+       60         Parking facilities
+       61         Parks and recreation
+       62         Police protection
+       63         Flood control
+       64         Irrigation
+       77         Public welfare institutions
+       79         Other public welfare
+       80         Sewerage
+       81         Solid waste management
+       86         Reclamation
+       87         Sea and inland port facilities
+       88         Soil and water conservation
+       89         Other single-function districts
+       91         Water supply utility
+       92         Electric power utility
+       93         Gas supply utility
+       94         Mass transit system utility
+       96         Fire protection and water supply - combination of services
+       97         Natural resources and water supply - combination of services
+       98         Sewerage and water supply - combination of services
+       99         Other multifunction districts
+                                     Imputation Type/Item Data Flags
+
+    Flags                                                Description
+
+      A        Analyst correction
+
+      I        Imputed
+
+      M        Unknown
+
+      N        Not applicable
+
+      R        Reported
+
+      S        Alternative source
+
+
+
+ Sources and Contacts
+
+An important information source for detailed definitions, classification issues, etc. is the
+https://www2.census.gov/govs/pubs/classification/2006_classification_manual.pdf
+
+For information about the tables, data files, or the state and local government finance survey program,
+users can contact the Census Bureau:
+
+Govs.Finstaff@Census.Gov
+
+The telephone number is (800) 242-4523. The address is:
+
+ Local Finance and Statistics Branch
+ Economy Wide-Statistics Division
+ U.S. Census Bureau
+ Washington, DC 20233-6800
+

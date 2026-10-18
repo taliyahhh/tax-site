@@ -1,0 +1,40 @@
+330000227533NEW HAMPSHIRE                                                                                             136627522             063022
+331001130730BELKNAP COUNTY                                                  Belknap                            99001    6155122             123122
+331003193707CARROLL COUNTY                                                  Carroll                            99003    4916722             123122
+331005169994CHESHIRE COUNTY                                                 Cheshire                           99005    7622822             123122
+331007169995COOS COUNTY                                                     Coos                               99007    3117422             123122
+331009108941GRAFTON COUNTY                                                  Grafton                            99009    9069122             063022
+331011130731HILLSBOROUGH COUNTY                                             Hillsborough                       99011   41873522             063022
+331013169996MERRIMACK COUNTY                                                Merrimack                          99013   15262222             123122
+331015169997ROCKINGHAM COUNTY                                               Rockingham                         99015   31130722             123122
+331017202147STRAFFORD COUNTY                                                Strafford                          99017   13153322             123122
+331019204916SULLIVAN COUNTY                                                 Sullivan                           99019    4326722             063022
+332001169998LACONIA CITY                                                    Belknap                            40180    1664622             063022
+332005169999KEENE CITY                                                      Cheshire                           39300    2269922             063022
+332007130732BERLIN CITY                                                     Coos                               05140     981322             063022
+332009170000LEBANON CITY                                                    Grafton                            41300    1380822             123122
+332011108944NASHUA CITY                                                     Hillsborough                       50260    8916722             063022
+332011170001MANCHESTER CITY                                                 Hillsborough                       45140   11254622             063022
+332013183890FRANKLIN CITY                                                   Merrimack                          27380     875322             063022
+332013204917CONCORD CITY                                                    Merrimack                          14200    4392422             063022
+332015170002PORTSMOUTH CITY                                                 Rockingham                         62900    2155722             063022
+332017170003ROCHESTER CITY                                                  Strafford                          65140    3171922             063022
+332017202148DOVER CITY                                                      Strafford                          18820    3244322             063022
+332017211223SOMERSWORTH CITY                                                Strafford                          69940    1228622             063022
+332019208735CLAREMONT CITY                                                  Sullivan                           12900    1294422             123122
+333001108946CENTER HARBOR TOWN                                              Belknap                            10660     109722             033122
+333001130733MEREDITH TOWN                                                   Belknap                            47140     647622             123122
+333001170004ALTON TOWN                                                      Belknap                            01060     536422             123122
+333001170005GILFORD TOWN                                                    Belknap                            28740     727822             123122
+333001170006GILMANTON TOWN                                                  Belknap                            28980     379722             123122
+333001170007NEW HAMPTON TOWN                                                Belknap                            51540     223422             123122
+333001170008SANBORNTON TOWN                                                 Belknap                            67300     301222             123122
+333001190878BELMONT TOWN                                                    Belknap                            04740     731422             123122
+333001208736BARNSTEAD TOWN                                                  Belknap                            03220     477722             123122
+333001208737TILTON TOWN                                                     Belknap                            77060     355622             123122
+333003108947JACKSON TOWN                                                    Carroll                            38260      86622             123122
+333003108948TUFTONBORO TOWN                                                 Carroll                            77620     243622             123122
+333003130734BARTLETT TOWN                                                   Carroll                            03700     281422             123122
+333003130735HARTS LOCATION TOWN                                             Carroll                            34500       4522             123122
+333003170009BROOKFIELD TOWN                                                 Carroll                            07940      68822             123122
+333003170010CHATHAM TOWN                                                    Carroll                            11780      36422             123122

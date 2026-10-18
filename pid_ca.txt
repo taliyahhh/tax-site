@@ -1,0 +1,31 @@
+061037123085LOS ANGELES COUNTY                                              Los Angeles                        99037  994304622             063022
+061085183756SANTA CLARA COUNTY                                              Santa Clara                        99085  190710522             063022
+062001123093OAKLAND CITY                                                    Alameda                            53000   42489122             063022
+062037161174LOS ANGELES CITY                                                Los Angeles                        44000  397021922             063022
+062085100745SAN JOSE CITY                                                   Santa Clara                        68000  101361622             063022
+062085161280SANTA CLARA CITY                                                Santa Clara                        69084   13105522             063022
+064001141854OAKLAND CITY HOUSING AUTH                                       Alameda                                                     50  063022
+064001198612OAKLAND-ALAMEDA COUNTY COLISEUM AUTHORITY                       Alameda                                                     61  063022
+064037123314LOS ANGELES COUNTY WEST MOSQUITO AND VECTOR CONTROL DISTRICT    Los Angeles                                                 32  063022
+064037142274LOS ANGELES COUNTY METRO TRANSIT AUTHORITY                      Los Angeles                                                 94  063022
+064037142275LOS ANGELES CITY HOUSING AUTHORITY                              Los Angeles                                                 50  123122
+064037142351LOS ANGELES MEMORIAL COLISEUM COMMISSION                        Los Angeles                                                 61  063022
+064037201010LOS ANGELES HOMELESS SERVICES AUTHORITY                         Los Angeles                                                 79  063022
+064037244905LOS ANGELES REGIONAL INTEROPERABLE COMMUNICATIONS SYSTEM AUTH   Los Angeles                                                 89      22
+064037245668LOS ANGELES CARE HEALTH PLAN JOINT POWERS AUTHORITY             Los Angeles                                                 32  093022
+064085123550SAN JOSE-SANTA CLARA CLEAN WTR FINANCING AUTH                   Santa Clara                                                 80  063022
+064085137513SANTA CLARA VALLEY TRANSPORTATION AUTHORITY                     Santa Clara                                                 94  063022
+064085143034SANTA CLARA CO OPEN SPACE AUTHORITY                             Santa Clara                                                 61  063022
+064085143042SANTA CLARA COUNTY SCHOOLS INSURANCE GROUP                      Santa Clara                                                 09  063022
+064085201443SANTA CLARA VALLEY WATER DISTRICT                               Santa Clara                                                 97  063022
+064085201444SANTA CLARA CO ABAND VEHICLE ABATEMENT SERVICE AUTH             Santa Clara                                                 89  063022
+064085201445SANTA CLARA COUNTY HOUSING AUTHORITY                            Santa Clara                                                 50  063022
+064085224709SANTA CLARA COUNTY LIBRARY JOINT POWERS AUTHORITY               Santa Clara                                                 52  063022
+064085244935SANTA CLARA VALLEY HABITAT AGENCY                               Santa Clara                                                 59      22
+065001101203OAKLAND UNIF SCH DIST                                           Alameda                                              3414925  03063022
+065037101250LOS ANGELES UNIFIED SCH DISTRICT                                Los Angeles                                         42779525  03063022
+065037178241LOS ANGELES COMMUNITY COLLEGE DISTRICT                          Los Angeles                                         11304906  04063022
+065085115952SAN JOSE UNIFIED SCH DIST                                       Santa Clara                                          2545125  03063022
+065085210088SANTA CLARA UNIF SCH DIST                                       Santa Clara                                          1391925  03063022
+065085212724SAN JOSE EVERGREEN COMMUNITY COLLEGE DISTRICT                   Santa Clara                                          1833706  04063022
+065111178499SANTA CLARA ELEM SCH DIST                                       Ventura                                                 5425  01063022

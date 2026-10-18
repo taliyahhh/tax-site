@@ -1,0 +1,56 @@
+                                                                                           07/30/26
+
+
+
+
+             2022 State and Local Finance Public Use Files Disclaimer
+
+Data provided in the attached files are intended to allow data users to see the data that was used to generate
+the estimates published in the 2022 State and Local Finances Summary Table by Level of Government and
+by State. This document is in reference to individual unit data contained in
+2022FinEstDAT_07152026modp.txt and the item code totals contained in 22statetypepu.txt.
+
+
+The individual unit data are edited by analysts solely with the purpose of creating the most accurate
+estimate at the state and type of government level, and should not be viewed as an accurate time series for
+any individual unit. The units in the attached file should be viewed only as inputs that were used to create
+the estimates.
+
+Similarly, item code totals contained in 22statetypepu.txt are generated solely as an input to the aggregates
+contained in the 2022 State and Local Finances Summary Table by Level of Government and State. Only
+aggregates of these item codes are reviewed by analysts, the individual item code totals should not be
+viewed as part of an accurate time series.
+
+If these data are released to others, you may cite the U.S. Census Bureau as the source of the data;
+however, the following reliability and cautionary statements should be included with the release:
+
+• Because the Census Bureau has not reviewed the individual unit data as separate time series, caution must
+be exercised in their use and interpretation.
+
+• Data users who create their own estimates using data from these files should cite the Census Bureau as
+the source of the original data only. The Census Bureau has not sanctioned, conducted, or reviewed any
+analysis using these estimates. Conclusions drawn from any analysis of this data are the sole responsibility
+of the performing party.
+
+• These data may contain high levels of non-sampling error. Non-sampling error can be attributed to many
+sources: errors in coverage of the universe of governments, nonresponse, differences in the interpretation
+of questions, mistakes in the recording and coding of data, and other errors in collection, processing, and
+tabulation of the data. Although no direct measures of non-sampling error are available, steps have been
+taken in all survey processes to minimize their influence.
+
+Individual data units are edited in an effort to reduce response errors and processing errors. Data for
+nonresponse units are imputed in an effort to mitigate the effects of nonresponse. A discussion of the
+methodology and processing used for the Annual Surveys of State and Local Government Finances can be
+found at https://www.census.gov/programs-surveys/gov-finances/technical-documentation.html under the
+‘Annual Survey of State and Local Government Finances Methodology’ tab.
+• Tables explaining the contents of the attached data files are contained in the attached technical
+documentation file (2022 S&L Public Use Files Technical Documentation.pdf).
+                                                                                       07/30/26
+
+
+
+
+• The Census Bureau recommends that any results based on these data should include cautionary
+statements concerning the data limitations and the potential influences of sampling and non-sampling
+errors, as noted above.
+
