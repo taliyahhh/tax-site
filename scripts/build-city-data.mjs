@@ -1,10 +1,15 @@
-// Builds data/cities/<STATE>.js: spending by category for every city, town, and village.
+// Builds the site's generated data:
+//   data/cities/<STATE>.js  every city, town, village, and county in the state, plus which city
+//                           and county each zip code falls in
+//   data/states.js          every state government
+//   data/build-report.txt   what the last run did
 //
 // Sources:
 //   1. U.S. Census Bureau, 2022 Census of Governments, Individual Unit File
 //      Every local government in the country, spending by function (fiscal 2022).
 //   2. California State Controller's Office, City Expenditures (By the Numbers API)
-//      All 482 California cities, fiscal 2023-24. Replaces the Census numbers for California.
+//      All 482 California cities, fiscal 2023-24. Replaces the Census numbers for California cities.
+//   3. U.S. Census Bureau, 2020 ZCTA relationship files (zip code areas to places and counties)
 //
 // Runs on GitHub Actions (see .github/workflows/build-data.yml). Needs Node 18+ and `unzip`.
 //   node scripts/build-city-data.mjs
@@ -20,6 +25,10 @@ fs.mkdirSync(WORK, { recursive: true });
 
 const CENSUS_ZIP = "https://www2.census.gov/programs-surveys/gov-finances/tables/2022/2022_Individual_Unit_File.zip";
 const CA_API = "https://bythenumbers.sco.ca.gov/resource/ju3w-4gxp.json";
+const REL_PLACE = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_place20_natl.txt";
+const REL_COUNTY = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_county20_natl.txt";
+const report = [];
+const log = (...a) => { const line = a.join(" "); console.log(line); report.push(line); };
 const CA_YEAR = "2024"; // fiscal 2023-24, the latest the Controller has published
 
 const FIPS = { "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY" };
@@ -40,6 +49,7 @@ const CENSUS_FUNCTION = {
   "80": "water", "81": "water", "59": "water",             // sewers, garbage, natural resources
   "23": "government", "29": "government", "31": "government", // finance, central staff, public buildings
   "77": "safetynet", "79": "safetynet", "22": "safetynet",
+  "85": "defense",                                         // state veterans' services
   "03": "other", "89": "other"                             // misc commercial activities, everything else
   // Left out: 01 airports, 87 seaports, 90-93 liquor stores and water, electric, and gas utilities.
   // Those are run like businesses and paid mostly by customer fees, not taxes.
@@ -48,7 +58,9 @@ const CENSUS_FUNCTION = {
 function censusCategory(item) {
   if (item === "I89") return "debt";                       // interest on general debt
   if (item === "J19") return "education";                  // scholarships
-  if (!/^[EFGM]\d\d$/.test(item)) return null;
+  if (item === "L89" || item === "S89") return "other";     // payments to the state or federal government
+  // E/F/G = spending, M = payments to local governments, Q = state aid to school districts
+  if (!/^[EFGMQ]\d\d$/.test(item)) return null;
   return CENSUS_FUNCTION[item.slice(1)] || null;
 }
 
@@ -107,29 +119,35 @@ function displayName(raw) {
 function round(n) { return Math.round(n * 10) / 10; }
 
 // ---------- 1. Census ----------
-async function census() {
-  const zip = path.join(WORK, "iuf.zip");
-  if (!fs.existsSync(zip)) {
-    const res = await fetch(CENSUS_ZIP);
-    if (!res.ok) throw new Error("Census download failed: " + res.status);
-    fs.writeFileSync(zip, Buffer.from(await res.arrayBuffer()));
+async function download(url, file) {
+  const dest = path.join(WORK, file);
+  if (!fs.existsSync(dest)) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Download failed (${res.status}): ${url}`);
+    fs.writeFileSync(dest, Buffer.from(await res.arrayBuffer()));
   }
+  return dest;
+}
+
+async function census() {
+  const zip = await download(CENSUS_ZIP, "iuf.zip");
   execSync(`unzip -o -q -j ${zip} -d ${WORK}/census`);
   const files = fs.readdirSync(`${WORK}/census`);
   const pidFile = files.find(f => /^Fin_PID/i.test(f));
   const datFile = files.find(f => /FinEstDAT/i.test(f));
 
-  // Government names: keep municipalities (type 2) and townships (type 3)
+  // Government names. Types: 0 state, 1 county, 2 municipality, 3 township
   const units = new Map();
   for (const line of fs.readFileSync(`${WORK}/census/${pidFile}`, "latin1").split(/\r?\n/)) {
     if (line.length < 120) continue;
     const id = line.slice(0, 12), type = line[2], st = FIPS[line.slice(0, 2)];
-    if (!st || (type !== "2" && type !== "3")) continue;
+    if (!st || !"0123".includes(type)) continue;
     units.set(id, {
       st, type,
+      county: line.slice(3, 6),
+      place: line.slice(111, 116).trim(),
       name: line.slice(12, 76).trim(),
       pop: parseInt(line.slice(116, 125), 10) || 0,
-      fye: line.slice(140, 144).trim(),
       values: {}
     });
   }
@@ -143,6 +161,27 @@ async function census() {
     if (amt) u.values[cat] = (u.values[cat] || 0) + amt;
   }
   return units;
+}
+
+// Zip code area -> list of {geo, land} parts, biggest first, plus each zip's total land area
+async function relationship(url, file, geoCol) {
+  const text = fs.readFileSync(await download(url, file), "utf8");
+  const lines = text.split(/\r?\n/);
+  const head = lines[0].replace(/^\uFEFF/, "").split("|");
+  const iZ = head.indexOf("GEOID_ZCTA5_20"), iG = head.indexOf(geoCol);
+  const iPart = head.indexOf("AREALAND_PART"), iZland = head.indexOf("AREALAND_ZCTA5_20");
+  if (iZ < 0 || iG < 0 || iPart < 0) throw new Error("Unexpected columns in " + file + ": " + head.join(","));
+  const out = new Map();
+  for (let i = 1; i < lines.length; i++) {
+    const c = lines[i].split("|");
+    const z = c[iZ], g = c[iG];
+    if (!z || !g) continue;
+    const e = out.get(z) || { land: Number(c[iZland]) || 0, parts: [] };
+    e.parts.push({ geo: g, land: Number(c[iPart]) || 0 });
+    out.set(z, e);
+  }
+  for (const e of out.values()) e.parts.sort((a, b) => b.land - a.land);
+  return out;
 }
 
 // ---------- 2. California Controller ----------
@@ -184,15 +223,7 @@ async function california() {
   return out;
 }
 
-// ---------- write files ----------
-function writeState(st, entries, meta) {
-  const body = {};
-  for (const e of entries) body[e.key] = e.data;
-  const js = `// Generated by scripts/build-city-data.mjs. Do not edit by hand.\n` +
-    `window.CITY_DATA = window.CITY_DATA || {};\nwindow.CITY_DATA[${JSON.stringify(st)}] = ${JSON.stringify({ meta, cities: body })};\n`;
-  fs.writeFileSync(path.join(OUT, st + ".js"), js);
-}
-
+// ---------- build ----------
 function finish(values) {
   const v = {};
   let total = 0;
@@ -212,36 +243,98 @@ const CA_META = {
 };
 
 const units = await census();
-const byState = {};
+log(`Census: ${units.size} state, county, city, and township governments`);
+
+const S = {}; // per state: { cities, places, counties, zips }
+const stateGov = {};
+const bucket = st => (S[st] ||= { cities: {}, places: {}, counties: {}, zips: {}, meta: CENSUS_META, picked: {} });
+
 for (const u of units.values()) {
   const { values, total } = finish(u.values);
   if (!total) continue;
-  const key = nameKey(u.name);
-  const list = (byState[u.st] ||= {});
-  const prev = list[key];
-  // Prefer a city or village over a town with the same name, then the bigger population
-  if (prev && (prev.type < u.type || (prev.type === u.type && prev.pop >= u.pop))) continue;
-  list[key] = { type: u.type, pop: u.pop, data: { name: displayName(u.name), pop: u.pop, total, values } };
+  if (u.type === "0") {
+    stateGov[u.st] = { name: titleCase(u.name), pop: u.pop, total, values };
+  } else if (u.type === "1") {
+    bucket(u.st).counties[u.county] = { name: titleCase(u.name), pop: u.pop, total, values };
+  } else {
+    const b = bucket(u.st);
+    const key = nameKey(u.name);
+    if (u.type === "2" && u.place) b.places[u.place] = key;
+    const prev = b.picked[key];
+    // Prefer a city or village over a town with the same name, then the bigger population
+    if (prev && (prev.type < u.type || (prev.type === u.type && prev.pop >= u.pop))) continue;
+    b.picked[key] = { type: u.type, pop: u.pop };
+    b.cities[key] = { name: displayName(u.name), pop: u.pop, total, values };
+  }
 }
 
+// California cities: replace with the State Controller's newer numbers
 let caCount = 0;
 try {
   const ca = await california();
-  const list = (byState.CA = {});
+  const b = bucket("CA");
+  const fresh = {};
   for (const [name, raw] of ca) {
     const { values, total } = finish(raw);
     if (!total) continue;
-    list[nameKey(name)] = { type: "2", pop: 0, data: { name, total, values } };
+    const key = nameKey(name);
+    fresh[key] = { name, pop: b.cities[key]?.pop || 0, total, values };
     caCount++;
   }
+  b.cities = fresh;
+  b.meta = CA_META;
+  log(`California Controller: ${caCount} cities, fiscal ${CA_YEAR}`);
 } catch (e) {
-  console.error("California Controller data failed, keeping Census numbers for CA:", e.message);
+  log("California Controller data failed, keeping Census numbers for CA cities:", e.message);
 }
 
-let count = 0;
-for (const [st, list] of Object.entries(byState)) {
-  const entries = Object.entries(list).map(([key, v]) => ({ key, data: v.data }));
-  count += entries.length;
-  writeState(st, entries, st === "CA" && caCount ? CA_META : CENSUS_META);
+// Zip codes -> city (by geography) and county
+const ST_BY_FIPS = FIPS;
+let zipCount = 0, zipCity = 0;
+try {
+  const places = await relationship(REL_PLACE, "rel_place.txt", "GEOID_PLACE_20");
+  const counties = await relationship(REL_COUNTY, "rel_county.txt", "GEOID_COUNTY_20");
+  const allZips = new Set([...places.keys(), ...counties.keys()]);
+  for (const z of allZips) {
+    const c = counties.get(z);
+    const top = c?.parts[0]?.geo;
+    const st = top ? ST_BY_FIPS[top.slice(0, 2)] : null;
+    if (!st || !S[st]) continue;
+    const b = S[st];
+    // The city is the biggest city government covering at least 30% of the zip's land
+    let place = "";
+    const p = places.get(z);
+    if (p) {
+      for (const part of p.parts) {
+        if (part.geo.slice(0, 2) !== top.slice(0, 2)) continue;
+        const code = part.geo.slice(2);
+        const key = b.places[code];
+        if (key && b.cities[key]) { if (!p.land || part.land / p.land >= 0.3) place = code; break; }
+      }
+    }
+    b.zips[z] = place + "," + top.slice(2);
+    zipCount++; if (place) zipCity++;
+  }
+  log(`Zip codes: ${zipCount} matched to a county, ${zipCity} to a city government`);
+} catch (e) {
+  log("Zip code relationship files failed (site will fall back to matching by city name):", e.message);
 }
-console.log(`Wrote ${count} local governments in ${Object.keys(byState).length} states (California Controller: ${caCount}).`);
+
+// ---------- write files ----------
+const GEN = "// Generated by scripts/build-city-data.mjs. Do not edit by hand.\n";
+let cityCount = 0, countyCount = 0;
+for (const [st, b] of Object.entries(S)) {
+  // keep only places whose city survived
+  const places = {};
+  for (const [code, key] of Object.entries(b.places)) if (b.cities[key]) places[code] = key;
+  const zips = Object.entries(b.zips).map(([z, v]) => z + ":" + v).join(";");
+  const body = { meta: b.meta, countyMeta: CENSUS_META, cities: b.cities, places, counties: b.counties, zips };
+  fs.writeFileSync(path.join(OUT, st + ".js"),
+    GEN + `window.CITY_DATA = window.CITY_DATA || {};\nwindow.CITY_DATA[${JSON.stringify(st)}] = ${JSON.stringify(body)};\n`);
+  cityCount += Object.keys(b.cities).length;
+  countyCount += Object.keys(b.counties).length;
+}
+fs.writeFileSync("data/states.js",
+  GEN + `window.STATE_DATA = ${JSON.stringify({ meta: CENSUS_META, states: stateGov })};\n`);
+log(`Wrote ${cityCount} cities and towns, ${countyCount} counties, ${Object.keys(stateGov).length} state governments`);
+fs.writeFileSync("data/build-report.txt", `Built ${new Date().toISOString()}\n` + report.join("\n") + "\n");

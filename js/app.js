@@ -38,19 +38,60 @@
     return nameKey(info.rawCity);
   }
 
+  // "95050:69084,085;94546:,001" -> Map(zip -> [place code, county code])
+  const zipMaps = {};
+  function zipMap(st, file) {
+    if (!zipMaps[st]) {
+      zipMaps[st] = new Map();
+      if (file.zips) for (const part of file.zips.split(";")) {
+        const [z, v] = part.split(":");
+        zipMaps[st].set(z, v.split(","));
+      }
+    }
+    return zipMaps[st];
+  }
+
+  // The local government for a zip: its city if it has one, otherwise its county
   async function findCity(info) {
     const curated = B.cities[info.rawCity + "|" + info.state];
     if (curated) return curated;
     const file = await loadState(info.state);
     if (!file) return null;
-    const key = cityKeyFor(info);
-    const c = file.cities[key];
-    if (!c) return null;
-    const name = key === "NEW YORK" && info.state === "NY" ? "New York City" : c.name;
+
+    const geo = zipMap(info.state, file).get(info.zip); // [place, county] from Census geography
+    let key = null;
+    if (geo && geo[0]) key = file.places[geo[0]];
+    else if (!geo) key = cityKeyFor(info);              // zip not in the geography files (PO boxes): match by name
+    const c = key && file.cities[key];
+    if (c) {
+      const name = key === "NEW YORK" && info.state === "NY" ? "New York City" : c.name;
+      return {
+        name, short: name, period: file.meta.period, unit: 1e6, total: c.total, values: c.values,
+        paidBy: "Mostly local property tax and sales tax, plus state and federal grants and fees.",
+        notes: file.meta.notes, source: file.meta.source
+      };
+    }
+    const county = geo && geo[1] && file.counties[geo[1]];
+    if (!county) return null;
     return {
-      name, short: name, period: file.meta.period, unit: 1e6, total: c.total, values: c.values,
+      name: county.name, short: county.name, period: file.countyMeta.period, unit: 1e6, total: county.total, values: county.values,
+      lead: `No city government covers most of ${info.city}, so ${county.name} provides local services like police and parks.`,
       paidBy: "Mostly local property tax and sales tax, plus state and federal grants and fees.",
-      notes: file.meta.notes, source: file.meta.source
+      notes: file.countyMeta.notes, source: file.countyMeta.source
+    };
+  }
+
+  // A state's own budget if typed into data/budgets.js, otherwise the Census numbers in data/states.js
+  function findState(st) {
+    if (B.states[st]) return B.states[st];
+    const S = window.STATE_DATA;
+    const g = S && S.states[st];
+    if (!g) return null;
+    const name = STATE_NAMES[st] || g.name;
+    return {
+      name, short: name, period: S.meta.period, unit: 1e6, total: g.total, values: g.values,
+      paidBy: "State income, sales, and business taxes, plus federal grants. Includes money the state sends to cities, counties, and school districts.",
+      notes: S.meta.notes.replace("city-run", "government-run"), source: S.meta.source
     };
   }
 
@@ -111,7 +152,7 @@
     if (push) history.pushState(null, "", "?zip=" + zip);
 
     levels = [{ key: "federal", data: B.federal }];
-    const state = B.states[info.state];
+    const state = findState(info.state);
     levels.push(state ? { key: "state", data: state } : { key: "state", missing: STATE_NAMES[info.state] || info.state });
     const city = await findCity(info);
     levels.push(city ? { key: "city", data: city } : { key: "city", missing: info.city });
@@ -146,10 +187,10 @@
     if (lv.missing) {
       if (lv.key === "state") {
         $("level-line").textContent = `We don't have ${lv.missing}'s state budget yet.`;
-        collage.innerHTML = `<p class="empty">State budgets so far: California and New York. Each state takes one entry in <code>data/budgets.js</code>.</p>`;
+        collage.innerHTML = `<p class="empty">This state's data didn't load. Try refreshing the page.</p>`;
       } else {
-        $("level-line").textContent = `We couldn't find a city government for ${lv.missing}.`;
-        collage.innerHTML = `<p class="empty">The post office name for this zip code may not match a city. Many zip codes cover unincorporated areas, where the county provides city services like police and parks.</p>`;
+        $("level-line").textContent = `We couldn't find local government data for ${lv.missing}.`;
+        collage.innerHTML = `<p class="empty">This zip code may be a post office box or a special-use zip code that doesn't map to a city or county.</p>`;
       }
       barely.hidden = true;
       foot.innerHTML = "";
@@ -157,7 +198,7 @@
     }
 
     const d = lv.data;
-    $("level-line").innerHTML = `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
+    $("level-line").innerHTML = `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${d.lead ? escape(d.lead) + " " : ""}${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
     const missing = Collage.render(d, collage, openDetail);
 
     barely.hidden = !missing.length;
