@@ -16,6 +16,8 @@
     place[i] = parseInt(r.slice(11), 36);
     index.set(zips[i], i);
   }
+  const zipZone = new Uint8Array(N);
+  for (let i = 0; i < N; i++) zipZone[i] = zips[i].charCodeAt(0) - 48;
   // Random order for the intro reveal
   const rank = new Float32Array(N);
   for (let i = 0; i < N; i++) rank[i] = Math.random();
@@ -25,7 +27,10 @@
   const ctx = canvas.getContext("2d");
   let W = 0, H = 0, dpr = 1;
 
-  const COLORS = { idle: "#e9e08a", dim: "#5e5a3c", hit: "#fff6b8", bg: "#1d1d1d" };
+  // Light ground with a faint grid (matches the results page). Dots are colored by the first digit
+  // of the zip code: the ten national zip zones, 0 in New England to 9 on the West Coast.
+  const COLORS = { bg: "#f3f4f6", grid: "#e2e6ec", ink: "#111111" };
+  const ZONE = ["#ff2e63", "#ff7a1a", "#f5b700", "#2bb673", "#16a6a0", "#2f8cff", "#3d4dff", "#9b5cff", "#e84fb0", "#7a8f1f"];
   let prefix = "";
   const view = { x: D.width / 2, y: D.height / 2, s: 1 };   // current
   const target = { x: D.width / 2, y: D.height / 2, s: 1 }; // where we're animating to
@@ -138,25 +143,32 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, W, H);
-
+    ctx.fillStyle = COLORS.grid;
+    for (let gx = 0; gx < W; gx += 26) ctx.fillRect(gx, 0, 1, H);
+    for (let gy = 0; gy < H; gy += 26) ctx.fillRect(0, gy, W, 1);
     mix += (wantMix() - mix) * k;
     const s = baseScale() * view.s;
     const cy = H / 2 + (band().cy - H / 2) * mix;
     const ox = W / 2 - view.x * s, oy = cy - view.y * s;
     last = { s, ox, oy };
+    drawStates(s, ox, oy);
     // dots scale with the map so they read at any screen size
     const r = Math.max(W < 820 ? 1 : 1.5, Math.min(baseScale() * 2.1 + view.s * 0.22, 5));
     const hitSet = prefix ? new Set(hits) : null;
 
-    // dim / idle dots first, then the highlighted ones on top
-    ctx.fillStyle = prefix ? COLORS.dim : COLORS.idle;
+    // all dots first (faded when something is selected), then the highlighted ones on top
+    ctx.globalAlpha = prefix ? 0.22 : 1;
+    let zone = -1;
     for (let i = 0; i < N; i++) {
       if (rank[i] > intro) continue;
       if (hitSet && hitSet.has(i)) continue;
       const px = xs[i] * s + ox, py = ys[i] * s + oy;
       if (px < -4 || py < -4 || px > W + 4 || py > H + 4) continue;
+      const z = zipZone[i];
+      if (z !== zone) { zone = z; ctx.fillStyle = ZONE[z]; }
       ctx.fillRect(px, py, r, r);
     }
+    ctx.globalAlpha = 1;
     // An area (3-4 digits): outline it so it stands out even when the map isn't zoomed in
     if (hitSet && prefix.length >= 3 && prefix.length < 5 && hits.length) {
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -167,14 +179,16 @@
       const pad = 14, cx = (x0 + x1) / 2, cyy = (y0 + y1) / 2;
       const rx = Math.max((x1 - x0) / 2 + pad, 24), ry = Math.max((y1 - y0) / 2 + pad, 24);
       ctx.beginPath(); ctx.ellipse(cx, cyy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(255, 46, 99, 0.16)"; ctx.fill();
-      ctx.setLineDash([6, 5]); ctx.lineWidth = 2.5; ctx.strokeStyle = "#ff2e63"; ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(17, 17, 17, 0.06)"; ctx.fill();
+      ctx.setLineDash([6, 5]); ctx.lineWidth = 2.5; ctx.strokeStyle = COLORS.ink; ctx.stroke(); ctx.setLineDash([]);
     }
     if (hitSet) {
-      ctx.fillStyle = COLORS.hit;
       const hr = r + (prefix.length === 5 ? 6 : prefix.length >= 3 ? 2 : 0.8);
       for (const i of hits) {
         const px = xs[i] * s + ox, py = ys[i] * s + oy;
+        ctx.fillStyle = COLORS.ink;
+        ctx.fillRect(px - hr / 2 - 1, py - hr / 2 - 1, hr + 2, hr + 2);
+        ctx.fillStyle = ZONE[zipZone[i]];
         ctx.fillRect(px - hr / 2, py - hr / 2, hr, hr);
       }
     }
@@ -182,23 +196,40 @@
     const picked = prefix.length === 5 && hits.length ? hits[0] : -1;
     if (picked >= 0) {
       const p = placeOf(picked);
-      marker(xs[picked] * s + ox, ys[picked] * s + oy, 22, titleCase(p.city) + ", " + p.state, "#ff2e63", "#fff");
+      marker(xs[picked] * s + ox, ys[picked] * s + oy, 22, titleCase(p.city) + ", " + p.state, COLORS.ink, "#fff");
     }
     // The dot under the pointer: a smaller ring with its zip and town
     if (hover >= 0 && hover !== picked) {
       const p = placeOf(hover);
-      marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#fff2a0", "#1d1d1d");
+      marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#fff2a0", COLORS.ink);
     }
     if (moving || intro < 1 || Math.abs(wantMix() - mix) > 0.001) kick();
   }
 
+  // State borders (data/states-lines.js): the country's outline, then the lines between states
+  function drawStates(sc, ox, oy) {
+    const L = window.STATE_LINES;
+    if (!L) return;
+    const stroke = (lines, width, color) => {
+      ctx.beginPath();
+      for (const l of lines) {
+        ctx.moveTo(l[0] * sc + ox, l[1] * sc + oy);
+        for (let j = 2; j < l.length; j += 2) ctx.lineTo(l[j] * sc + ox, l[j + 1] * sc + oy);
+      }
+      ctx.lineWidth = width; ctx.strokeStyle = color; ctx.lineJoin = "round"; ctx.stroke();
+    };
+    stroke(L.inner, 1, "rgba(17, 17, 17, 0.28)");
+    stroke(L.outer, 1.6, "rgba(17, 17, 17, 0.55)");
+  }
+
   function marker(px, py, radius, label, bg, fg) {
-    ctx.strokeStyle = bg; ctx.lineWidth = radius > 15 ? 4 : 3;
+    ctx.strokeStyle = COLORS.ink; ctx.lineWidth = radius > 15 ? 4 : 3;
     ctx.beginPath(); ctx.arc(px, py, radius, 0, Math.PI * 2); ctx.stroke();
-    ctx.font = (radius > 15 ? "800 18px" : "700 15px") + " Archivo, sans-serif";
+    ctx.font = (radius > 15 ? "700 16px" : "700 13px") + " 'IBM Plex Mono', monospace";
     const tw = ctx.measureText(label).width, h = radius > 15 ? 30 : 24;
     let lx = px + radius + 8;
     if (lx + tw + 20 > W - 8) lx = px - radius - 8 - tw - 20; // flip to the left near the right edge
+    ctx.fillStyle = COLORS.ink; ctx.fillRect(lx - 2, py - h / 2 - 2, tw + 24, h + 4);
     ctx.fillStyle = bg; ctx.fillRect(lx, py - h / 2, tw + 20, h);
     ctx.fillStyle = fg; ctx.fillText(label, lx + 10, py + (radius > 15 ? 6 : 5));
   }
