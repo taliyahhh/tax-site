@@ -38,7 +38,7 @@ To use a different filename or color, edit `data/categories.js`.
 
 ### Using GIFs
 
-To make a category move, add an `anim` field pointing at a GIF (transparent background works best), for example `anim: "assets/gifs/roads.gif"` in `data/categories.js`. The still PNG stays as the fallback for people with "reduce motion" turned on.
+The moving images in `assets/gifs/` are real-photo GIPHY stickers (credits in `assets/gifs/CREDITS.md`). To swap one, replace the file or change the `anim` field pointing at a GIF (transparent background works best), for example `anim: "assets/gifs/roads.gif"` in `data/categories.js`. The still PNG stays as the fallback for people with "reduce motion" turned on.
 
 ## Categories
 
