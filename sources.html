@@ -28,7 +28,11 @@
 
     <!-- the sources live in their own folder -->
     <div class="file" data-level="sources">
-    <div class="levels file-tabs"><span class="level-btn" data-level="sources" aria-current="page">Sources <span class="tab-name">every receipt</span></span></div>
+    <div class="levels file-tabs" style="--rows: 2">
+      <div class="sheet" data-level="city" style="--row: 2" aria-hidden="true"></div>
+      <div class="sheet" data-level="state" style="--row: 1" aria-hidden="true"></div>
+      <div class="sheet" data-level="sources" style="--row: 0"><span class="level-btn" data-level="sources" aria-current="page">Sources <span class="tab-name">every receipt</span></span></div>
+    </div>
     <div class="folder">
     <div class="frame">
       <p class="level-line">Every number on this site comes from a government agency's own published data. Federal, California, and New York numbers are typed in from official reports. Every other state, city, town, and county is pulled automatically from public datasets once a month.</p>

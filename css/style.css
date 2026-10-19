@@ -297,58 +297,83 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .file[data-level="city"] { --folder: var(--city); }
 .file[data-level="sources"] { --folder: var(--sources); }
 
-/* tabs sit along the top edge at left, middle, and right, like a box of third-cut folders */
+/* ---- The stack of folders ----
+   Each folder is a "sheet": its tab plus a strip of folder body. Folders further back
+   sit higher and a little narrower, so you see their edges stepping up behind the front one.
+   --row 0 is the front folder; JS sets it, and the sheets slide into place. */
 .levels.file-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  padding: 0 18px;
+  --T: 52px;  /* tab height */
+  --S: 22px;  /* how much of each folder behind peeks out */
   position: relative;
+  z-index: 3;
+  display: block;
+  height: calc(var(--T) + var(--rows, 2) * var(--S));
+  padding: 0;
 }
-.level-btn:nth-child(1) { justify-self: start; }
-.level-btn:nth-child(2) { justify-self: center; }
-.level-btn:nth-child(3) { justify-self: end; }
+.sheet {
+  position: absolute;
+  left: calc(var(--row, 0) * 12px);
+  right: calc(var(--row, 0) * 12px);
+  top: calc((var(--rows, 2) - var(--row, 0)) * var(--S));
+  bottom: 0;
+  z-index: calc(10 - var(--row, 0));
+  pointer-events: none;
+  transition: top .45s cubic-bezier(.3,1.2,.5,1), left .45s cubic-bezier(.3,1.2,.5,1), right .45s cubic-bezier(.3,1.2,.5,1);
+}
+.sheet[data-level="federal"], .level-btn[data-level="federal"] { --c: var(--federal); }
+.sheet[data-level="state"], .level-btn[data-level="state"] { --c: var(--state); }
+.sheet[data-level="city"], .level-btn[data-level="city"] { --c: var(--city); }
+.sheet[data-level="sources"], .level-btn[data-level="sources"] { --c: var(--sources); }
+/* the strip of folder body under each tab */
+.sheet::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: calc(var(--T) - 1px); bottom: 0;
+  background: var(--tex), var(--c);
+  border-radius: 7px 7px 0 0;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.42), 0 -3px 6px rgba(60,40,20,.13);
+  filter: brightness(calc(1 - var(--row, 0) * 0.04));
+}
+/* the tab: card-stock with rounded shoulders; Nation left, State middle, City right */
 .level-btn {
-  position: relative;
-  z-index: 1; /* folders in back sit behind the front folder */
+  position: absolute;
+  top: 0;
+  height: var(--T);
+  pointer-events: auto;
   isolation: isolate;
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
-  min-height: 52px;
-  padding: 13px 36px 12px;
+  padding: 0 34px;
   border: 0;
   background: none;
   color: #262422;
   font: 400 23px var(--hand);
   letter-spacing: 0.01em;
   white-space: nowrap;
-  filter: brightness(0.9);
-  transform: translateY(12px);
-  transition: transform .2s cubic-bezier(.3,1.4,.5,1), filter .2s;
   cursor: pointer;
+  transition: transform .2s cubic-bezier(.3,1.4,.5,1);
 }
-/* the tab itself: a card-stock trapezoid with rounded shoulders */
+.level-btn[data-level="federal"] { left: 2.5%; }
+.level-btn[data-level="state"] { left: 50%; translate: -50% 0; }
+.level-btn[data-level="city"] { right: 2.5%; }
+.level-btn[data-level="sources"] { left: 2.5%; }
 .level-btn::before {
   content: "";
   position: absolute;
-  inset: 0 0 -4px;
+  inset: 0 0 -2px;
   z-index: -1;
-  background: var(--tex), var(--tab, var(--federal));
+  background: var(--tex), var(--c);
   border-radius: 12px 12px 0 0;
-  transform: perspective(80px) rotateX(10deg);
+  transform: perspective(80px) rotateX(9deg);
   transform-origin: 50% 100%;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 -2px 6px rgba(60,40,20,.14);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 -2px 5px rgba(60,40,20,.13);
+  filter: brightness(calc(1 - var(--row, 0) * 0.04));
 }
-.level-btn[data-level="state"] { --tab: var(--state); }
-.level-btn[data-level="city"] { --tab: var(--city); }
-.level-btn[data-level="sources"] { --tab: var(--sources); }
-.level-btn[aria-current="page"] { transform: none; filter: none; z-index: 3; cursor: default; }
-.level-btn[aria-current="page"]::before { inset: 0 0 -10px; box-shadow: inset 0 2px 0 rgba(255,255,255,.45); }
-.level-btn:hover { transform: translateY(5px); filter: brightness(0.96); }
-.level-btn[aria-pressed="true"] { transform: none; filter: none; z-index: 3; }
-.level-btn[aria-pressed="true"]::before { inset: 0 0 -10px; box-shadow: inset 0 2px 0 rgba(255,255,255,.45); }
+.level-btn:not([aria-pressed="true"]):not([aria-current]):hover { transform: translateY(-5px); }
+.level-btn[aria-pressed="true"], .level-btn[aria-current="page"] { cursor: default; }
 .level-btn .tab-name { font: 400 16px var(--hand); color: #555; }
-.level-btn.is-missing { opacity: .75; }
+.level-btn.is-missing .tab-kind { opacity: .7; }
 .level-btn.is-missing .tab-name { text-decoration: line-through; }
 
 /* the front folder: card stock, with the papers inside it */
@@ -356,9 +381,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   position: relative;
   z-index: 2;
   background: var(--tex), var(--folder);
-  border-radius: 3px 3px 8px 8px;
+  border-radius: 0 0 8px 8px;
   padding: 34px clamp(12px, 2.4vw, 30px) 26px;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.4), inset 0 -3px 0 rgba(90,60,30,.12), 0 18px 30px rgba(30,20,10,.16);
+  box-shadow: inset 0 -3px 0 rgba(90,60,30,.12), 0 18px 30px rgba(30,20,10,.16);
   transition: background-color .3s;
 }
 /* the two pressed fold lines along the top of real file folders */
@@ -390,20 +415,11 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 84'%3E%3Cpath d='M9 76V14a6 6 0 0 1 12 0v54a9 9 0 0 1-18 0V22' fill='none' stroke='%23888' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
   pointer-events: none;
 }
-/* the other folders, stacked underneath the front one */
-.file::after {
-  content: "";
-  position: absolute;
-  left: 12px; right: -10px; top: 60px; bottom: -12px;
-  z-index: 1;
-  background: var(--tex), #c4bdb0;
-  border-radius: 6px;
-  box-shadow: 0 10px 20px rgba(30,20,10,.12);
-}
-.folder.pull-a { animation: pullA .55s cubic-bezier(.3,1.3,.5,1); }
-.folder.pull-b { animation: pullB .55s cubic-bezier(.3,1.3,.5,1); }
-@keyframes pullA { 0% { transform: translateY(-46px) rotate(-.8deg); } 55% { transform: translateY(6px) rotate(.2deg); } 100% { transform: none; } }
-@keyframes pullB { 0% { transform: translateY(-46px) rotate(.8deg); } 55% { transform: translateY(6px) rotate(-.2deg); } 100% { transform: none; } }
+/* switching: old papers lift out, new ones drop in */
+.folder > .frame { transition: opacity .17s ease, transform .4s cubic-bezier(.3,1.25,.5,1); }
+.folder.swapping > .frame { opacity: 0; transform: translateY(-10px) rotate(-.25deg); transition: opacity .15s ease, transform .17s ease-in; }
+.folder.settling > .frame { animation: dropIn .42s cubic-bezier(.3,1.25,.5,1); }
+@keyframes dropIn { from { opacity: 0; transform: translateY(16px) rotate(.3deg); } to { opacity: 1; transform: none; } }
 
 /* The collage spreads out across the whole page, no box around it */
 .frame {
@@ -603,8 +619,8 @@ body:not(.on-results) .site-foot { display: none; }
   .results-head { grid-template-columns: auto 1fr; align-items: start; }
   .results-head .place { grid-column: 1 / -1; grid-row: 2; }
   .levels { justify-content: flex-start; }
-  .levels.file-tabs { padding: 0 4px; }
-  .level-btn { padding: 11px 18px 10px; font-size: 19px; min-height: 44px; }
+  .levels.file-tabs { --T: 46px; --S: 16px; }
+  .level-btn { padding: 0 16px; font-size: 19px; }
   .level-btn .tab-name { font-size: 14px; }
   .level-line { font-size: 23px; }
 }
@@ -621,7 +637,7 @@ body:not(.on-results) .site-foot { display: none; }
 }
 
 @media (max-width: 480px) {
-  .level-btn { padding: 11px 16px 10px; }
+  .level-btn { padding: 0 14px; }
   .level-btn .tab-name { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -270,7 +270,11 @@
 
     const nav = $("levels");
     nav.innerHTML = "";
+    // One "sheet" per folder: its tab plus the strip of folder that peeks out of the stack
     levels.forEach((lv, i) => {
+      const sheet = document.createElement("div");
+      sheet.className = "sheet";
+      sheet.dataset.level = lv.key;
       const b = document.createElement("button");
       b.type = "button";
       b.className = "level-btn" + (lv.missing ? " is-missing" : "");
@@ -278,9 +282,11 @@
       const kind = { federal: "Nation", state: "State", city: "City" }[lv.key];
       const name = lv.data ? lv.data.short : lv.missing;
       b.innerHTML = `<span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
-      b.addEventListener("click", () => { if (i !== active) { pullFolder(); pick(i); } });
-      nav.appendChild(b);
+      b.addEventListener("click", () => switchTo(i));
+      sheet.appendChild(b);
+      nav.appendChild(sheet);
     });
+    stackFolders(0);
 
     landing.hidden = true;
     results.hidden = false;
@@ -315,18 +321,40 @@
       });
     } catch (e) {}
   }
-  let flip = false;
-  function pullFolder() {
+  // Put folder `front` at the front of the stack; the rest line up behind it
+  function stackFolders(front) {
+    const order = [front, ...levels.map((_, i) => i).filter(i => i !== front)];
+    const sheets = [...$("levels").children];
+    order.forEach((idx, row) => sheets[idx] && sheets[idx].style.setProperty("--row", row));
+    $("levels").style.setProperty("--rows", sheets.length - 1);
+  }
+
+  // Switching folders: the tabs slide to their new places in the stack, the papers
+  // fade out, the new papers are laid in, then they settle. The folder keeps its
+  // height during the swap so the page doesn't jump.
+  let swapTimer = 0, settleTimer = 0;
+  function switchTo(i) {
+    if (i === active) return;
     paperSound();
+    stackFolders(i);
     const f = $("folder");
-    f.classList.remove("pull-a", "pull-b");
-    flip = !flip;
-    f.classList.add(flip ? "pull-a" : "pull-b");
+    $("file").dataset.level = levels[i].key;
+    clearTimeout(swapTimer); clearTimeout(settleTimer);
+    f.style.minHeight = f.offsetHeight + "px";
+    f.classList.remove("settling");
+    f.classList.add("swapping");
+    active = i;
+    swapTimer = setTimeout(() => {
+      pick(i);
+      f.classList.remove("swapping");
+      f.classList.add("settling");
+      settleTimer = setTimeout(() => { f.style.minHeight = ""; f.classList.remove("settling"); }, 500);
+    }, 170);
   }
 
   function pick(i) {
     active = i;
-    [...$("levels").children].forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+    [...$("levels").querySelectorAll(".level-btn")].forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
     $("file").dataset.level = levels[i].key;
     const lv = levels[i];
     const collage = $("collage"), barely = $("barely"), foot = $("level-foot");
