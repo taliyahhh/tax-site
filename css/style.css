@@ -129,21 +129,39 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 }
 
 /* Stuck on the upper left corner, just touching the "F" without covering it */
-/* catchphrase under the logo: hand-lettered on a strip of yellow tape */
+/* catchphrase under the logo: just handwriting, with a yellow marker swipe and a little footprint */
 .tagline {
   display: table;
-  margin: calc(var(--L) * 0.12) auto 0;
-  padding: 0.15em 0.7em 0.2em;
-  background: var(--hot);
-  border: 2px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
-  font: 400 calc(var(--L) * 0.34) var(--hand);
+  position: relative;
+  margin: calc(var(--L) * 0.1) auto 0;
+  padding: 0 0.2em 0 1.25em;
+  font: 400 max(17px, calc(var(--L) * 0.26)) var(--hand);
   line-height: 1.2;
   white-space: nowrap;
+  color: var(--ink);
+  /* paper-colored halo so it reads over the map dots */
+  text-shadow: 0 0 3px var(--map-bg), 0 0 6px var(--map-bg), 0 0 10px var(--map-bg);
   rotate: -2deg;
-  filter: url(#hand);
   animation: popIn .5s cubic-bezier(.3,1.4,.5,1) calc(0.45s + 4.6 * 0.38s) both;
   transition: opacity .3s;
+}
+.tagline::before { /* the footprint */
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 1em; height: 1em;
+  translate: 0 -50%;
+  background: url("../assets/icons/icon-192.png") center / contain no-repeat;
+}
+.tagline::after { /* yellow marker swipe under the words */
+  content: "";
+  position: absolute;
+  left: 1.1em; right: 0; bottom: 0.08em;
+  height: 0.38em;
+  background: var(--hot);
+  border-radius: 0.2em 0.5em 0.3em 0.6em;
+  z-index: -1;
+  rotate: -0.6deg;
 }
 .landing.typing .tagline, .landing.settled .tagline { opacity: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
