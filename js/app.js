@@ -104,7 +104,7 @@
   // Measures the real sizes on this screen: the logo (with its sticker) tucks into the top,
   // the zip box sits at the bottom above the map buttons, and the map gets the space between.
   // Wide but short screens (a phone turned sideways) put the zip box on the right instead.
-  const logoWrap = document.querySelector(".logo-wrap"), sticker = document.querySelector(".sticker");
+  const logoWrap = document.querySelector(".logo-wrap");
   const zipForm = $("zip-form");
   function placeLanding() {
     if (landing.hidden) return;
@@ -114,10 +114,10 @@
     const side = W > H * 1.3 && H < 600;
     const pad = 12;
 
-    // Logo box including the sticker poking out of its corner (offset sizes ignore transforms)
+    // Logo box (offset sizes ignore transforms)
     const lw = logoWrap.offsetWidth, lh = logoWrap.offsetHeight;
     const lcx = logoWrap.offsetLeft + lw / 2, lcy = logoWrap.offsetTop + lh / 2;
-    const top = Math.min(0, sticker.offsetTop), left = Math.min(0, sticker.offsetLeft);
+    const top = 0, left = 0;
     const fullH = lh - top, fullW = lw - left;
     let scale = Math.min(narrow ? 0.8 : 0.42, (H * (side ? 0.3 : 0.17)) / fullH, (W - pad * 2) / fullW);
     if (side) scale = Math.min(scale, (W * 0.36) / fullW);
@@ -289,19 +289,9 @@
     pick(0);
   }
 
-  // ---- Folders: switching levels pulls that folder to the front, with a paper sound ----
-  let soundOn = true;
-  try { soundOn = localStorage.getItem("fff-sound") !== "off"; } catch (e) {}
-  const soundBtn = $("sound");
-  function showSound() { soundBtn.textContent = soundOn ? "Sound on" : "Sound off"; soundBtn.setAttribute("aria-pressed", String(soundOn)); }
-  showSound();
-  soundBtn.addEventListener("click", () => {
-    soundOn = !soundOn; showSound();
-    try { localStorage.setItem("fff-sound", soundOn ? "on" : "off"); } catch (e) {}
-  });
+  // ---- Folders: switching levels pulls that folder to the front, with a soft paper-sifting sound ----
   let audioCtx = null;
   function paperSound() {
-    if (!soundOn) return;
     try {
       const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
       audioCtx = audioCtx || new C();

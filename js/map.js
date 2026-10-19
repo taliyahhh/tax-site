@@ -29,7 +29,7 @@
 
   // Light ground with a faint grid (matches the results page). Dots are colored by the first digit
   // of the zip code: the ten national zip zones, 0 in New England to 9 on the West Coast.
-  const COLORS = { bg: "#f3f4f6", grid: "#e2e6ec", ink: "#111111" };
+  const COLORS = { bg: "#f4f1e8", grid: "#e4ddcd", ink: "#111111" };
   const ZONE = ["#ff2e63", "#ff7a1a", "#f5b700", "#2bb673", "#16a6a0", "#2f8cff", "#3d4dff", "#9b5cff", "#e84fb0", "#7a8f1f"];
   let prefix = "";
   const view = { x: D.width / 2, y: D.height / 2, s: 1 };   // current

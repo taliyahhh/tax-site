@@ -19,6 +19,11 @@
 </head>
 <body>
 
+  <!-- Shared "drawn by hand" wobble for boxes and buttons, so the UI matches the logo -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="hand"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  </svg>
+
   <!-- ============ LANDING: the map ============ -->
   <section id="landing" class="landing" aria-label="Enter your zip code">
     <canvas id="map" class="map" aria-hidden="true"></canvas>
@@ -63,15 +68,7 @@
             </g>
           </svg>
         </h1>
-        <div class="sticker" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <defs><path id="ring" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
-            <circle cx="100" cy="100" r="96" class="sticker-edge"/>
-            <circle cx="100" cy="100" r="58" class="sticker-core"/>
-            <text class="sticker-text"><textPath href="#ring" textLength="462" lengthAdjust="spacing">where did my tax dollars go? &#8226; where did it go? &#8226;</textPath></text>
-          </svg>
-          <img src="assets/cutouts/interest.png" alt="">
-        </div>
+        <p class="tagline">Every dollar leaves a footprint.</p>
       </div>
 
       <form id="zip-form" class="zip-form" autocomplete="off">
@@ -97,7 +94,6 @@
         <p class="place-zip" id="place-zip">95050</p>
         <p class="place-name" id="place-name">Santa Clara, California</p>
       </div>
-      <button type="button" id="sound" class="back sound-btn" aria-pressed="true">Sound on</button>
     </header>
 
     <!-- The results are a stack of file folders: one per level of government -->
