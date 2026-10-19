@@ -206,7 +206,7 @@
     // The dot under the pointer: a smaller ring with its zip and town
     if (hover >= 0 && hover !== picked) {
       const p = placeOf(hover);
-      marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#fff2a0", COLORS.ink);
+      marker(xs[hover] * s + ox, ys[hover] * s + oy, 12, zips[hover] + " " + titleCase(p.city) + ", " + p.state, "#eaff3a", COLORS.ink);
     }
     if (moving || intro < 1 || Math.abs(wantMix() - mix) > 0.001) kick();
   }
