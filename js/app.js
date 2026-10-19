@@ -195,6 +195,9 @@
     results.hidden = true;
     landing.hidden = false;
     document.body.classList.remove("on-results");
+    // Start fresh: clear the old zip and zoom back out to the whole map
+    input.value = "";
+    update();
     input.focus({ preventScroll: true });
   }
 
