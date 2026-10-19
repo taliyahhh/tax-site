@@ -476,16 +476,24 @@ body:not(.on-results) .site-foot { display: none; }
 .map-sources:hover { background: #e6e1b0; color: var(--night); }
 .site-foot a { color: inherit; font-weight: 700; }
 
-.map-reset {
+.map { touch-action: none; cursor: grab; }
+.map-controls {
   position: absolute;
   z-index: 2;
   left: max(16px, env(safe-area-inset-left, 0px));
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  font: 700 14px var(--sans);
+  display: flex;
+  gap: 6px;
+}
+.map-btn {
+  min-width: 36px;
+  height: 36px;
+  font: 800 18px var(--sans);
   color: var(--night);
   background: #e6e1b0;
   border: 1.5px solid #e6e1b0;
-  padding: 6px 12px;
+  padding: 0 10px;
   cursor: pointer;
 }
-.map-reset:hover { background: #fff2a0; }
+.map-btn:hover { background: #fff2a0; }
+.map-reset { font-size: 14px; font-weight: 700; }

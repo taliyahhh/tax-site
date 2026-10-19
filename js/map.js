@@ -94,7 +94,7 @@
   }
 
   function describe() {
-    if (!prefix) return { text: "Every dot is a zip code. Tap the map, or type yours.", zip: null };
+    if (!prefix) return { text: "Every dot is a zip code. Drag or zoom the map, then tap a spot.", zip: null };
     if (!hits.length) return { text: "No zip codes start with " + prefix + ".", zip: null };
     if (prefix.length === 5) {
       const p = placeOf(hits[0]);
@@ -217,10 +217,77 @@
   }
   function setHover(i) { if (i !== hover) { hover = i; kick(); } }
 
+  // ---- Pan and zoom: drag to move around, scroll / pinch / buttons to zoom ----
+  const MIN_S = 0.8, MAX_S = 40;
+  const pointers = new Map();
+  let downAt = null, dragged = false, onNavigate = () => {};
+
+  function centerY() { return H / 2 + (band().cy - H / 2) * mix; }
+  function clampAndSync() {
+    view.x = Math.min(Math.max(view.x, 0), D.width);
+    view.y = Math.min(Math.max(view.y, 0), D.height);
+    target.x = view.x; target.y = view.y; target.s = view.s;
+    onNavigate(view.s);
+    kick();
+  }
+  // Zoom by factor f, keeping the spot under (x, y) in place
+  function zoomAt(x, y, f) {
+    const s0 = baseScale() * view.s;
+    const mx = view.x + (x - W / 2) / s0, my = view.y + (y - centerY()) / s0;
+    view.s = Math.min(Math.max(view.s * f, MIN_S), MAX_S);
+    const s1 = baseScale() * view.s;
+    view.x = mx - (x - W / 2) / s1;
+    view.y = my - (y - centerY()) / s1;
+    clampAndSync();
+  }
+  function panBy(dx, dy) {
+    const s0 = baseScale() * view.s;
+    view.x -= dx / s0; view.y -= dy / s0;
+    clampAndSync();
+  }
+  function local(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+  canvas.addEventListener("pointerdown", e => {
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, local(e));
+    if (pointers.size === 1) { downAt = local(e); dragged = false; }
+  });
+  canvas.addEventListener("pointermove", e => {
+    const prev = pointers.get(e.pointerId);
+    if (!prev) return;
+    const cur = local(e);
+    if (pointers.size === 1) {
+      if (!dragged && Math.hypot(cur.x - downAt.x, cur.y - downAt.y) > 6) dragged = true;
+      if (dragged) { panBy(cur.x - prev.x, cur.y - prev.y); canvas.style.cursor = "grabbing"; }
+    } else if (pointers.size === 2) {
+      // pinch: zoom by the change in finger distance, pan by the change in their midpoint
+      const other = [...pointers.entries()].find(([id]) => id !== e.pointerId)[1];
+      const d0 = Math.hypot(prev.x - other.x, prev.y - other.y), d1 = Math.hypot(cur.x - other.x, cur.y - other.y);
+      const m0 = { x: (prev.x + other.x) / 2, y: (prev.y + other.y) / 2 }, m1 = { x: (cur.x + other.x) / 2, y: (cur.y + other.y) / 2 };
+      if (d0 > 0) zoomAt(m1.x, m1.y, d1 / d0);
+      panBy(m1.x - m0.x, m1.y - m0.y);
+      dragged = true;
+    }
+    pointers.set(e.pointerId, cur);
+  });
+  const release = e => { pointers.delete(e.pointerId); if (!pointers.size) canvas.style.cursor = ""; };
+  canvas.addEventListener("pointerup", release);
+  canvas.addEventListener("pointercancel", release);
+  canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const p = local(e);
+    zoomAt(p.x, p.y, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)));
+  }, { passive: false });
+
   window.addEventListener("resize", resize);
   resize();
 
   window.TaxMap = {
+    didDrag: () => dragged,
+    isPanning: () => pointers.size > 0 && dragged,
+    zoomLevel: () => view.s,
+    zoomBy(f) { zoomAt(W / 2, centerY(), f); },
+    onNavigate(fn) { onNavigate = fn; },
     setPrefix, lookup, setHover,
     settle() { settled = true; kick(); },
     zipAt(clientX, clientY, reach) { const i = nearest(clientX, clientY, reach); return i >= 0 ? zips[i] : null; },

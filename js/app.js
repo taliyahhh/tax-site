@@ -124,10 +124,10 @@
   const mapCanvas = document.getElementById("map");
   let hoverFrame = 0;
   mapCanvas.addEventListener("pointermove", e => {
-    if (e.pointerType !== "mouse") return;
+    if (e.pointerType !== "mouse" || TaxMap.isPanning()) return;
     cancelAnimationFrame(hoverFrame);
     hoverFrame = requestAnimationFrame(() => {
-      mapCanvas.style.cursor = TaxMap.hoverAt(e.clientX, e.clientY) ? "pointer" : "default";
+      mapCanvas.style.cursor = TaxMap.hoverAt(e.clientX, e.clientY) ? "pointer" : "grab";
     });
   });
   mapCanvas.addEventListener("pointerleave", () => TaxMap.setHover(-1));
@@ -139,13 +139,15 @@
   let lastPointer = "mouse";
   mapCanvas.addEventListener("pointerdown", e => { lastPointer = e.pointerType; });
   mapCanvas.addEventListener("click", e => {
+    if (TaxMap.didDrag()) return; // that was a drag to move the map, not a click
     const zip = TaxMap.zipAt(e.clientX, e.clientY, lastPointer === "mouse" ? 24 : 40);
     if (!zip) return;
     TaxMap.setHover(-1);
     settle();
     const area = zip.slice(0, 3);
     const inArea = input.value.length >= 3 && input.value.slice(0, 3) === area;
-    if (inArea) {
+    const zoomedIn = TaxMap.zoomLevel() >= 3; // already zoomed in by hand: one click picks the town
+    if (inArea || zoomedIn) {
       input.value = zip;
       update();
       go.focus({ preventScroll: true });
@@ -158,6 +160,13 @@
 
   // "Whole map" button resets the zoom
   $("map-reset").addEventListener("click", () => { input.value = ""; update(); });
+  $("zoom-in").addEventListener("click", () => TaxMap.zoomBy(1.8));
+  $("zoom-out").addEventListener("click", () => TaxMap.zoomBy(1 / 1.8));
+  // Moving or zooming the map by hand moves the logo out of the way and offers "Whole map"
+  TaxMap.onNavigate(level => {
+    settle();
+    $("map-reset").hidden = input.value.length === 0 && level < 1.2;
+  });
 
   // Typing anywhere on the landing page goes into the zip box
   document.addEventListener("keydown", e => {
