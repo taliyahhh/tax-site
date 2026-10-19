@@ -1,4 +1,4 @@
-# Taxonomy
+# Fee Fi Fo Fund
 
 *Where did your tax dollars go?* Type a zip code on the map, then see a collage of what the federal government, your state, and your city spent money on.
 
@@ -7,7 +7,7 @@ Plain HTML, CSS, and JavaScript. No build step, nothing to install.
 ## How it works
 
 1. **The map.** Every dot is a US zip code (about 41,000). As you type digits, the matching zip codes light up and the map zooms in. At five digits it circles your town.
-2. **The collage.** Each spending category is a tile with a cutout image. Bigger tiles mean more money. The big number is how many dollars out of every $100 went there. Tap a tile to compare all three levels of government.
+2. **The collage.** Each spending category is a loose, floating object scattered across the page (no boxes). Bigger objects mean more money. The big number is how many dollars out of every $100 went there. Each object is a looping psychedelic animation that melts, shifts color, and trails neon echoes. Tap one to compare all three levels of government.
 
 ## Files
 
@@ -15,12 +15,13 @@ Plain HTML, CSS, and JavaScript. No build step, nothing to install.
 index.html               the page
 css/style.css            all styling (colors at the top under :root)
 js/map.js                the landing map and zip typing
-js/collage.js            builds the category tiles
+js/collage.js            builds and scatters the floating objects
 js/app.js                page flow: map -> results, level tabs, popup
 data/categories.js       the categories: name, image, color, description
 data/budgets.js          the money: federal, California, and cities
 data/zips.js             every US zip code with its map position (generated, don't edit by hand)
-assets/cutouts/          category images
+assets/cutouts/          category images (still PNGs)
+assets/trippy/           animated versions of the cutouts (made by scripts/make-trippy.py)
 assets/fonts/            Shrikhand + Archivo (both free, OFL license)
 ```
 
@@ -35,6 +36,20 @@ The images in `assets/cutouts/` are **stand-ins** (Microsoft Fluent Emoji 3D, MI
 3. Save it over the old file with the same name (for example `assets/cutouts/roads.png`). Done. No code changes needed.
 
 To use a different filename or color, edit `data/categories.js`.
+
+### Making them trippy (the animations)
+
+After you save a new cutout, turn it into its animated version:
+
+```
+pip install pillow numpy
+python3 scripts/make-trippy.py roads.png     # one image
+python3 scripts/make-trippy.py               # all of them (about 1 to 2 minutes each)
+```
+
+This writes `assets/trippy/roads.webp`, an animated image that plays like a GIF but keeps clean transparent edges. The site uses it automatically and falls back to the PNG if it's missing. Found a real GIF you'd rather use? Add `anim: "assets/whatever.gif"` to that category in `data/categories.js`. Tweak the look (wobble, color drift, echo colors, speed) at the top of the script.
+
+People with "reduce motion" turned on in their device settings see the still PNGs instead.
 
 ## Categories
 
@@ -64,10 +79,10 @@ State budgets are typed in from each state's official report. Add one under `sta
 
 ## Put it on GitHub
 
-1. github.com > **New repository** > name it (e.g. `taxonomy`) > Public > Create.
+1. github.com > **New repository** > name it (e.g. `fee-fi-fo-fund`) > Public > Create.
 2. Click **uploading an existing file**, drag in everything in this folder (keep the folders), commit.
 3. **Settings > Collaborators > Add people** and invite your teammate.
-4. **Settings > Pages** > Source: **Deploy from a branch** > `main`, `/ (root)` > Save. In a minute or two it's live at `https://<username>.github.io/taxonomy/`.
+4. **Settings > Pages** > Source: **Deploy from a branch** > `main`, `/ (root)` > Save. In a minute or two it's live at `https://<username>.github.io/fee-fi-fo-fund/`.
 
 Working together: pull before you start, commit small changes often, and use a branch + pull request for big experiments. GitHub Desktop makes this easy if you haven't used git before.
 

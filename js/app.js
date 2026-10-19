@@ -94,9 +94,11 @@
     };
   }
 
-  // ---- Logo: split letters so they can drop in one by one ----
+  // ---- Logo: split into words so they stomp in one by one, like giant footsteps ----
   const logo = $("logo");
-  logo.innerHTML = [...logo.textContent].map((ch, i) => `<span style="--i:${i}" aria-hidden="true">${ch}</span>`).join("");
+  logo.innerHTML = logo.textContent.trim().split(/\s+/)
+    .map((w, i) => `<span class="word" style="--i:${i}" aria-hidden="true">${w}</span>` + (i === 1 ? "<br>" : " "))
+    .join("");
 
   // ---- Intro: the logo plays its animation over the map, holds a beat, then moves up out of the way ----
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -229,6 +231,8 @@
     const collage = $("collage"), barely = $("barely"), foot = $("level-foot");
 
     if (lv.missing) {
+      collage.classList.remove("scatter");
+      collage.style.height = "";
       if (lv.key === "state") {
         $("level-line").textContent = `We don't have ${lv.missing}'s state budget yet.`;
         collage.innerHTML = `<p class="empty">This state's data didn't load. Try refreshing the page.</p>`;
@@ -256,7 +260,7 @@
   // ---- Detail popup: one category across all three levels ----
   const dialog = $("detail");
   function openDetail(cat) {
-    $("detail-img").src = cat.img;
+    $("detail-img").src = Collage.animSrc(cat);
     $("detail-title").textContent = cat.label;
     $("detail-about").textContent = cat.about;
     $("detail-levels").innerHTML = levels.map(lv => {
