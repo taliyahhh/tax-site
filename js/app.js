@@ -106,17 +106,17 @@
   // ---- Zip entry ----
   let current = null; // lookup result for a complete zip
 
-  function update() {
+  function update(zoom = true) {
     const v = input.value.replace(/\D/g, "").slice(0, 5);
     if (v !== input.value) input.value = v;
-    const info = TaxMap.setPrefix(v);
+    const info = TaxMap.setPrefix(v, zoom);
     readout.textContent = info.text;
     current = info.zip ? TaxMap.lookup(info.zip) : null;
     landing.classList.toggle("typing", v.length > 0);
     $("map-reset").hidden = v.length === 0;
     go.disabled = !current;
   }
-  input.addEventListener("input", update);
+  input.addEventListener("input", () => update());
 
   // Or click (tap) a dot on the map to pick that zip code
   const mapCanvas = document.getElementById("map");
@@ -129,25 +129,29 @@
     });
   });
   mapCanvas.addEventListener("pointerleave", () => TaxMap.setHover(-1));
-  // Mouse: a click picks that zip code.
-  // Touch: the first tap zooms into the area (the zip codes sharing its first 3 digits),
-  // the next tap picks a town, since single dots are too small to hit on a phone.
+  // Clicking the map takes two steps:
+  //   1st click: the logo moves up and the area around the click lights up (zip codes sharing
+  //              its first 3 digits), without zooming.
+  //   2nd click in that area: zoom in to the town you clicked and pick its zip code.
+  //   A click outside the lit area lights up the new area instead.
   let lastPointer = "mouse";
   mapCanvas.addEventListener("pointerdown", e => { lastPointer = e.pointerType; });
   mapCanvas.addEventListener("click", e => {
-    const touch = lastPointer !== "mouse";
-    const zip = TaxMap.zipAt(e.clientX, e.clientY, touch ? 40 : 24);
+    const zip = TaxMap.zipAt(e.clientX, e.clientY, lastPointer === "mouse" ? 24 : 40);
     if (!zip) return;
     TaxMap.setHover(-1);
-    if (touch && input.value.length < 3) {
-      input.value = zip.slice(0, 3);
+    settle();
+    const area = zip.slice(0, 3);
+    const inArea = input.value.length >= 3 && input.value.slice(0, 3) === area;
+    if (inArea) {
+      input.value = zip;
       update();
-      readout.textContent += ". Tap your town.";
-      return;
+      go.focus({ preventScroll: true });
+    } else {
+      input.value = area;
+      update(false);
+      readout.textContent += lastPointer === "mouse" ? ". Click again to zoom in." : ". Tap again to zoom in.";
     }
-    input.value = zip;
-    update();
-    go.focus({ preventScroll: true });
   });
 
   // "Whole map" button resets the zoom

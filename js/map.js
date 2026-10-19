@@ -79,10 +79,11 @@
   }
 
   let hits = [];
-  function setPrefix(p) {
+  // zoom = false highlights the matching zip codes without moving the map
+  function setPrefix(p, zoom = true) {
     prefix = p;
     hits = matches();
-    fit(prefix.length >= 1 ? hits : []);
+    fit(zoom && prefix.length >= 1 ? hits : []);
     kick();
     return describe();
   }
@@ -155,9 +156,22 @@
       if (px < -4 || py < -4 || px > W + 4 || py > H + 4) continue;
       ctx.fillRect(px, py, r, r);
     }
+    // An area (3-4 digits): outline it so it stands out even when the map isn't zoomed in
+    if (hitSet && prefix.length >= 3 && prefix.length < 5 && hits.length) {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const i of hits) {
+        const px = xs[i] * s + ox, py = ys[i] * s + oy;
+        if (px < x0) x0 = px; if (px > x1) x1 = px; if (py < y0) y0 = py; if (py > y1) y1 = py;
+      }
+      const pad = 14, cx = (x0 + x1) / 2, cyy = (y0 + y1) / 2;
+      const rx = Math.max((x1 - x0) / 2 + pad, 24), ry = Math.max((y1 - y0) / 2 + pad, 24);
+      ctx.beginPath(); ctx.ellipse(cx, cyy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 46, 99, 0.16)"; ctx.fill();
+      ctx.setLineDash([6, 5]); ctx.lineWidth = 2.5; ctx.strokeStyle = "#ff2e63"; ctx.stroke(); ctx.setLineDash([]);
+    }
     if (hitSet) {
       ctx.fillStyle = COLORS.hit;
-      const hr = r + (prefix.length === 5 ? 6 : 0.8);
+      const hr = r + (prefix.length === 5 ? 6 : prefix.length >= 3 ? 2 : 0.8);
       for (const i of hits) {
         const px = xs[i] * s + ox, py = ys[i] * s + oy;
         ctx.fillRect(px - hr / 2, py - hr / 2, hr, hr);
