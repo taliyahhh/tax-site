@@ -94,11 +94,7 @@
     };
   }
 
-  // ---- Logo: split into words so they stomp in one by one, like giant footsteps ----
-  const logo = $("logo");
-  logo.innerHTML = logo.textContent.trim().split(/\s+/)
-    .map((w, i) => `<span class="word" style="--i:${i}" aria-hidden="true">${w}</span>` + (i === 1 ? "<br>" : " "))
-    .join("");
+  // ---- Logo: an inline SVG in index.html; each word is its own group so it stomps in on its own ----
 
   // ---- Intro: the logo plays its animation over the map, holds a beat, then moves up out of the way ----
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -311,17 +307,21 @@
       audioCtx = audioCtx || new C();
       if (audioCtx.state === "suspended") audioCtx.resume();
       const ctx = audioCtx, t = ctx.currentTime;
-      [0, 0.08].forEach((off, k) => {
-        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.4), ctx.sampleRate);
+      // a few quick, soft rustles in a row: the sound of flipping through papers in a folder
+      [0, 0.07, 0.15, 0.26].forEach((off, k) => {
+        const len = 0.16 + Math.random() * 0.08;
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * len), ctx.sampleRate);
         const d = buf.getChannelData(0);
-        for (let n = 0; n < d.length; n++) d[n] = Math.random() * 2 - 1;
+        for (let n = 0; n < d.length; n++) d[n] = (Math.random() * 2 - 1) * (Math.random() < 0.3 ? 1 : 0.4);
         const src = ctx.createBufferSource(); src.buffer = buf;
-        const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 0.9;
-        bp.frequency.setValueAtTime(900 + k * 700, t + off); bp.frequency.exponentialRampToValueAtTime(3200, t + off + 0.3);
-        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t + off);
-        g.gain.exponentialRampToValueAtTime(k ? 0.12 : 0.22, t + off + 0.03);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.32);
-        src.connect(bp).connect(g).connect(ctx.destination); src.start(t + off); src.stop(t + off + 0.4);
+        const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 0.7;
+        const f0 = 1800 + Math.random() * 1600;
+        bp.frequency.setValueAtTime(f0, t + off); bp.frequency.exponentialRampToValueAtTime(f0 * 1.6, t + off + len);
+        const g = ctx.createGain(); const peak = [0.16, 0.11, 0.09, 0.06][k];
+        g.gain.setValueAtTime(0.0001, t + off);
+        g.gain.exponentialRampToValueAtTime(peak, t + off + 0.025);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + off + len);
+        src.connect(bp).connect(g).connect(ctx.destination); src.start(t + off); src.stop(t + off + len);
       });
     } catch (e) {}
   }

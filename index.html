@@ -10,6 +10,11 @@
   <meta property="og:url" content="https://feefifo.fund/">
   <link rel="canonical" href="https://feefifo.fund/">
   <meta name="description" content="Type your zip code and see where your federal, state, and city tax dollars went.">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#c9d9df">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -20,7 +25,44 @@
 
     <div class="landing-center">
       <div class="logo-wrap">
-        <h1 class="logo" id="logo" aria-label="Fee Fi Fo Fund">Fee Fi Fo Fund</h1>
+        <h1 class="logo" id="logo" aria-label="Fee Fi Fo Fund">
+          <!-- Hand-lettered logo, encased in color. Each word is its own piece so it can stomp in. -->
+          <svg viewBox="0 0 900 420" aria-hidden="true" focusable="false">
+            <defs>
+              <filter id="logo-wob"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="6"/></filter>
+              <g id="lw0"><text x="70" y="190" font-size="140" textLength="225" lengthAdjust="spacingAndGlyphs">FEE</text></g>
+              <g id="lw1"><text x="335" y="190" font-size="140" textLength="120" lengthAdjust="spacingAndGlyphs">FI</text></g>
+              <g id="lw2"><text x="500" y="190" font-size="140" textLength="230" lengthAdjust="spacingAndGlyphs">FO</text></g>
+              <g id="lw3"><text x="230" y="345" font-size="170" textLength="400" lengthAdjust="spacingAndGlyphs">FUND</text></g>
+              <g id="lx"><path transform="translate(790 80) scale(1.5)" d="M0,-30 L7,-10 L28,-9 L11,4 L17,25 L0,13 L-17,25 L-11,4 L-28,-9 L-7,-10 Z"/><path transform="translate(845 175) scale(.85) rotate(15)" d="M0,-30 L7,-10 L28,-9 L11,4 L17,25 L0,13 L-17,25 L-11,4 L-28,-9 L-7,-10 Z"/><circle cx="725" cy="300" r="52"/><circle cx="130" cy="320" r="36"/></g>
+            </defs>
+            <!-- drawn in three passes (black outline, pink case, red ink) so the case flows around every word -->
+            <g filter="url(#logo-wob)" stroke-linejoin="round" font-family="Architects Daughter, cursive">
+              <use href="#lw0" class="word" style="--i:0" fill="#111" stroke="#111" stroke-width="62"/>
+              <use href="#lw1" class="word" style="--i:1" fill="#111" stroke="#111" stroke-width="62"/>
+              <use href="#lw2" class="word" style="--i:2" fill="#111" stroke="#111" stroke-width="62"/>
+              <use href="#lw3" class="word" style="--i:3" fill="#111" stroke="#111" stroke-width="62"/>
+              <use href="#lx" class="extras" style="--i:4" fill="#111" stroke="#111" stroke-width="62"/>
+              <use href="#lw0" class="word" style="--i:0" fill="#ff9fe0" stroke="#ff9fe0" stroke-width="50"/>
+              <use href="#lw1" class="word" style="--i:1" fill="#ff9fe0" stroke="#ff9fe0" stroke-width="50"/>
+              <use href="#lw2" class="word" style="--i:2" fill="#ff9fe0" stroke="#ff9fe0" stroke-width="50"/>
+              <use href="#lw3" class="word" style="--i:3" fill="#ff9fe0" stroke="#ff9fe0" stroke-width="50"/>
+              <use href="#lx" class="extras" style="--i:4" fill="#ff9fe0" stroke="#ff9fe0" stroke-width="50"/>
+              <use href="#lw0" class="word" style="--i:0" fill="#111" stroke="#111" stroke-width="14"/>
+              <use href="#lw0" class="word" style="--i:0" fill="#e8361b" stroke="#e8361b" stroke-width="6"/>
+              <use href="#lw1" class="word" style="--i:1" fill="#111" stroke="#111" stroke-width="14"/>
+              <use href="#lw1" class="word" style="--i:1" fill="#e8361b" stroke="#e8361b" stroke-width="6"/>
+              <use href="#lw2" class="word" style="--i:2" fill="#111" stroke="#111" stroke-width="14"/>
+              <use href="#lw2" class="word" style="--i:2" fill="#e8361b" stroke="#e8361b" stroke-width="6"/>
+              <use href="#lw3" class="word" style="--i:3" fill="#111" stroke="#111" stroke-width="14"/>
+              <use href="#lw3" class="word" style="--i:3" fill="#e8361b" stroke="#e8361b" stroke-width="6"/>
+              <use href="#lx" class="extras" style="--i:4" fill="#111" stroke="#111" stroke-width="14"/>
+              <use href="#lx" class="extras" style="--i:4" fill="#e8361b" stroke="#e8361b" stroke-width="6"/>
+              <text class="extras" style="--i:4" x="725" y="324" text-anchor="middle" font-size="70" fill="#ff9fe0">$</text>
+              <text class="extras" style="--i:4" x="130" y="338" text-anchor="middle" font-size="48" fill="#ff9fe0">$</text>
+            </g>
+          </svg>
+        </h1>
         <div class="sticker" aria-hidden="true">
           <svg viewBox="0 0 200 200">
             <defs><path id="ring" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>

@@ -94,53 +94,23 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .landing.typing .zip-form, .landing.settled .zip-form { transform: var(--form-t, translateY(21vh)); }
 .landing.leaving { animation: leave 0.45s ease-in forwards; }
 @keyframes leave { to { opacity: 0; transform: scale(1.08); } }
-.logo {
-  margin: 0;
-  font-family: var(--display);
-  font-style: italic;
-  font-weight: 900;
-  font-size: var(--L);
-  line-height: 0.92;
-  text-align: center;
-  color: var(--paper);
-  -webkit-text-stroke: 0.035em var(--ink);
-  paint-order: stroke fill;
-  text-shadow:
-    0.045em 0.045em 0 var(--ink),
-    0.085em 0.085em 0 #bdbdbd,
-    0.105em 0.105em 0 var(--ink);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
+@font-face {
+  font-family: "Architects Daughter";
+  src: url("../assets/fonts/ArchitectsDaughter.woff2") format("woff2");
+  font-display: block;
 }
-/* each word stomps down like a giant's footstep, then the whole logo shudders */
-.logo .word {
-  display: inline-block;
+.logo { margin: 0; line-height: 0; }
+.logo svg { display: block; width: min(calc(var(--L) * 5.2), 94vw); height: auto; overflow: visible; }
+/* each word stomps down like a giant's footstep, then the stars and coins pop on, then the whole logo shudders */
+.logo .word, .logo .extras {
+  transform-box: fill-box;
   transform-origin: 50% 100%;
   animation: stomp 0.55s cubic-bezier(.3, 1.4, .5, 1) both;
   animation-delay: calc(0.45s + var(--i) * 0.38s);
 }
-.logo .word:nth-child(odd) { rotate: -3deg; }
-.logo .word:nth-child(even) { rotate: 2.5deg; }
-/* "Fund" sits in a black round badge, like a stamp on the wordmark */
-.logo .word:last-child {
-  font-family: var(--badge);
-  font-style: normal;
-  font-weight: 400;
-  text-transform: uppercase;
-  font-size: 0.6em;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  color: var(--paper);
-  -webkit-text-stroke: 0;
-  text-shadow: none;
-  background: var(--ink);
-  border-radius: 50%;
-  padding: 0.42em 0.34em 0.38em;
-  margin-left: 0.18em;
-  vertical-align: 0.25em;
-  box-shadow: 0.07em 0.07em 0 #bdbdbd, 0.1em 0.1em 0 var(--ink);
-}
-.logo-wrap .logo { animation: shudder 0.32s linear calc(0.45s + 3 * 0.38s + 0.25s) both; }
+.logo .extras { transform-origin: 50% 50%; animation-name: popIn; }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } 70% { transform: scale(1.15); opacity: 1; } to { transform: none; opacity: 1; } }
+.logo-wrap .logo { animation: shudder 0.32s linear calc(0.45s + 4 * 0.38s + 0.2s) both; }
 @keyframes stomp {
   0%   { transform: translateY(-120%) scale(1.25, 0.9); opacity: 0; }
   55%  { transform: translateY(0) scale(1.18, 0.78); opacity: 1; }
