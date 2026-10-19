@@ -103,6 +103,58 @@
   // ---- Intro: the logo plays its animation over the map, holds a beat, then moves up out of the way ----
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function settle() { landing.classList.add("settled"); TaxMap.settle(); }
+
+  // ---- Where the logo and zip box go once the intro is over ----
+  // Measures the real sizes on this screen: the logo (with its sticker) tucks into the top,
+  // the zip box sits at the bottom above the map buttons, and the map gets the space between.
+  // Wide but short screens (a phone turned sideways) put the zip box on the right instead.
+  const logoWrap = document.querySelector(".logo-wrap"), sticker = document.querySelector(".sticker");
+  const zipForm = $("zip-form");
+  function placeLanding() {
+    if (landing.hidden) return;
+    const W = landing.clientWidth, H = landing.clientHeight;
+    if (!W || !H) return;
+    const narrow = W < 820;
+    const side = W > H * 1.3 && H < 600;
+    const pad = 12;
+
+    // Logo box including the sticker poking out of its corner (offset sizes ignore transforms)
+    const lw = logoWrap.offsetWidth, lh = logoWrap.offsetHeight;
+    const lcx = logoWrap.offsetLeft + lw / 2, lcy = logoWrap.offsetTop + lh / 2;
+    const top = Math.min(0, sticker.offsetTop), left = Math.min(0, sticker.offsetLeft);
+    const fullH = lh - top, fullW = lw - left;
+    let scale = Math.min(narrow ? 0.8 : 0.42, (H * (side ? 0.3 : 0.17)) / fullH, (W - pad * 2) / fullW);
+    if (side) scale = Math.min(scale, (W * 0.36) / fullW);
+    // the logo shrinks around its center, so work out where its top (and left) edges land
+    const ty = pad - (lcy + (top - lh / 2) * scale);
+    const tx = side ? pad - (lcx + (left - lw / 2) * scale) : 0;
+    const logoBottom = lcy + (lh / 2) * scale + ty;
+
+    const fw = zipForm.offsetWidth, fh = zipForm.offsetHeight;
+    const fx0 = zipForm.offsetLeft, fy0 = zipForm.offsetTop;
+    let fx = 0, fy, band;
+    if (side) {
+      // zip box on the right, centered top to bottom; map fills the left
+      const formLeft = W - pad - 8 - fw;
+      fx = formLeft - fx0;
+      fy = (H - fh) / 2 - fy0;
+      const bTop = logoBottom + 6, bBottom = H - 56;
+      band = { cx: (pad + formLeft) / 2, w: formLeft - pad * 2, cy: (bTop + bBottom) / 2, h: Math.max(60, bBottom - bTop) };
+    } else {
+      // zip box at the bottom, clear of the +/- and Sources buttons
+      const bottomPad = narrow ? 62 : 16;
+      const formTop = Math.max(logoBottom + 40, H - bottomPad - fh);
+      fy = formTop - fy0;
+      band = { cx: W / 2, w: W, cy: (logoBottom + formTop) / 2, h: Math.max(60, formTop - logoBottom - 12) };
+    }
+    landing.style.setProperty("--logo-t", `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${scale.toFixed(3)})`);
+    landing.style.setProperty("--form-t", `translate(${fx.toFixed(1)}px, ${fy.toFixed(1)}px)`);
+    TaxMap.setBand(band);
+  }
+  placeLanding();
+  if (document.fonts) document.fonts.ready.then(placeLanding);
+  let placeTimer;
+  window.addEventListener("resize", () => { clearTimeout(placeTimer); placeTimer = setTimeout(placeLanding, 60); });
   setTimeout(settle, reducedMotion ? 0 : 3200);
 
   // ---- Zip entry ----
@@ -117,6 +169,7 @@
     landing.classList.toggle("typing", v.length > 0);
     $("map-reset").hidden = v.length === 0;
     go.disabled = !current;
+    placeLanding();
   }
   input.addEventListener("input", () => update());
 
@@ -195,6 +248,7 @@
     results.hidden = true;
     landing.hidden = false;
     document.body.classList.remove("on-results");
+    TaxMap.resize(); // the window may have changed size while the map was hidden
     // Start fresh: clear the old zip and zoom back out to the whole map
     input.value = "";
     update();

@@ -113,13 +113,48 @@
         }
         if (best.score < 0) H *= 1.1; // no room: make the page taller and try again
       }
-      placed.push({ x: best.x, y: best.y, w: it.w, h: it.h });
+      placed.push({ x: best.x, y: best.y, w: it.w, h: it.h, it });
+    });
+
+    // Phones: slide each object up into any empty space above it, so the column
+    // doesn't end up with big blank gaps (left/right positions stay as they were)
+    if (narrow) {
+      const minGap = 14;
+      const byTop = [...placed].sort((a, b) => (a.y - a.h / 2) - (b.y - b.h / 2));
+      const done = [];
+      for (const p of byTop) {
+        let floor = 0;
+        for (const q of done) {
+          const overlapX = Math.abs(p.x - q.x) < (p.w + q.w) / 2 + 4;
+          if (overlapX) floor = Math.max(floor, q.y + q.h / 2 + minGap);
+        }
+        const top = Math.min(p.y - p.h / 2, Math.max(0, floor));
+        p.y = top + p.h / 2;
+        done.push(p);
+      }
+    }
+
+    placed.forEach(p => {
+      const it = p.it;
       Object.assign(it.o.style, {
         width: it.s + "px",
-        left: (best.x - it.s / 2).toFixed(1) + "px",
-        top: (best.y - it.h / 2).toFixed(1) + "px"
+        left: (p.x - it.s / 2).toFixed(1) + "px",
+        top: (p.y - it.h / 2).toFixed(1) + "px"
       });
       it.o.style.setProperty("--s", it.s + "px");
+    });
+
+    // The big price number hangs off one side of each picture; nudge the object
+    // back in if its number would stick out past the edge of the page
+    placed.forEach(p => {
+      const o = p.it.o, num = o.querySelector(".num");
+      if (!num) return;
+      const objLeft = p.x - p.it.s / 2;
+      const l = objLeft + num.offsetLeft - 6, r = l + num.offsetWidth + 12;
+      let shift = 0;
+      if (r > W) shift = W - r;
+      if (l + shift < 0) shift = -l;
+      if (shift) o.style.left = (objLeft + shift).toFixed(1) + "px";
     });
     const bottom = Math.max(...placed.map(p => p.y + p.h / 2));
     container.style.height = Math.ceil(bottom + (narrow ? 40 : 60)) + "px";

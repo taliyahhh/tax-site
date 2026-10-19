@@ -43,13 +43,15 @@
 
   function baseScale(m = mix) {
     // fit the whole country into the full screen, or into the middle band once things settle
-    const h = H + (band().h - H) * m;
-    return Math.min(W / D.width, h / D.height) * 0.97;
+    const b = band();
+    const w = W + (b.w - W) * m, h = H + (b.h - H) * m;
+    return Math.min(w / D.width, h / D.height) * 0.97;
   }
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = canvas.clientWidth; H = canvas.clientHeight;
+    if (!W || !H) return; // hidden (results page showing): measure again when it comes back
     if (prefix) fit(hits);
     canvas.width = W * dpr; canvas.height = H * dpr;
     kick();
@@ -66,13 +68,16 @@
     const w = Math.max(x1 - x0, 4), h = Math.max(y1 - y0, 4);
     const b = baseScale(1);
     target.x = (x0 + x1) / 2; target.y = (y0 + y1) / 2;
-    target.s = Math.min((W * 0.8) / (w * b), (band().h * 0.85) / (h * b), 12);
+    target.s = Math.min((band().w * 0.85) / (w * b), (band().h * 0.85) / (h * b), 12);
   }
 
-  // The open space between the logo (moved up) and the zip box (moved down)
+  // The open space between the logo (moved up) and the zip box (moved down).
+  // js/app.js measures it and passes it in with setBand(); this is the fallback.
+  let measured = null;
   function band() {
-    const top = H * (W < 820 ? 0.15 : 0.16), bottom = H * (W < 820 ? 0.62 : 0.69);
-    return { cy: (top + bottom) / 2, h: bottom - top };
+    if (measured) return measured;
+    const top = H * 0.16, bottom = H * 0.66;
+    return { cx: W / 2, w: W, cy: (top + bottom) / 2, h: bottom - top };
   }
   const wantMix = () => (settled || prefix ? 1 : 0);
 
@@ -148,8 +153,8 @@
     for (let gy = 0; gy < H; gy += 26) ctx.fillRect(0, gy, W, 1);
     mix += (wantMix() - mix) * k;
     const s = baseScale() * view.s;
-    const cy = H / 2 + (band().cy - H / 2) * mix;
-    const ox = W / 2 - view.x * s, oy = cy - view.y * s;
+    const cx = centerX(), cy = centerY();
+    const ox = cx - view.x * s, oy = cy - view.y * s;
     last = { s, ox, oy };
     drawStates(s, ox, oy);
     // dots scale with the map so they read at any screen size
@@ -227,11 +232,16 @@
     ctx.beginPath(); ctx.arc(px, py, radius, 0, Math.PI * 2); ctx.stroke();
     ctx.font = (radius > 15 ? "700 16px" : "700 13px") + " 'IBM Plex Mono', monospace";
     const tw = ctx.measureText(label).width, h = radius > 15 ? 30 : 24;
-    let lx = px + radius + 8;
+    let lx = px + radius + 8, ly = py;
     if (lx + tw + 20 > W - 8) lx = px - radius - 8 - tw - 20; // flip to the left near the right edge
-    ctx.fillStyle = COLORS.ink; ctx.fillRect(lx - 2, py - h / 2 - 2, tw + 24, h + 4);
-    ctx.fillStyle = bg; ctx.fillRect(lx, py - h / 2, tw + 20, h);
-    ctx.fillStyle = fg; ctx.fillText(label, lx + 10, py + (radius > 15 ? 6 : 5));
+    if (lx < 8) {
+      // no room on either side (small phones): hang the label under the ring instead
+      lx = Math.min(Math.max(px - (tw + 20) / 2, 8), W - tw - 28);
+      ly = py + radius + h / 2 + 8;
+    }
+    ctx.fillStyle = COLORS.ink; ctx.fillRect(lx - 2, ly - h / 2 - 2, tw + 24, h + 4);
+    ctx.fillStyle = bg; ctx.fillRect(lx, ly - h / 2, tw + 20, h);
+    ctx.fillStyle = fg; ctx.fillText(label, lx + 10, ly + (radius > 15 ? 6 : 5));
   }
 
   // Nearest visible dot to a point on the screen, within `reach` pixels
@@ -254,6 +264,7 @@
   let downAt = null, dragged = false, onNavigate = () => {};
 
   function centerY() { return H / 2 + (band().cy - H / 2) * mix; }
+  function centerX() { return W / 2 + (band().cx - W / 2) * mix; }
   function clampAndSync() {
     view.x = Math.min(Math.max(view.x, 0), D.width);
     view.y = Math.min(Math.max(view.y, 0), D.height);
@@ -264,10 +275,10 @@
   // Zoom by factor f, keeping the spot under (x, y) in place
   function zoomAt(x, y, f) {
     const s0 = baseScale() * view.s;
-    const mx = view.x + (x - W / 2) / s0, my = view.y + (y - centerY()) / s0;
+    const mx = view.x + (x - centerX()) / s0, my = view.y + (y - centerY()) / s0;
     view.s = Math.min(Math.max(view.s * f, MIN_S), MAX_S);
     const s1 = baseScale() * view.s;
-    view.x = mx - (x - W / 2) / s1;
+    view.x = mx - (x - centerX()) / s1;
     view.y = my - (y - centerY()) / s1;
     clampAndSync();
   }
@@ -322,7 +333,9 @@
     didDrag: () => dragged,
     isPanning: () => pointers.size > 0 && dragged,
     zoomLevel: () => view.s,
-    zoomBy(f) { zoomAt(W / 2, centerY(), f); },
+    zoomBy(f) { zoomAt(centerX(), centerY(), f); },
+    setBand(b) { measured = b; if (prefix) fit(hits); kick(); },
+    resize,
     onNavigate(fn) { onNavigate = fn; },
     setPrefix, lookup, setHover,
     settle() { settled = true; kick(); },
