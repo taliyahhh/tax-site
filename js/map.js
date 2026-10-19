@@ -273,10 +273,15 @@
   const release = e => { pointers.delete(e.pointerId); if (!pointers.size) canvas.style.cursor = ""; };
   canvas.addEventListener("pointerup", release);
   canvas.addEventListener("pointercancel", release);
+  // Trackpad: two-finger swipe moves the map, pinch (sent as ctrl + wheel) zooms.
+  // Mouse wheel (big vertical steps): zooms.
   canvas.addEventListener("wheel", e => {
     e.preventDefault();
     const p = local(e);
-    zoomAt(p.x, p.y, Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)));
+    const mouseWheel = e.deltaMode !== 0 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 50);
+    if (e.ctrlKey) zoomAt(p.x, p.y, Math.exp(-e.deltaY * 0.01));
+    else if (mouseWheel) zoomAt(p.x, p.y, Math.exp(-Math.sign(e.deltaY) * 0.25));
+    else panBy(-e.deltaX, -e.deltaY);
   }, { passive: false });
 
   window.addEventListener("resize", resize);
