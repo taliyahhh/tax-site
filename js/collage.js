@@ -52,11 +52,10 @@
     return eyes;
   }
 
-  // The animated, psychedelic version of a cutout. Uses assets/trippy/<name>.webp
-  // (made by scripts/make-trippy.py) and falls back to the still PNG if it's missing.
+  // Image for a category: its GIF (the "anim" field in data/categories.js) if it has one,
+  // otherwise the still cutout. People with "reduce motion" on always get the still.
   function animSrc(cat) {
-    if (reduced) return cat.img;
-    return cat.anim || cat.img.replace("/cutouts/", "/trippy/").replace(/\.png$/i, ".webp");
+    return !reduced && cat.anim ? cat.anim : cat.img;
   }
 
   // Seeded random numbers so each category lands in the same spot every visit
@@ -140,7 +139,6 @@
       obj.style.setProperty("--rot", ((jitter(key, 1) - 0.5) * 18).toFixed(1) + "deg");
       obj.style.setProperty("--num-rot", ((jitter(key, 2) - 0.5) * 16).toFixed(1) + "deg");
       obj.style.setProperty("--tag-rot", ((jitter(key, 5) - 0.5) * 10).toFixed(1) + "deg");
-      obj.style.setProperty("--aura-start", Math.round(jitter(key, 6) * 360) + "deg");
       obj.style.setProperty("--bob", (3.4 + jitter(key, 3) * 2.6).toFixed(2) + "s");
       obj.style.setProperty("--bob-delay", (-jitter(key, 4) * 4).toFixed(2) + "s");
       obj.style.setProperty("--delay", reduced ? "0ms" : idx * 70 + "ms");
@@ -153,7 +151,6 @@
       num.append(el("span", "num-sign", "$"), el("span", "num-d", String(dollars)), el("span", "num-c", "." + cents));
 
       const pic = el("span", "pic");
-      pic.appendChild(el("span", "aura"));
       const img = el("img");
       img.alt = "";
       img.decoding = "async";

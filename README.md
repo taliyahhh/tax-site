@@ -7,7 +7,7 @@ Plain HTML, CSS, and JavaScript. No build step, nothing to install.
 ## How it works
 
 1. **The map.** Every dot is a US zip code (about 41,000). As you type digits, the matching zip codes light up and the map zooms in. At five digits it circles your town.
-2. **The collage.** Each spending category is a loose, floating object scattered across the page (no boxes). Bigger objects mean more money. The big number is how many dollars out of every $100 went there. Each object is a looping psychedelic animation that melts, shifts color, and trails neon echoes. Tap one to compare all three levels of government.
+2. **The collage.** Each spending category is a loose, floating object scattered across the page (no boxes). Bigger objects mean more money. The big number is how many dollars out of every $100 went there. Tap one to compare all three levels of government.
 
 ## Files
 
@@ -21,7 +21,6 @@ data/categories.js       the categories: name, image, color, description
 data/budgets.js          the money: federal, California, and cities
 data/zips.js             every US zip code with its map position (generated, don't edit by hand)
 assets/cutouts/          category images (still PNGs)
-assets/trippy/           animated versions of the cutouts (made by scripts/make-trippy.py)
 assets/fonts/            Shrikhand + Archivo (both free, OFL license)
 ```
 
@@ -37,19 +36,9 @@ The images in `assets/cutouts/` are **stand-ins** (Microsoft Fluent Emoji 3D, MI
 
 To use a different filename or color, edit `data/categories.js`.
 
-### Making them trippy (the animations)
+### Using GIFs
 
-After you save a new cutout, turn it into its animated version:
-
-```
-pip install pillow numpy
-python3 scripts/make-trippy.py roads.png     # one image
-python3 scripts/make-trippy.py               # all of them (about 1 to 2 minutes each)
-```
-
-This writes `assets/trippy/roads.webp`, an animated image that plays like a GIF but keeps clean transparent edges. The site uses it automatically and falls back to the PNG if it's missing. Found a real GIF you'd rather use? Add `anim: "assets/whatever.gif"` to that category in `data/categories.js`. Tweak the look (wobble, color drift, echo colors, speed) at the top of the script.
-
-People with "reduce motion" turned on in their device settings see the still PNGs instead.
+To make a category move, add an `anim` field pointing at a GIF (transparent background works best), for example `anim: "assets/gifs/roads.gif"` in `data/categories.js`. The still PNG stays as the fallback for people with "reduce motion" turned on.
 
 ## Categories
 
