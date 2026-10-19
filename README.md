@@ -1,5 +1,7 @@
 # Fee Fi Fo Fund
 
+Live at **https://feefifo.fund**
+
 *Where did your tax dollars go?* Type a zip code on the map, then see a collage of what the federal government, your state, and your city spent money on.
 
 Plain HTML, CSS, and JavaScript. No build step, nothing to install.
@@ -71,7 +73,7 @@ State budgets are typed in from each state's official report. Add one under `sta
 1. github.com > **New repository** > name it (e.g. `fee-fi-fo-fund`) > Public > Create.
 2. Click **uploading an existing file**, drag in everything in this folder (keep the folders), commit.
 3. **Settings > Collaborators > Add people** and invite your teammate.
-4. **Settings > Pages** > Source: **Deploy from a branch** > `main`, `/ (root)` > Save. In a minute or two it's live at `https://<username>.github.io/fee-fi-fo-fund/`.
+4. **Settings > Pages** > Source: **Deploy from a branch** > `main`, `/ (root)` > Save. In a minute or two it's live. The `CNAME` file points it at **feefifo.fund** (DNS is set in Porkbun: four GitHub A records plus a `www` CNAME to `taliyahhh.github.io`).
 
 Working together: pull before you start, commit small changes often, and use a branch + pull request for big experiments. GitHub Desktop makes this easy if you haven't used git before.
 
