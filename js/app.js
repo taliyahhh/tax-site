@@ -278,8 +278,11 @@
       const b = document.createElement("button");
       b.type = "button";
       b.className = "level-btn" + (lv.missing ? " is-missing" : "");
-      b.textContent = lv.data ? lv.data.short : lv.missing;
-      b.addEventListener("click", () => pick(i));
+      b.dataset.level = lv.key;
+      const kind = { federal: "Nation", state: "State", city: "City" }[lv.key];
+      const name = lv.data ? lv.data.short : lv.missing;
+      b.innerHTML = `<span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
+      b.addEventListener("click", () => { if (i !== active) { pullFolder(); pick(i); } });
       nav.appendChild(b);
     });
 
@@ -290,9 +293,51 @@
     pick(0);
   }
 
+  // ---- Folders: switching levels pulls that folder to the front, with a paper sound ----
+  let soundOn = true;
+  try { soundOn = localStorage.getItem("fff-sound") !== "off"; } catch (e) {}
+  const soundBtn = $("sound");
+  function showSound() { soundBtn.textContent = soundOn ? "Sound on" : "Sound off"; soundBtn.setAttribute("aria-pressed", String(soundOn)); }
+  showSound();
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn; showSound();
+    try { localStorage.setItem("fff-sound", soundOn ? "on" : "off"); } catch (e) {}
+  });
+  let audioCtx = null;
+  function paperSound() {
+    if (!soundOn) return;
+    try {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+      audioCtx = audioCtx || new C();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const ctx = audioCtx, t = ctx.currentTime;
+      [0, 0.08].forEach((off, k) => {
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.4), ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let n = 0; n < d.length; n++) d[n] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource(); src.buffer = buf;
+        const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 0.9;
+        bp.frequency.setValueAtTime(900 + k * 700, t + off); bp.frequency.exponentialRampToValueAtTime(3200, t + off + 0.3);
+        const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t + off);
+        g.gain.exponentialRampToValueAtTime(k ? 0.12 : 0.22, t + off + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.32);
+        src.connect(bp).connect(g).connect(ctx.destination); src.start(t + off); src.stop(t + off + 0.4);
+      });
+    } catch (e) {}
+  }
+  let flip = false;
+  function pullFolder() {
+    paperSound();
+    const f = $("folder");
+    f.classList.remove("pull-a", "pull-b");
+    flip = !flip;
+    f.classList.add(flip ? "pull-a" : "pull-b");
+  }
+
   function pick(i) {
     active = i;
     [...$("levels").children].forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+    $("file").dataset.level = levels[i].key;
     const lv = levels[i];
     const collage = $("collage"), barely = $("barely"), foot = $("level-foot");
 

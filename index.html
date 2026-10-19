@@ -55,9 +55,13 @@
         <p class="place-zip" id="place-zip">95050</p>
         <p class="place-name" id="place-name">Santa Clara, California</p>
       </div>
-      <nav class="levels" id="levels" aria-label="Level of government"></nav>
+      <button type="button" id="sound" class="back sound-btn" aria-pressed="true">Sound on</button>
     </header>
 
+    <!-- The results are a stack of file folders: one per level of government -->
+    <div class="file" id="file">
+    <nav class="levels file-tabs" id="levels" aria-label="Level of government"></nav>
+    <div class="folder" id="folder">
     <div class="frame">
       <p class="level-line" id="level-line"></p>
       <div class="collage" id="collage"></div>
@@ -69,6 +73,8 @@
     </div>
 
     <footer class="level-foot" id="level-foot"></footer>
+    </div>
+    </div>
   </section>
 
   <dialog id="detail" class="detail">
