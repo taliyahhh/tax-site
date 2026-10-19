@@ -25,7 +25,7 @@
   const ctx = canvas.getContext("2d");
   let W = 0, H = 0, dpr = 1;
 
-  const COLORS = { idle: "#a8a262", dim: "#4a4730", hit: "#fff2a0", bg: "#1d1d1d" };
+  const COLORS = { idle: "#e9e08a", dim: "#5e5a3c", hit: "#fff6b8", bg: "#1d1d1d" };
   let prefix = "";
   const view = { x: D.width / 2, y: D.height / 2, s: 1 };   // current
   const target = { x: D.width / 2, y: D.height / 2, s: 1 }; // where we're animating to
@@ -39,7 +39,7 @@
   function baseScale(m = mix) {
     // fit the whole country into the full screen, or into the middle band once things settle
     const h = H + (band().h - H) * m;
-    return Math.min(W / D.width, h / D.height) * 0.94;
+    return Math.min(W / D.width, h / D.height) * 0.97;
   }
 
   function resize() {
@@ -66,7 +66,7 @@
 
   // The open space between the logo (moved up) and the zip box (moved down)
   function band() {
-    const top = H * (W < 820 ? 0.17 : 0.2), bottom = H * (W < 820 ? 0.6 : 0.68);
+    const top = H * (W < 820 ? 0.15 : 0.16), bottom = H * (W < 820 ? 0.62 : 0.69);
     return { cy: (top + bottom) / 2, h: bottom - top };
   }
   const wantMix = () => (settled || prefix ? 1 : 0);
@@ -144,7 +144,8 @@
     const cy = H / 2 + (band().cy - H / 2) * mix;
     const ox = W / 2 - view.x * s, oy = cy - view.y * s;
     last = { s, ox, oy };
-    const r = Math.max(1, Math.min(1.1 + view.s * 0.18, 4));
+    // dots scale with the map so they read at any screen size
+    const r = Math.max(W < 820 ? 1 : 1.5, Math.min(baseScale() * 2.1 + view.s * 0.22, 5));
     const hitSet = prefix ? new Set(hits) : null;
 
     // dim / idle dots first, then the highlighted ones on top
