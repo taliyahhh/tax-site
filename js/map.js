@@ -218,8 +218,8 @@
       }
       ctx.lineWidth = width; ctx.strokeStyle = color; ctx.lineJoin = "round"; ctx.stroke();
     };
-    stroke(L.inner, 1, "rgba(17, 17, 17, 0.28)");
-    stroke(L.outer, 1.6, "rgba(17, 17, 17, 0.55)");
+    stroke(L.inner, 1.6, "rgba(17, 17, 17, 0.5)");
+    stroke(L.outer, 2.2, "rgba(17, 17, 17, 0.75)");
   }
 
   function marker(px, py, radius, label, bg, fg) {
