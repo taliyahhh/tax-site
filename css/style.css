@@ -187,7 +187,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   padding: 5px 16px 4px;
   rotate: -1deg;
   filter: url(#hand);
-  white-space: nowrap;
+  max-width: min(92vw, 30em);
+  text-align: center;
+  text-wrap: balance;
 }
 .zip-form input {
   width: 5.4em;
@@ -205,14 +207,10 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   border-radius: 0;
 }
 .zip-form input::placeholder { color: #0003; }
-.zip-row { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.zip-row > * { pointer-events: auto; }
-.zip-form .zip-row { pointer-events: none; }
 @media (max-width: 520px) {
-  .zip-form input { font-size: 38px; width: 5.2em; padding: 2px 6px; }
-  .zip-row { gap: 10px; }
-  .zip-row .go { font-size: 20px; padding: 8px 14px; }
+  .zip-form input { font-size: 40px; width: 5.2em; }
 }
+
 .zip-readout {
   margin: 4px 0 0;
   background: rgba(255, 253, 246, 0.9);

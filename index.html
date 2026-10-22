@@ -72,12 +72,10 @@
       </div>
 
       <form id="zip-form" class="zip-form" autocomplete="off">
-        <label for="zip" class="zip-label">Type a zip or tap the map</label>
-        <!-- the button sits right next to the zip box, so it isn't stuck at the bottom of the screen -->
-        <div class="zip-row">
-          <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
-          <button type="submit" id="go" class="go" disabled>Show me</button>
-        </div>
+        <label for="zip" class="zip-label">Type a zip or tap the map to see where your taxes go</label>
+        <!-- the button sits between the label and the zip box, so it's never stuck at the bottom of the screen -->
+        <button type="submit" id="go" class="go" disabled>Show me</button>
+        <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
         <p id="zip-readout" class="zip-readout" aria-live="polite">Every dot is a zip code. Drag or zoom the map, then tap a spot.</p>
       </form>
     </div>
