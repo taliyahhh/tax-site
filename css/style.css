@@ -322,7 +322,7 @@ a.back { color: var(--ink); text-decoration: none; display: inline-block; }
 }
 .sheet {
   position: absolute;
-  left: calc(var(--row, 0) * 12px);
+  left: 0; /* the stack steps in on the right only, so every tab stays where js/app.js put it */
   right: calc(var(--row, 0) * 12px);
   top: calc((var(--rows, 2) - var(--row, 0)) * var(--S));
   bottom: 0;
@@ -671,7 +671,7 @@ body:not(.on-results) .site-foot { display: none; }
 /* =========================================================
    SOURCES PAGE
    ========================================================= */
-.sources-head { grid-template-columns: auto 1fr; }
+.sources-head { grid-template-columns: 1fr auto; }
 .sources .frame { display: grid; gap: 14px; }
 .src-h {
   margin: 22px 0 0;
@@ -699,11 +699,18 @@ body:not(.on-results) .site-foot { display: none; }
 .src-table tbody tr:nth-child(odd) td { background: #f8f3e6; }
 
 /* Sources link on the map */
-.map-sources {
+.map-links {
   position: absolute;
   z-index: 2;
   right: max(16px, env(safe-area-inset-right, 0px));
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.map-links .map-sources:first-child { background: var(--hot); }
+.map-sources {
   color: var(--ink);
   font: 400 16px var(--hand);
   background: var(--paper);
@@ -1056,4 +1063,56 @@ p, li, dd { text-wrap: pretty; }
 @media (max-width: 520px) {
   .map-controls { flex-wrap: wrap; max-width: 210px; }
   .tale-btn { order: -1; flex-basis: 100%; justify-content: center; }
+}
+
+/* ---- Your move: the 4th folder and move.html (js/actions.js) ---- */
+.moves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 22px;
+  padding: 6px 0 10px;
+}
+.move-card {
+  background: #fffdf6;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 16px 18px 12px;
+}
+.move-card:nth-child(4) { background: var(--sun-soft); }
+.move-kicker { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font: 700 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.move-n { display: inline-grid; place-items: center; width: 24px; height: 24px; background: var(--ink); color: var(--hot); border-radius: 50%; letter-spacing: 0; }
+.move-card h3 { margin: 0 0 10px; font: 400 26px/1.15 var(--hand); text-wrap: balance; }
+.move-list { list-style: none; margin: 0; padding: 0; }
+.move-list li { border-top: 2px dashed #0002; }
+.move-list a {
+  font-weight: 400; /* the Sources page makes its links bold; these shouldn't be */
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 4px;
+  color: var(--ink);
+  text-decoration: none;
+  min-height: 44px;
+}
+.move-list .box { flex: none; width: 20px; height: 20px; margin-top: 2px; border: 2.5px solid var(--ink); background: #fff; transition: background .15s; }
+.move-list a:hover .box, .move-list a:focus-visible .box { background: var(--hot); }
+.move-list a:visited .box { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+.move-text { display: grid; gap: 2px; flex: 1; }
+.move-text b { font: 400 19px/1.2 var(--hand); }
+.move-text span { font-size: 14px; line-height: 1.45; color: #444; text-wrap: pretty; }
+.move-list a:hover b { text-decoration: underline; text-decoration-color: var(--hot); text-decoration-thickness: 4px; text-underline-offset: 2px; }
+.arrow { flex: none; font-size: 18px; line-height: 1; margin-top: 2px; }
+
+/* the happy ending's four moves */
+.end-list { list-style: none; margin: 4px 0 16px; padding: 0; display: grid; gap: 8px; }
+.end-list li { display: grid; grid-template-columns: 4.2em 1fr; gap: 10px; align-items: baseline; padding: 8px 10px; background: var(--sun-soft); border: 2px solid var(--ink); font-size: 15px; line-height: 1.45; }
+.end-list b { font: 400 22px/1 var(--hand); }
+.end-list a { color: var(--ink); font-weight: 700; }
+.storybook a { color: var(--ink); font-weight: 700; }
+
+@media (max-width: 480px) {
+  .tab-your { display: none; }
+  .level-btn .tab-kind::first-letter { text-transform: uppercase; }
+  .level-btn { padding: 0 11px; gap: 5px; font-size: 17px; }
+  .tab-n { width: 1.3em; height: 1.3em; font-size: 11px; }
 }

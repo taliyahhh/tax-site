@@ -271,6 +271,8 @@
     levels.push(state ? { key: "state", data: state } : { key: "state", missing: STATE_NAMES[info.state] || info.state });
     const city = await findCity(info);
     levels.push(city ? { key: "city", data: city } : { key: "city", missing: info.city });
+    // the last folder: what you can do about it, filled in for this town and state
+    levels.push({ key: "move", place: { city: info.city, stateName: STATE_NAMES[info.state] || info.state } });
 
     $("place-city").textContent = info.city;
     $("place-name").innerHTML = `<span id="place-zip">${zip}</span> &middot; ${escape(STATE_NAMES[info.state] || info.state)}`;
@@ -286,11 +288,12 @@
       b.type = "button";
       b.className = "level-btn" + (lv.missing ? " is-missing" : "");
       b.dataset.level = lv.key;
-      const kind = { federal: "Nation", state: "State", city: "City" }[lv.key];
-      const name = lv.data ? lv.data.short : lv.missing;
+      const kind = { federal: "Nation", state: "State", city: "City", move: "Your move" }[lv.key];
+      const kindHtml = lv.key === "move" ? `<span class="tab-your">Your </span>move` : kind; // just "Move" on phones
+      const name = lv.data ? lv.data.short : lv.missing || kind;
       // numbered 1, 2, 3 and side by side: the nation, then your state, then your city
       b.style.setProperty("--i", i);
-      b.innerHTML = `<span class="tab-n" aria-hidden="true">${i + 1}</span><span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
+      b.innerHTML = `<span class="tab-n" aria-hidden="true">${i + 1}</span><span class="tab-kind">${kindHtml}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
       b.addEventListener("click", () => switchTo(i));
       sheet.appendChild(b);
       nav.appendChild(sheet);
@@ -333,8 +336,14 @@
   }
   // Tabs sit edge to edge (a little overlap, like real folders), measured so long town names still fit
   function placeTabs() {
+    const tabs = [...$("levels").querySelectorAll(".level-btn")];
+    if (!tabs.length) return;
+    // if they'd run past the folder's edge (small phones), overlap them a little more so they all fit
+    const room = $("levels").clientWidth - 22;
+    const total = tabs.reduce((t, b) => t + b.offsetWidth, 0);
+    const overlap = Math.max(6, (total - room) / Math.max(1, tabs.length - 1));
     let x = 14;
-    [...$("levels").querySelectorAll(".level-btn")].forEach(b => { b.style.left = x + "px"; x += b.offsetWidth - 6; });
+    tabs.forEach(b => { b.style.left = x + "px"; x += b.offsetWidth - overlap; });
   }
   // Line them up again whenever a tab changes size (the handwriting font loading in, a phone rotating)
   const tabWatch = new ResizeObserver(() => { if (!results.hidden) placeTabs(); });
@@ -379,6 +388,16 @@
     const lv = levels[i];
     const collage = $("collage"), barely = $("barely"), foot = $("level-foot");
 
+    if (lv.key === "move") {
+      collage.classList.remove("scatter");
+      collage.style.height = "";
+      $("hundred-wrap").hidden = true;
+      barely.hidden = true;
+      $("level-line").innerHTML = `Now it's <b>your move</b>. <span>You've seen where the money went. Here's where to have a say, starting with the people who decide, and ending with help on your own taxes.</span>`;
+      collage.innerHTML = Actions.html(lv.place);
+      foot.innerHTML = `<p>Every link goes to an official government site or a nonpartisan tool, and opens in a new tab. City and state links search for your town's own pages. <a href="move.html">Open this list on its own page</a></p>`;
+      return;
+    }
     if (lv.missing) {
       collage.classList.remove("scatter");
       collage.style.height = "";
@@ -449,7 +468,7 @@
     $("detail-img").src = Collage.animSrc(cat);
     $("detail-title").textContent = cat.label;
     $("detail-about").textContent = cat.about;
-    $("detail-levels").innerHTML = levels.map(lv => {
+    $("detail-levels").innerHTML = levels.filter(lv => lv.key !== "move").map(lv => {
       if (lv.missing) return `<li><span>${escape(lv.missing)}</span><span>No data yet</span></li>`;
       const row = Collage.breakdown(lv.data).find(r => r.cat.key === cat.key);
       return row

@@ -81,7 +81,10 @@
         <p id="zip-readout" class="zip-readout" aria-live="polite">Every dot is a zip code. Drag or zoom the map, then tap a spot.</p>
       </form>
     </div>
-    <a class="map-sources" href="sources.html">Sources</a>
+    <div class="map-links">
+      <a class="map-sources" href="move.html">Your move</a>
+      <a class="map-sources" href="sources.html">Sources</a>
+    </div>
     <div class="map-controls">
       <button type="button" id="zoom-in" class="map-btn" aria-label="Zoom in">+</button>
       <button type="button" id="zoom-out" class="map-btn" aria-label="Zoom out">&minus;</button>
@@ -228,8 +231,14 @@
           <p class="opener-kicker">The happy ending</p>
           <h2 class="once">&hellip;and they all lived happily, and fundedly, ever after.</h2>
           <p>Turns out the giant isn't the villain. He's more like a very large accountant. Your dollar comes back as the bus you ride, the teacher down the street, the firefighter who shows up in minutes, and the check that pays your grandma's rent.</p>
-          <p>And you don't have to climb the beanstalk to have a say. Budgets are public, city hearings are open, and you get a vote.</p>
-          <p>Every dot on the map is a zip code. Pick yours to open the file on where it all went.</p>
+          <p>And you don't have to climb the beanstalk to have a say. Budgets are public, city hearings are open, and you get a vote. Your four moves, one for each chapter:</p>
+          <ol class="end-list">
+            <li><b>Fee</b><span>Look at Box 2 of your W-2 to see how many of your dollars made the trip.</span></li>
+            <li><b>Fi</b><span><a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener">Find your representative</a>, the person who votes on the federal budget.</span></li>
+            <li><b>Fo</b><span>See how <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">your state's balance</a> with Washington stacks up.</span></li>
+            <li><b>Fund</b><span>Show up to a city budget hearing, and <a href="https://vote.gov/" target="_blank" rel="noopener">register to vote</a>.</span></li>
+          </ol>
+          <p>Every dot on the map is a zip code. Pick yours to open the file on where it all went. <a href="move.html">See every move</a>.</p>
           <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
           <p class="the-end" aria-hidden="true">The end</p>
         </article>
@@ -296,6 +305,7 @@
   <script src="data/states.js"></script>
   <script src="js/map.js"></script>
   <script src="js/collage.js"></script>
+  <script src="js/actions.js"></script>
   <script src="js/app.js"></script>
   <script src="js/story.js"></script>
 </body>
