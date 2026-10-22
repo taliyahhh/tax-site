@@ -231,8 +231,11 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
    RESULTS
    ========================================================= */
 .results {
-  /* a desk the folders sit on */
-  background: #c9d9df;
+  /* the desk the folders sit on: the same grid paper as the map */
+  background:
+    linear-gradient(90deg, #e4ddcd 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(#e4ddcd 1px, transparent 1px) 0 0 / 26px 26px,
+    var(--map-bg);
   min-height: 100vh;
   padding: 20px 16px 40px;
   overflow-x: clip; /* a wobbling sticker should never cause a sideways scroll */
@@ -283,19 +286,13 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .file {
   --tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .24 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.01' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .33 0 0 0 0 .25 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --federal: #d8d4cc;
-  --state: #eec3c8;
-  --city: #efe7d6;
-  --sources: #dcb68e;
-  --folder: var(--federal);
+  /* every folder is the same paper; the tabs (black, the open one yellow) tell them apart */
+  --folder: #ece6d7;
   position: relative;
   z-index: 0;
   max-width: 1400px;
   margin: 0 auto;
 }
-.file[data-level="state"] { --folder: var(--state); }
-.file[data-level="city"] { --folder: var(--city); }
-.file[data-level="sources"] { --folder: var(--sources); }
 
 /* ---- The stack of folders ----
    Each folder is a "sheet": its tab plus a strip of folder body. Folders further back
@@ -303,7 +300,7 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
    --row 0 is the front folder; JS sets it, and the sheets slide into place. */
 .levels.file-tabs {
   --T: 52px;  /* tab height */
-  --S: 22px;  /* how much of each folder behind peeks out */
+  --S: 7px;   /* how much of each folder behind peeks out (small, so the tabs read as one row) */
   position: relative;
   z-index: 3;
   display: block;
@@ -320,10 +317,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   pointer-events: none;
   transition: top .45s cubic-bezier(.3,1.2,.5,1), left .45s cubic-bezier(.3,1.2,.5,1), right .45s cubic-bezier(.3,1.2,.5,1);
 }
-.sheet[data-level="federal"], .level-btn[data-level="federal"] { --c: var(--federal); }
-.sheet[data-level="state"], .level-btn[data-level="state"] { --c: var(--state); }
-.sheet[data-level="city"], .level-btn[data-level="city"] { --c: var(--city); }
-.sheet[data-level="sources"], .level-btn[data-level="sources"] { --c: var(--sources); }
+.sheet { --c: var(--folder); }
+.level-btn { --c: var(--ink); }
+.level-btn[aria-pressed="true"], .level-btn[aria-current="page"] { --c: var(--hot); color: var(--ink); }
 /* the strip of folder body under each tab */
 .sheet::before {
   content: "";
@@ -344,20 +340,29 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 34px;
+  padding: 0 26px;
   border: 0;
   background: none;
-  color: #262422;
+  color: var(--paper);
   font: 400 23px var(--hand);
   letter-spacing: 0.01em;
   white-space: nowrap;
   cursor: pointer;
   transition: transform .2s cubic-bezier(.3,1.4,.5,1);
 }
-.level-btn[data-level="federal"] { left: 2.5%; }
-.level-btn[data-level="state"] { left: 50%; translate: -50% 0; }
-.level-btn[data-level="city"] { right: 2.5%; }
-.level-btn[data-level="sources"] { left: 2.5%; }
+.level-btn { left: calc(2% + var(--i, 0) * var(--tab-step)); }
+.levels.file-tabs { --tab-step: min(250px, 31%); }
+.level-btn[data-level="sources"] { left: 2%; }
+/* 1, 2, 3: the nation, then your state, then your city, zooming in toward home */
+.tab-n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4em; height: 1.4em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font: 700 13px var(--mono);
+  line-height: 1;
+}
 .level-btn::before {
   content: "";
   position: absolute;
@@ -367,12 +372,11 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   border-radius: 12px 12px 0 0;
   transform: perspective(80px) rotateX(9deg);
   transform-origin: 50% 100%;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 -2px 5px rgba(60,40,20,.13);
-  filter: brightness(calc(1 - var(--row, 0) * 0.04));
+  box-shadow: 0 -2px 5px rgba(60,40,20,.13);
 }
 .level-btn:not([aria-pressed="true"]):not([aria-current]):hover { transform: translateY(-5px); }
 .level-btn[aria-pressed="true"], .level-btn[aria-current="page"] { cursor: default; }
-.level-btn .tab-name { font: 400 16px var(--hand); color: #555; }
+.level-btn .tab-name { font: 400 16px var(--hand); color: inherit; opacity: .75; max-width: 9em; overflow: hidden; text-overflow: ellipsis; }
 .level-btn.is-missing .tab-kind { opacity: .7; }
 .level-btn.is-missing .tab-name { text-decoration: line-through; }
 
@@ -609,7 +613,7 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .detail-levels li span:last-child { text-align: right; }
 
 .site-foot { padding: 18px 16px 28px; font-size: 13px; color: #8a8a8a; text-align: center; }
-body.on-results .site-foot { background: var(--paper); color: #666; }
+body.on-results .site-foot { background: var(--map-bg); color: #666; }
 body:not(.on-results) .site-foot { display: none; }
 
 /* =========================================================
@@ -619,8 +623,9 @@ body:not(.on-results) .site-foot { display: none; }
   .results-head { grid-template-columns: auto 1fr; align-items: start; }
   .results-head .place { grid-column: 1 / -1; grid-row: 2; }
   .levels { justify-content: flex-start; }
-  .levels.file-tabs { --T: 46px; --S: 16px; }
-  .level-btn { padding: 0 16px; font-size: 19px; }
+  .levels.file-tabs { --T: 46px; --S: 6px; }
+  .level-btn { padding: 0 14px; font-size: 19px; }
+  .levels.file-tabs { --tab-step: 32%; }
   .level-btn .tab-name { font-size: 14px; }
   .level-line { font-size: 23px; }
 }
@@ -909,4 +914,29 @@ body.on-results .story { display: none; }
   .step { padding-top: 70px; }
   .scard { box-shadow: 5px 5px 0 var(--ink); }
   .ledger { box-shadow: 5px 5px 0 var(--hot); }
+}
+
+/* ---- Your $100: one little bill per dollar, colored like its sticker (js/app.js) ---- */
+.hundred-wrap { margin: 6px 0 18px; }
+.hundred {
+  display: grid;
+  grid-template-columns: repeat(50, minmax(0, 1fr));
+  gap: 3px;
+}
+.bill {
+  aspect-ratio: 2.1;
+  background: var(--c);
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform .15s cubic-bezier(.3,1.6,.5,1), opacity .15s;
+}
+.hundred.has-lit .bill:not(.lit) { opacity: .22; }
+.bill.lit { transform: translateY(-3px); }
+.hundred-cap { margin: 8px 0 0; font: 400 15px var(--hand); color: #555; }
+.collage.has-lit .obj:not(.lit) { filter: saturate(.15) opacity(.35); } /* filter, since the pop-in animation holds opacity */
+.collage .obj.lit { z-index: 5; }
+@media (max-width: 820px) {
+  .hundred { grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 2px; }
+  .hundred-cap { font-size: 14px; }
 }

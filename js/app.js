@@ -281,7 +281,9 @@
       b.dataset.level = lv.key;
       const kind = { federal: "Nation", state: "State", city: "City" }[lv.key];
       const name = lv.data ? lv.data.short : lv.missing;
-      b.innerHTML = `<span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
+      // numbered 1, 2, 3 and side by side: the nation, then your state, then your city
+      b.style.setProperty("--i", i);
+      b.innerHTML = `<span class="tab-n" aria-hidden="true">${i + 1}</span><span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
       b.addEventListener("click", () => switchTo(i));
       sheet.appendChild(b);
       nav.appendChild(sheet);
@@ -370,13 +372,22 @@
         collage.innerHTML = `<p class="empty">This zip code may be a post office box or a special-use zip code that doesn't map to a city or county.</p>`;
       }
       barely.hidden = true;
+      $("hundred-wrap").hidden = true;
       foot.innerHTML = "";
       return;
     }
 
     const d = lv.data;
-    $("level-line").innerHTML = `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${d.lead ? escape(d.lead) + " " : ""}${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
+    // Lead with the punchline: where the most money went, then the next two
+    const rows = Collage.breakdown(d).filter(r => r.cat.key !== "other");
+    const said = r => (r.cat.key === "retirement" ? r.cat.label : r.cat.label.charAt(0).toLowerCase() + r.cat.label.slice(1));
+    const next = rows.slice(1, 3).map(r => `${said(r)} ($${Math.round(r.share)})`).join(" and ");
+    $("level-line").innerHTML = rows.length
+      ? `Out of every $100 ${escape(d.name)} spent, <b>$${Math.round(rows[0].share)}</b> went to ${escape(said(rows[0]))}.`
+        + `<span>${next ? "Next: " + escape(next) + ". " : ""}${d.lead ? escape(d.lead) + " " : ""}${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`
+      : `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
     const missing = Collage.render(d, collage, openDetail);
+    hundred(Collage.breakdown(d));
 
     barely.hidden = !missing.length;
     $("barely-title").textContent = `Barely any money from ${d.short} here`;
@@ -385,6 +396,34 @@
     foot.innerHTML = `<p><b>Paid for by:</b> ${escape(d.paidBy)}</p><p>${escape(d.notes)}</p>
       <p>Source: <a href="${d.source.url}" target="_blank" rel="noopener">${escape(d.source.name)}</a>. <a href="sources.html">All sources and methods</a></p>`;
   }
+
+  // ---- Your $100 as 100 bills ----
+  // Each category gets one bill per dollar (rounded so they add up to exactly 100).
+  // Pointing at a bill lights up its sticker in the collage, and the other way around.
+  function hundred(rows) {
+    $("hundred-wrap").hidden = false;
+    const exact = rows.map(r => r.share);
+    const count = exact.map(Math.floor);
+    let left = 100 - count.reduce((t, n) => t + n, 0);
+    exact.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0])
+      .forEach(([, i]) => { if (left > 0) { count[i]++; left--; } });
+    const strip = $("hundred");
+    strip.setAttribute("aria-label", "Your $100: " + rows.map((r, i) => count[i] ? `$${count[i]} ${r.cat.label}` : "").filter(Boolean).join(", "));
+    strip.innerHTML = rows.map((r, i) => Array.from({ length: count[i] }, (_, n) =>
+      `<span class="bill${n === 0 ? " first" : ""}" data-key="${r.cat.key}" style="--c:${r.cat.color}" title="${escape(r.cat.label)}: $${count[i]}"></span>`).join("")).join("");
+  }
+  function light(key) {
+    const strip = $("hundred"), collage = $("collage");
+    strip.classList.toggle("has-lit", !!key);
+    collage.classList.toggle("has-lit", !!key);
+    strip.querySelectorAll(".bill").forEach(b => b.classList.toggle("lit", b.dataset.key === key));
+    collage.querySelectorAll(".obj").forEach(o => o.classList.toggle("lit", o.dataset.key === key));
+  }
+  $("hundred").addEventListener("pointerover", e => { const b = e.target.closest(".bill"); if (b) light(b.dataset.key); });
+  $("hundred").addEventListener("pointerleave", () => light(null));
+  $("collage").addEventListener("pointerover", e => { const o = e.target.closest(".obj"); light(o ? o.dataset.key : null); });
+  $("collage").addEventListener("pointerleave", () => light(null));
+  $("hundred").addEventListener("click", e => { const b = e.target.closest(".bill"); if (b) openDetail(Collage.byKey[b.dataset.key]); });
 
   // ---- Detail popup: one category across all three levels ----
   const dialog = $("detail");

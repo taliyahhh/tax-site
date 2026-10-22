@@ -79,9 +79,10 @@
     if (!objs.length) return;
     const W = container.clientWidth;
     const narrow = W < 700;
-    const k = narrow ? 1.5 : 0.95;
-    const maxS = W * (narrow ? 0.8 : 0.44);
-    const minS = Math.max(narrow ? 92 : 120, W * (narrow ? 0.27 : 0.115));
+    const k = narrow ? 1.25 : 0.72;
+    // the biggest sticker is capped (about a third of the page) so one GIF never fills the screen
+    const maxS = Math.min(W * (narrow ? 0.62 : 0.3), narrow ? 260 : 400);
+    const minS = Math.max(narrow ? 88 : 116, W * (narrow ? 0.25 : 0.095));
     const gap = narrow ? 2 : -4; // a hair of overlap on desktop feels cut-and-paste
 
     // footprint = the picture plus the price tag hanging under it
@@ -93,7 +94,7 @@
       return { o, s, w, h };
     });
     const area = items.reduce((t, i) => t + i.w * i.h, 0);
-    let H = Math.max(items[0].h * 1.1, area / (narrow ? 0.66 : 0.5) / W);
+    let H = Math.max(items[0].h * 1.1, area / (narrow ? 0.66 : 0.6) / W);
 
     const placed = [];
     items.forEach(it => {
