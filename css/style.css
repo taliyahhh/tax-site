@@ -41,6 +41,10 @@
 }
 
 * { box-sizing: border-box; }
+/* The site has its own paper-and-ink colors. Without this, a computer in dark mode draws button text
+   in white, which made the New zip code and Read the tale buttons look blank. */
+:root { color-scheme: light; }
+button { color: var(--ink); }
 html, body { margin: 0; }
 body {
   background: var(--map-bg);
@@ -187,7 +191,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   padding: 5px 16px 4px;
   rotate: -1deg;
   filter: url(#hand);
-  white-space: nowrap;
+  max-width: min(92vw, 30em);
+  text-align: center;
+  text-wrap: balance;
 }
 .zip-form input {
   width: 5.4em;
@@ -205,6 +211,10 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   border-radius: 0;
 }
 .zip-form input::placeholder { color: #0003; }
+@media (max-width: 520px) {
+  .zip-form input { font-size: 40px; width: 5.2em; }
+}
+
 .zip-readout {
   margin: 4px 0 0;
   background: rgba(255, 253, 246, 0.9);
@@ -231,8 +241,11 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
    RESULTS
    ========================================================= */
 .results {
-  /* a desk the folders sit on */
-  background: #c9d9df;
+  /* the desk the folders sit on: the same grid paper as the map */
+  background:
+    linear-gradient(90deg, #e4ddcd 1px, transparent 1px) 0 0 / 26px 26px,
+    linear-gradient(#e4ddcd 1px, transparent 1px) 0 0 / 26px 26px,
+    var(--map-bg);
   min-height: 100vh;
   padding: 20px 16px 40px;
   overflow-x: clip; /* a wobbling sticker should never cause a sideways scroll */
@@ -241,10 +254,13 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   max-width: 1280px;
   margin: 0 auto 22px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: start;
-  gap: 20px;
+  gap: 16px 24px;
 }
+.results-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+a.back { color: var(--ink); text-decoration: none; display: inline-block; }
+.results-head > .back { justify-self: start; }
 .back {
   align-self: start;
   font: 400 18px var(--hand);
@@ -256,18 +272,19 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   cursor: pointer;
 }
 .back:hover { background: var(--hot); }
-.place-zip {
+.place-city {
   margin: 0;
-  /* the zip, lettered like the logo: black ink in a yellow case with a black edge */
+  /* your town, lettered like the logo: black ink in a yellow case with a black edge */
   font-family: var(--hand);
   font-weight: 400;
-  font-size: clamp(56px, 10vw, 120px);
+  font-size: clamp(46px, 8.4vw, 108px);
   line-height: 1.05;
   color: var(--ink);
   -webkit-text-stroke: 0.16em var(--hot);
   paint-order: stroke fill;
   filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) url(#hand);
   padding: 0 0.1em;
+  text-wrap: balance;
 }
 .place-name {
   display: inline-block;
@@ -283,19 +300,14 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .file {
   --tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .24 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.01' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .33 0 0 0 0 .25 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --federal: #d8d4cc;
-  --state: #eec3c8;
-  --city: #efe7d6;
-  --sources: #dcb68e;
-  --folder: var(--federal);
+  /* every folder is the brand's soft yellow with an ink edge, so it stands off the grid paper;
+     the tabs (black, the open one hot yellow) tell the levels apart */
+  --folder: #eef49a;
   position: relative;
   z-index: 0;
   max-width: 1400px;
   margin: 0 auto;
 }
-.file[data-level="state"] { --folder: var(--state); }
-.file[data-level="city"] { --folder: var(--city); }
-.file[data-level="sources"] { --folder: var(--sources); }
 
 /* ---- The stack of folders ----
    Each folder is a "sheet": its tab plus a strip of folder body. Folders further back
@@ -303,7 +315,7 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
    --row 0 is the front folder; JS sets it, and the sheets slide into place. */
 .levels.file-tabs {
   --T: 52px;  /* tab height */
-  --S: 22px;  /* how much of each folder behind peeks out */
+  --S: 7px;   /* how much of each folder behind peeks out (small, so the tabs read as one row) */
   position: relative;
   z-index: 3;
   display: block;
@@ -312,7 +324,7 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 }
 .sheet {
   position: absolute;
-  left: calc(var(--row, 0) * 12px);
+  left: 0; /* the stack steps in on the right only, so every tab stays where js/app.js put it */
   right: calc(var(--row, 0) * 12px);
   top: calc((var(--rows, 2) - var(--row, 0)) * var(--S));
   bottom: 0;
@@ -320,10 +332,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   pointer-events: none;
   transition: top .45s cubic-bezier(.3,1.2,.5,1), left .45s cubic-bezier(.3,1.2,.5,1), right .45s cubic-bezier(.3,1.2,.5,1);
 }
-.sheet[data-level="federal"], .level-btn[data-level="federal"] { --c: var(--federal); }
-.sheet[data-level="state"], .level-btn[data-level="state"] { --c: var(--state); }
-.sheet[data-level="city"], .level-btn[data-level="city"] { --c: var(--city); }
-.sheet[data-level="sources"], .level-btn[data-level="sources"] { --c: var(--sources); }
+.sheet { --c: var(--folder); }
+.level-btn { --c: var(--ink); }
+.level-btn[aria-pressed="true"], .level-btn[aria-current="page"] { --c: var(--hot); color: var(--ink); }
 /* the strip of folder body under each tab */
 .sheet::before {
   content: "";
@@ -331,8 +342,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   left: 0; right: 0; top: calc(var(--T) - 1px); bottom: 0;
   background: var(--tex), var(--c);
   border-radius: 7px 7px 0 0;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.42), 0 -3px 6px rgba(60,40,20,.13);
-  filter: brightness(calc(1 - var(--row, 0) * 0.04));
+  border: 3px solid var(--ink);
+  border-bottom: 0;
+  filter: brightness(calc(1 - var(--row, 0) * 0.06));
 }
 /* the tab: card-stock with rounded shoulders; Nation left, State middle, City right */
 .level-btn {
@@ -344,20 +356,27 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 0 34px;
+  padding: 0 26px;
   border: 0;
   background: none;
-  color: #262422;
+  color: var(--paper);
   font: 400 23px var(--hand);
   letter-spacing: 0.01em;
   white-space: nowrap;
   cursor: pointer;
   transition: transform .2s cubic-bezier(.3,1.4,.5,1);
 }
-.level-btn[data-level="federal"] { left: 2.5%; }
-.level-btn[data-level="state"] { left: 50%; translate: -50% 0; }
-.level-btn[data-level="city"] { right: 2.5%; }
-.level-btn[data-level="sources"] { left: 2.5%; }
+.level-btn { left: 14px; } /* js/app.js lines them up edge to edge */
+/* 1, 2, 3: the nation, then your state, then your city, zooming in toward home */
+.tab-n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4em; height: 1.4em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font: 700 13px var(--mono);
+  line-height: 1;
+}
 .level-btn::before {
   content: "";
   position: absolute;
@@ -367,12 +386,12 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   border-radius: 12px 12px 0 0;
   transform: perspective(80px) rotateX(9deg);
   transform-origin: 50% 100%;
-  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 -2px 5px rgba(60,40,20,.13);
-  filter: brightness(calc(1 - var(--row, 0) * 0.04));
+  border: 3px solid var(--ink);
+  border-bottom: 0;
 }
 .level-btn:not([aria-pressed="true"]):not([aria-current]):hover { transform: translateY(-5px); }
 .level-btn[aria-pressed="true"], .level-btn[aria-current="page"] { cursor: default; }
-.level-btn .tab-name { font: 400 16px var(--hand); color: #555; }
+.level-btn .tab-name { font: 400 16px var(--hand); color: inherit; opacity: .75; max-width: 9em; overflow: hidden; text-overflow: ellipsis; }
 .level-btn.is-missing .tab-kind { opacity: .7; }
 .level-btn.is-missing .tab-name { text-decoration: line-through; }
 
@@ -383,7 +402,9 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
   background: var(--tex), var(--folder);
   border-radius: 0 0 8px 8px;
   padding: 34px clamp(12px, 2.4vw, 30px) 26px;
-  box-shadow: inset 0 -3px 0 rgba(90,60,30,.12), 0 18px 30px rgba(30,20,10,.16);
+  border: 3px solid var(--ink);
+  border-top: 0;
+  box-shadow: 8px 8px 0 var(--ink);
   transition: background-color .3s;
 }
 /* the two pressed fold lines along the top of real file folders */
@@ -471,7 +492,10 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .obj:hover .pic, .obj:focus-visible .pic { transform: rotate(0deg) scale(1.1); }
 
 .pic img {
-  position: relative;
+  /* pinned to the sticker's square box: tall GIFs (the motorcycle, the statue) used to grow past it
+     and hang over the price tag and whatever sat below */
+  position: absolute;
+  inset: 0;
   z-index: 2;
   width: 100%;
   height: 100%;
@@ -609,18 +633,20 @@ code { font-size: 0.9em; background: #0001; padding: 1px 5px; border-radius: 4px
 .detail-levels li span:last-child { text-align: right; }
 
 .site-foot { padding: 18px 16px 28px; font-size: 13px; color: #8a8a8a; text-align: center; }
-body.on-results .site-foot { background: var(--paper); color: #666; }
+body.on-results .site-foot { background: var(--map-bg); color: #666; }
 body:not(.on-results) .site-foot { display: none; }
 
 /* =========================================================
    SMALL SCREENS
    ========================================================= */
 @media (max-width: 820px) {
-  .results-head { grid-template-columns: auto 1fr; align-items: start; }
-  .results-head .place { grid-column: 1 / -1; grid-row: 2; }
+  .results-head { grid-template-columns: 1fr; }
+  .results-nav { justify-content: flex-start; grid-row: 1; }
+  .results-head .place { grid-row: 2; }
+  .results-nav .back { font-size: 16px; padding: 4px 10px; }
   .levels { justify-content: flex-start; }
-  .levels.file-tabs { --T: 46px; --S: 16px; }
-  .level-btn { padding: 0 16px; font-size: 19px; }
+  .levels.file-tabs { --T: 46px; --S: 6px; }
+  .level-btn { padding: 0 14px; font-size: 19px; }
   .level-btn .tab-name { font-size: 14px; }
   .level-line { font-size: 23px; }
 }
@@ -647,7 +673,7 @@ body:not(.on-results) .site-foot { display: none; }
 /* =========================================================
    SOURCES PAGE
    ========================================================= */
-.sources-head { grid-template-columns: auto 1fr; }
+.sources-head { grid-template-columns: 1fr auto; }
 .sources .frame { display: grid; gap: 14px; }
 .src-h {
   margin: 22px 0 0;
@@ -675,11 +701,18 @@ body:not(.on-results) .site-foot { display: none; }
 .src-table tbody tr:nth-child(odd) td { background: #f8f3e6; }
 
 /* Sources link on the map */
-.map-sources {
+.map-links {
   position: absolute;
   z-index: 2;
   right: max(16px, env(safe-area-inset-right, 0px));
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.map-links .map-sources:first-child { background: var(--hot); }
+.map-sources {
   color: var(--ink);
   font: 400 16px var(--hand);
   background: var(--paper);
@@ -714,3 +747,438 @@ body:not(.on-results) .site-foot { display: none; }
 }
 .map-btn:hover { background: var(--hot); }
 .map-reset { font-size: 13px; text-transform: uppercase; }
+
+/* =========================================================
+   THE TALE: Fee, Fi, Fo, Fund (js/story.js)
+   The dot map stays put while the chapters scroll over it.
+   ========================================================= */
+.story { position: relative; background: var(--map-bg); }
+body.on-results .story { display: none; }
+.story-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.story-map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.story-stage::after { content: ""; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: multiply; pointer-events: none; }
+
+/* the chapter bar, pinned to the top of the screen for the whole tale */
+.tale-bar {
+  /* its own sticky layer above the chapters, so it stays clickable; the negative margin keeps it from pushing the map down */
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  height: 62px;
+  margin-bottom: -62px;
+  box-sizing: border-box;
+  /* logo on the left, chapters in the middle, read-aloud and Open my file on the right */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 0 clamp(12px, 4vw, 40px);
+  background: rgba(244, 241, 232, 0.95);
+  border-bottom: 3px solid var(--ink);
+}
+.tale-home img { display: block; width: 34px; height: 34px; }
+.tale-file {
+  font: 400 18px var(--hand);
+  color: var(--hot);
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--hot), 3px 3px 0 2px var(--ink);
+  padding: 4px 14px;
+  filter: url(#hand);
+  cursor: pointer;
+}
+.tale-file:hover { transform: translate(-1px, -1px); }
+.tale-progress {
+  position: absolute;
+  left: 0; right: 0; bottom: -7px;
+  height: 4px;
+  background: var(--hot);
+  border-bottom: 1px solid var(--ink);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.story-tabs { display: flex; gap: 8px; }
+.story-tabs a {
+  font: 400 21px var(--hand);
+  color: var(--paper);
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 3px 16px 2px;
+  text-decoration: none;
+  filter: url(#hand);
+  transition: transform .2s cubic-bezier(.3,1.4,.5,1), background-color .25s;
+}
+.story-tabs a:nth-child(odd) { rotate: -1.5deg; }
+.story-tabs a:nth-child(even) { rotate: 1.5deg; }
+.story-tabs a:hover { transform: translateY(-3px); }
+.story-tabs a[aria-current] { background: var(--hot); color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+
+.story-steps { position: relative; z-index: 2; margin-top: -100vh; margin-top: -100svh; }
+.step {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 90px clamp(16px, 5vw, 72px) 48px;
+  pointer-events: none;
+}
+.step > * { pointer-events: auto; }
+.step-open { align-items: center; text-align: center; }
+
+/* chapter openers: the word lettered like the logo, with a dictionary line under it */
+.opener {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 600px;
+  padding: 24px clamp(18px, 4vw, 40px) 28px;
+  background: rgba(255, 253, 246, 0.93);
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.step-dark .opener { background: rgba(29, 29, 29, 0.94); color: var(--paper); border-color: var(--hot); box-shadow: 8px 8px 0 var(--hot); }
+.opener-kicker { margin: 0; font: 700 12px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.chapter-word {
+  margin: 0;
+  font-family: var(--hand);
+  font-weight: 400;
+  font-size: clamp(88px, 15vw, 200px);
+  line-height: 1;
+  color: var(--ink);
+  -webkit-text-stroke: 0.16em var(--hot);
+  paint-order: stroke fill;
+  filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 -3px 0 var(--ink)) url(#hand);
+  padding: 0 0.14em;
+  rotate: -3deg;
+}
+.step:nth-of-type(4n+3) .chapter-word { rotate: 2deg; }
+.def { margin: 4px 0 0; font: 700 15px var(--mono); }
+.def b { background: var(--hot); color: var(--ink); padding: 0 4px; }
+.def-text { margin: 0; max-width: 34ch; font: 400 clamp(19px, 2.2vw, 24px)/1.4 var(--hand); }
+
+/* story cards: the same paper, ink border, and hard shadow as the rest of the site */
+.scard {
+  width: min(430px, 100%);
+  padding: 22px 24px 24px;
+  background: linear-gradient(#ece7db 1px, transparent 1px) 0 0 / 100% 28px, #fffdf6;
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.scard h3 { margin: 0 0 10px; font: 400 clamp(26px, 3vw, 32px)/1.15 var(--hand); }
+.scard p { margin: 0 0 12px; font-size: 16px; line-height: 1.55; }
+.scard-kicker {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 14px !important;
+  padding-bottom: 8px;
+  border-bottom: 2px solid currentColor;
+  font: 700 11px var(--mono) !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scard-src { font-size: 13px !important; color: #555; margin: 4px 0 0 !important; }
+.scard a { color: inherit; font-weight: 700; }
+
+/* Fee: a pay stub with a perforated edge */
+.stub { position: relative; padding-bottom: 30px; }
+.stub::after {
+  content: "";
+  position: absolute;
+  left: -3px; right: -3px; bottom: -3px;
+  height: 12px;
+  background: radial-gradient(circle at 8px 12px, var(--map-bg) 5px, transparent 5.5px) 0 0 / 16px 12px repeat-x;
+}
+.stub-rows { margin: 6px 0 0; font: 700 14px var(--mono); }
+.stub-rows div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.stub-rows dt, .stub-rows dd { margin: 0; }
+.stub-rows dd { color: #777; }
+.stub-rows .hl { background: var(--hot); margin: 4px -8px 0; padding: 5px 8px; }
+.stub-rows .hl dd { color: var(--ink); }
+
+/* Fi: an airmail envelope, striped in the brand colors */
+.airmail { padding: 10px; background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, var(--hot) 14px 28px, #fffdf6 28px 42px); }
+.airmail-inner { position: relative; padding: 20px 22px 18px; background: #fffdf6; }
+.airmail h3 { padding-right: 72px; }
+.stamp-box {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 62px; height: 72px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  background: var(--hot);
+  border: 2px dashed var(--ink);
+  rotate: 4deg;
+  font: 700 9px var(--mono);
+  text-transform: uppercase;
+}
+.stamp-box img { width: 28px; height: 28px; }
+.per100 { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; }
+.per100 li { display: flex; align-items: baseline; gap: 12px; border-top: 1px dashed #bbb; padding-top: 4px; font-size: 16px; }
+.p-num { min-width: 2.4em; font: 400 28px/1 var(--badge); }
+
+/* Fo: the giant's ledger, at night */
+.ledger {
+  background: linear-gradient(rgba(255,253,246,.07) 1px, transparent 1px) 0 0 / 100% 30px, var(--night);
+  color: var(--paper);
+  border-color: var(--hot);
+  box-shadow: 8px 8px 0 var(--hot);
+}
+.ledger .scard-kicker { color: var(--hot); }
+.ledger mark { background: var(--hot); color: var(--ink); padding: 0 4px; }
+.ledger .scard-src { color: #bbb; }
+.ledger-head { margin: 14px 0 6px !important; font: 700 11px var(--mono) !important; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hot); }
+.ledger-rows { margin: 0 0 12px; font: 700 14px var(--mono); }
+.ledger-rows div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #ffffff1f; }
+.ledger-rows dt, .ledger-rows dd { margin: 0; }
+.big-num { margin: 4px 0 10px !important; font: 400 clamp(52px, 7vw, 76px)/1 var(--badge) !important; color: var(--hot); }
+
+/* Fund: a postcard home, with the button back up to the map */
+.postcard { background: #fffdf6; }
+.postmark { width: 34px; height: 40px; display: grid; place-items: center; border: 2px dashed var(--ink); font: 400 22px var(--badge); letter-spacing: 0; }
+.story-cta { margin-top: 8px; }
+
+/* margin notes: handwriting on a yellow sticky */
+.snote {
+  margin: 0 0 0 clamp(12px, 4vw, 40px);
+  max-width: 330px;
+  padding: 8px 14px;
+  background: var(--sun-soft);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font: 400 19px/1.3 var(--hand);
+  rotate: -2deg;
+}
+.step:nth-of-type(even) .snote { rotate: 1.5deg; }
+
+/* the button on the landing map that drops you into the tale */
+.tale-btn { display: inline-flex; align-items: center; font-size: 15px; text-decoration: none; background: var(--hot); }
+.tale-btn:hover { background: var(--paper); }
+
+@media (max-width: 520px) {
+  .tale-file { display: none; }
+  .tale-bar { grid-template-columns: auto auto 1fr; gap: 10px; }
+}
+@media (max-width: 820px) {
+  .story-tabs { gap: 5px; }
+  .story-tabs a { font-size: 17px; padding: 2px 10px 1px; }
+  .step { padding-top: 70px; }
+  .scard { box-shadow: 5px 5px 0 var(--ink); }
+  .ledger { box-shadow: 5px 5px 0 var(--hot); }
+}
+
+/* ---- Your $100: one little bill per dollar, colored like its sticker (js/app.js) ---- */
+.hundred-wrap {
+  /* stays at the top of the screen while you scroll through the stickers */
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  margin: 6px -12px 18px;
+  padding: 10px 12px 8px;
+  background: #fffdf6;
+  border-bottom: 2px solid var(--ink);
+}
+.hundred {
+  display: grid;
+  grid-template-columns: repeat(50, minmax(0, 1fr));
+  gap: 3px;
+}
+.bill {
+  aspect-ratio: 2.1;
+  background: var(--c);
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform .15s cubic-bezier(.3,1.6,.5,1), opacity .15s;
+}
+.hundred.has-lit .bill:not(.lit) { opacity: .22; }
+.bill.lit { transform: translateY(-3px); }
+.hundred-cap { margin: 8px 0 0; font: 400 15px var(--hand); color: #555; }
+.collage.has-lit .obj:not(.lit) { filter: saturate(.15) opacity(.35); } /* filter, since the pop-in animation holds opacity */
+.collage .obj.lit { z-index: 5; }
+@media (max-width: 820px) {
+  .hundred { grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 2px; }
+  .hundred-cap { font-size: 14px; }
+}
+
+/* the storybook pages: once upon a time, and the happy ending */
+.storybook {
+  width: min(620px, 100%);
+  padding: clamp(24px, 4vw, 40px) clamp(20px, 4vw, 44px) clamp(24px, 4vw, 36px);
+  background: #fffdf6;
+  border: 3px solid var(--ink);
+  outline: 2px solid var(--ink);
+  outline-offset: -11px;
+  box-shadow: 8px 8px 0 var(--ink);
+  text-align: left;
+  isolation: isolate;
+}
+.storybook p { margin: 0 0 14px; font-size: 17px; line-height: 1.6; }
+.once {
+  margin: 10px 0 18px;
+  font: italic 900 clamp(38px, 6vw, 66px)/1.05 var(--display);
+  text-align: center;
+}
+.dropcap::first-letter {
+  float: left;
+  margin: 4px 10px 0 0;
+  padding: 2px 10px 0;
+  font: italic 900 3.4em/0.9 var(--display);
+  background: var(--hot);
+  border: 2px solid var(--ink);
+}
+.chant {
+  position: relative;
+  margin: 18px 0 20px !important;
+  text-align: center;
+  font: 400 clamp(30px, 4.4vw, 44px)/1.1 var(--hand) !important;
+  letter-spacing: 0.04em;
+}
+.chant::after { content: ""; display: block; width: 60%; height: .22em; margin: -.25em auto 0; background: var(--hot); border-radius: .2em .5em .3em .6em; position: relative; z-index: -1; }
+.storybook .opener-kicker { text-align: center; margin-bottom: 0; }
+.ending .once { font-size: clamp(30px, 4.4vw, 46px); }
+.ending .story-cta { display: block; margin: 20px auto 6px; }
+.the-end { margin: 18px 0 0 !important; text-align: center; font: italic 900 26px var(--display) !important; }
+
+/* the logo as the chapter steps: this chapter's word lit in the yellow case, the other three faint */
+.logo-step { display: block; width: min(560px, 82vw); height: auto; overflow: visible; color: rgba(17, 17, 17, 0.22); margin: -6px 0 -10px; }
+.step-dark .logo-step { color: rgba(255, 253, 246, 0.25); }
+.logo-step .on { transform-box: fill-box; transform-origin: 50% 100%; }
+.logo-step.seen .on { animation: stomp 0.55s cubic-bezier(.3, 1.4, .5, 1) both; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* no lonely words hanging at the end of a line */
+h1, h2, h3, .level-line, .def-text, .tagline, .snote, .scard h3 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+
+/* phones: "Read the tale" gets its own row above the zoom buttons so nothing runs into Sources */
+@media (max-width: 520px) {
+  .map-controls { flex-wrap: wrap; max-width: 210px; }
+  .tale-btn { order: -1; flex-basis: 100%; justify-content: center; }
+}
+
+/* ---- Leave a footprint: the 4th folder and footprint.html (js/actions.js) ---- */
+.moves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 22px;
+  padding: 6px 0 10px;
+}
+.move-card {
+  background: #fffdf6;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 16px 18px 12px;
+}
+.move-card:nth-child(4) { background: var(--sun-soft); }
+.move-kicker { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font: 700 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.move-n { display: inline-grid; place-items: center; width: 24px; height: 24px; background: var(--ink); color: var(--hot); border-radius: 50%; letter-spacing: 0; }
+.move-card h3 { margin: 0 0 10px; font: 400 26px/1.15 var(--hand); text-wrap: balance; }
+.move-list { list-style: none; margin: 0; padding: 0; }
+.move-list li { border-top: 2px dashed #0002; }
+.move-list a {
+  font-weight: 400; /* the Sources page makes its links bold; these shouldn't be */
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 4px;
+  color: var(--ink);
+  text-decoration: none;
+  min-height: 44px;
+}
+.move-list .box { flex: none; width: 20px; height: 20px; margin-top: 2px; border: 2.5px solid var(--ink); background: #fff; transition: background .15s; }
+.move-list a:hover .box, .move-list a:focus-visible .box { background: var(--hot); }
+.move-list a:visited .box { background: var(--ink); box-shadow: inset 0 0 0 3px #fff; }
+.move-text { display: grid; gap: 2px; flex: 1; }
+.move-text b { font: 400 19px/1.2 var(--hand); }
+.move-text span { font-size: 14px; line-height: 1.45; color: #444; text-wrap: pretty; }
+.move-list a:hover b { text-decoration: underline; text-decoration-color: var(--hot); text-decoration-thickness: 4px; text-underline-offset: 2px; }
+.arrow { flex: none; font-size: 18px; line-height: 1; margin-top: 2px; }
+
+/* the happy ending's four moves */
+.end-list { list-style: none; margin: 4px 0 16px; padding: 0; display: grid; gap: 8px; }
+.end-list li { display: grid; grid-template-columns: 4.2em 1fr; gap: 10px; align-items: baseline; padding: 8px 10px; background: var(--sun-soft); border: 2px solid var(--ink); font-size: 15px; line-height: 1.45; }
+.end-list b { font: 400 22px/1 var(--hand); }
+.end-list a { color: var(--ink); font-weight: 700; }
+.storybook a { color: var(--ink); font-weight: 700; }
+
+@media (max-width: 480px) {
+  .tab-your { display: none; }
+  .level-btn .tab-kind::first-letter { text-transform: uppercase; }
+  .level-btn { padding: 0 11px; gap: 5px; font-size: 17px; }
+  .tab-n { width: 1.3em; height: 1.3em; font-size: 11px; }
+}
+
+/* Uncle Sam's name, the first time the tale says it */
+mark.sam { background: var(--hot); color: var(--ink); padding: 0 2px; margin-right: -1px; font-weight: 700; }
+
+/* the footprint logo next to 'Leave a footprint' (tab, buttons, page title) */
+.foot-ico { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: -0.2em; flex: none; }
+.foot-link { display: inline-flex; align-items: center; gap: 6px; }
+.level-btn[data-level="move"] .foot-ico, .level-btn .foot-ico { width: 22px; height: 22px; }
+.level-btn[aria-pressed="false"] .foot-ico { filter: invert(1) grayscale(1) brightness(2); }
+.foot-title { display: flex; align-items: center; gap: 0.15em; }
+.foot-big { width: 0.8em; height: 0.8em; object-fit: contain; flex: none; rotate: -12deg; filter: drop-shadow(3px 3px 0 var(--ink)); }
+
+/* phones: the map button just says "Footprint" so it doesn't run into Read the tale */
+.show-sm { display: none; }
+@media (max-width: 520px) { .hide-sm { display: none; } .show-sm { display: inline; } }
+
+/* ---- Read it to me (js/readaloud.js) ---- */
+.tale-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.tale-audio { display: flex; align-items: center; gap: 8px; }
+.tale-audio[hidden] { display: none; }
+.tale-read, .tale-music {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  font: 400 18px var(--hand);
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 3px 12px;
+  filter: url(#hand);
+  cursor: pointer;
+}
+.tale-read:hover, .tale-music:hover { transform: translate(-1px, -1px); }
+.tale-read.is-reading { background: var(--hot); }
+.tale-read .waves { opacity: .35; }
+.tale-read.is-reading .waves { opacity: 1; animation: waves 1s ease-in-out infinite alternate; }
+@keyframes waves { from { opacity: .3; } to { opacity: 1; } }
+.tale-music { min-width: 38px; justify-content: center; font-size: 20px; padding: 3px 8px; }
+.tale-music[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+.tale-music[hidden] { display: none; }
+
+/* the line being read gets a yellow marker, like the rest of the site */
+.reading {
+  background: rgba(234, 255, 58, 0.6);
+  box-shadow: 0 0 0 6px rgba(234, 255, 58, 0.6);
+  border-radius: 2px;
+  transition: background .2s, box-shadow .2s;
+}
+.ledger .reading, .step-dark .reading { background: rgba(234, 255, 58, 0.16); box-shadow: 0 0 0 6px rgba(234, 255, 58, 0.16), 0 0 0 8px var(--hot); }
+.logo-step.reading, .snote.reading { background: transparent; box-shadow: 0 0 0 4px var(--hot), 0 0 0 7px var(--ink); }
+.snote.reading { background: var(--sun-soft); }
+
+@media (max-width: 820px) {
+  .read-label { display: none; }   /* phones: just the speaker icon */
+  .tale-read { padding: 3px 9px; }
+}
+@media (max-width: 400px) {
+  .tale-bar { gap: 8px; padding: 0 10px; }
+  .story-tabs a { padding: 2px 8px 1px; font-size: 16px; }
+  .tale-home img { width: 28px; height: 28px; }
+}

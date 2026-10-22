@@ -138,7 +138,7 @@
       band = { cx: (pad + formLeft) / 2, w: formLeft - pad * 2, cy: (bTop + bBottom) / 2, h: Math.max(60, bBottom - bTop) };
     } else {
       // zip box at the bottom, clear of the +/- and Sources buttons
-      const bottomPad = narrow ? 62 : 16;
+      const bottomPad = W < 520 ? 104 : narrow ? 62 : 16; // phones: the map buttons take two rows
       const formTop = Math.max(logoBottom + 40, H - bottomPad - fh);
       fy = formTop - fy0;
       band = { cx: W / 2, w: W, cy: (logoBottom + formTop) / 2, h: Math.max(60, formTop - logoBottom - 12) };
@@ -238,6 +238,13 @@
     showLanding();
   });
 
+  // From your file back to the map, then down into the tale
+  $("read-tale").addEventListener("click", () => {
+    history.pushState(null, "", location.pathname);
+    showLanding();
+    requestAnimationFrame(() => { const t = $("story"); if (t) t.scrollIntoView(); });
+  });
+
   window.addEventListener("popstate", route);
 
   function showLanding() {
@@ -264,9 +271,11 @@
     levels.push(state ? { key: "state", data: state } : { key: "state", missing: STATE_NAMES[info.state] || info.state });
     const city = await findCity(info);
     levels.push(city ? { key: "city", data: city } : { key: "city", missing: info.city });
+    // the last folder: what you can do about it, filled in for this town and state
+    levels.push({ key: "move", place: { city: info.city, stateName: STATE_NAMES[info.state] || info.state } });
 
-    $("place-zip").textContent = zip;
-    $("place-name").textContent = info.city + ", " + (STATE_NAMES[info.state] || info.state);
+    $("place-city").textContent = info.city;
+    $("place-name").innerHTML = `<span id="place-zip">${zip}</span> &middot; ${escape(STATE_NAMES[info.state] || info.state)}`;
 
     const nav = $("levels");
     nav.innerHTML = "";
@@ -279,9 +288,13 @@
       b.type = "button";
       b.className = "level-btn" + (lv.missing ? " is-missing" : "");
       b.dataset.level = lv.key;
-      const kind = { federal: "Nation", state: "State", city: "City" }[lv.key];
-      const name = lv.data ? lv.data.short : lv.missing;
-      b.innerHTML = `<span class="tab-kind">${kind}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
+      const kind = { federal: "Nation", state: "State", city: "City", move: "Leave a footprint" }[lv.key];
+      // the last tab gets the footprint logo instead of a number, and just says "Footprint" on phones
+      const kindHtml = lv.key === "move" ? `<span class="tab-your">Leave a </span>footprint` : kind;
+      const name = lv.data ? lv.data.short : lv.missing || kind;
+      // numbered 1, 2, 3 and side by side: the nation, then your state, then your city
+      b.style.setProperty("--i", i);
+      b.innerHTML = (lv.key === "move" ? `<img class="foot-ico" src="assets/icons/icon-192.png" alt="">` : `<span class="tab-n" aria-hidden="true">${i + 1}</span>`) + `<span class="tab-kind">${kindHtml}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
       b.addEventListener("click", () => switchTo(i));
       sheet.appendChild(b);
       nav.appendChild(sheet);
@@ -291,6 +304,7 @@
     landing.hidden = true;
     results.hidden = false;
     document.body.classList.add("on-results");
+    placeTabs(); // after the results are showing, so the tabs can be measured
     window.scrollTo(0, 0);
     pick(0);
   }
@@ -321,6 +335,22 @@
       });
     } catch (e) {}
   }
+  // Tabs sit edge to edge (a little overlap, like real folders), measured so long town names still fit
+  function placeTabs() {
+    const tabs = [...$("levels").querySelectorAll(".level-btn")];
+    if (!tabs.length) return;
+    // if they'd run past the folder's edge (small phones), overlap them a little more so they all fit
+    const room = $("levels").clientWidth - 22;
+    const total = tabs.reduce((t, b) => t + b.offsetWidth, 0);
+    const overlap = Math.max(6, (total - room) / Math.max(1, tabs.length - 1));
+    let x = 14;
+    tabs.forEach(b => { b.style.left = x + "px"; x += b.offsetWidth - overlap; });
+  }
+  // Line them up again whenever a tab changes size (the handwriting font loading in, a phone rotating)
+  const tabWatch = new ResizeObserver(() => { if (!results.hidden) placeTabs(); });
+  new MutationObserver(() => $("levels").querySelectorAll(".level-btn").forEach(b => tabWatch.observe(b)))
+    .observe($("levels"), { childList: true });
+
   // Put folder `front` at the front of the stack; the rest line up behind it
   function stackFolders(front) {
     const order = [front, ...levels.map((_, i) => i).filter(i => i !== front)];
@@ -359,6 +389,16 @@
     const lv = levels[i];
     const collage = $("collage"), barely = $("barely"), foot = $("level-foot");
 
+    if (lv.key === "move") {
+      collage.classList.remove("scatter");
+      collage.style.height = "";
+      $("hundred-wrap").hidden = true;
+      barely.hidden = true;
+      $("level-line").innerHTML = `Every dollar leaves a footprint. <b>Now leave yours.</b> <span>You've seen where the money went. Here's where to have a say, starting with the people who decide, and ending with help on your own taxes.</span>`;
+      collage.innerHTML = Actions.html(lv.place);
+      foot.innerHTML = `<p>Every link goes to an official government site or a nonpartisan tool, and opens in a new tab. City and state links search for your town's own pages. <a href="footprint.html">Open this list on its own page</a></p>`;
+      return;
+    }
     if (lv.missing) {
       collage.classList.remove("scatter");
       collage.style.height = "";
@@ -370,13 +410,22 @@
         collage.innerHTML = `<p class="empty">This zip code may be a post office box or a special-use zip code that doesn't map to a city or county.</p>`;
       }
       barely.hidden = true;
+      $("hundred-wrap").hidden = true;
       foot.innerHTML = "";
       return;
     }
 
     const d = lv.data;
-    $("level-line").innerHTML = `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${d.lead ? escape(d.lead) + " " : ""}${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
+    // Lead with the punchline: where the most money went, then the next two
+    const rows = Collage.breakdown(d).filter(r => r.cat.key !== "other");
+    const said = r => (r.cat.key === "retirement" ? r.cat.label : r.cat.label.charAt(0).toLowerCase() + r.cat.label.slice(1));
+    const next = rows.slice(1, 3).map(r => `${said(r)} ($${Math.round(r.share)})`).join(" and ");
+    $("level-line").innerHTML = rows.length
+      ? `Out of every $100 ${escape(d.name)} spent, <b>$${Math.round(rows[0].share)}</b> went to ${escape(said(rows[0]))}.`
+        + `<span>${next ? "Next: " + escape(next) + ". " : ""}${d.lead ? escape(d.lead) + " " : ""}${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`
+      : `Every <b>$100</b> ${escape(d.name)} spent went like this. <span>${escape(d.period)}. Total: ${Collage.money(d.total, d.unit)}.</span>`;
     const missing = Collage.render(d, collage, openDetail);
+    hundred(Collage.breakdown(d));
 
     barely.hidden = !missing.length;
     $("barely-title").textContent = `Barely any money from ${d.short} here`;
@@ -386,13 +435,41 @@
       <p>Source: <a href="${d.source.url}" target="_blank" rel="noopener">${escape(d.source.name)}</a>. <a href="sources.html">All sources and methods</a></p>`;
   }
 
+  // ---- Your $100 as 100 bills ----
+  // Each category gets one bill per dollar (rounded so they add up to exactly 100).
+  // Pointing at a bill lights up its sticker in the collage, and the other way around.
+  function hundred(rows) {
+    $("hundred-wrap").hidden = false;
+    const exact = rows.map(r => r.share);
+    const count = exact.map(Math.floor);
+    let left = 100 - count.reduce((t, n) => t + n, 0);
+    exact.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0])
+      .forEach(([, i]) => { if (left > 0) { count[i]++; left--; } });
+    const strip = $("hundred");
+    strip.setAttribute("aria-label", "Your $100: " + rows.map((r, i) => count[i] ? `$${count[i]} ${r.cat.label}` : "").filter(Boolean).join(", "));
+    strip.innerHTML = rows.map((r, i) => Array.from({ length: count[i] }, (_, n) =>
+      `<span class="bill${n === 0 ? " first" : ""}" data-key="${r.cat.key}" style="--c:${r.cat.color}" title="${escape(r.cat.label)}: $${count[i]}"></span>`).join("")).join("");
+  }
+  function light(key) {
+    const strip = $("hundred"), collage = $("collage");
+    strip.classList.toggle("has-lit", !!key);
+    collage.classList.toggle("has-lit", !!key);
+    strip.querySelectorAll(".bill").forEach(b => b.classList.toggle("lit", b.dataset.key === key));
+    collage.querySelectorAll(".obj").forEach(o => o.classList.toggle("lit", o.dataset.key === key));
+  }
+  $("hundred").addEventListener("pointerover", e => { const b = e.target.closest(".bill"); if (b) light(b.dataset.key); });
+  $("hundred").addEventListener("pointerleave", () => light(null));
+  $("collage").addEventListener("pointerover", e => { const o = e.target.closest(".obj"); light(o ? o.dataset.key : null); });
+  $("collage").addEventListener("pointerleave", () => light(null));
+  $("hundred").addEventListener("click", e => { const b = e.target.closest(".bill"); if (b) openDetail(Collage.byKey[b.dataset.key]); });
+
   // ---- Detail popup: one category across all three levels ----
   const dialog = $("detail");
   function openDetail(cat) {
     $("detail-img").src = Collage.animSrc(cat);
     $("detail-title").textContent = cat.label;
     $("detail-about").textContent = cat.about;
-    $("detail-levels").innerHTML = levels.map(lv => {
+    $("detail-levels").innerHTML = levels.filter(lv => lv.key !== "move").map(lv => {
       if (lv.missing) return `<li><span>${escape(lv.missing)}</span><span>No data yet</span></li>`;
       const row = Collage.breakdown(lv.data).find(r => r.cat.key === cat.key);
       return row

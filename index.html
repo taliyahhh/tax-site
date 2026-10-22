@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <meta name="theme-color" content="#c9d9df">
+  <meta name="theme-color" content="#f4f1e8">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -72,28 +72,205 @@
       </div>
 
       <form id="zip-form" class="zip-form" autocomplete="off">
-        <label for="zip" class="zip-label">Type a zip or tap the map</label>
+        <label for="zip" class="zip-label">Type a zip or tap the map for the tale of your taxes</label>
+        <!-- the button sits between the label and the zip box, so it's never stuck at the bottom of the screen -->
+        <button type="submit" id="go" class="go" disabled>Show me</button>
         <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
         <p id="zip-readout" class="zip-readout" aria-live="polite">Every dot is a zip code. Drag or zoom the map, then tap a spot.</p>
-        <button type="submit" id="go" class="go" disabled>Show me</button>
       </form>
     </div>
-    <a class="map-sources" href="sources.html">Sources</a>
+    <div class="map-links">
+      <a class="map-sources foot-link" href="footprint.html"><img class="foot-ico" src="assets/icons/icon-192.png" alt=""><span class="hide-sm">Leave a footprint</span><span class="show-sm">Footprint</span></a>
+      <a class="map-sources" href="sources.html">Sources</a>
+    </div>
     <div class="map-controls">
       <button type="button" id="zoom-in" class="map-btn" aria-label="Zoom in">+</button>
       <button type="button" id="zoom-out" class="map-btn" aria-label="Zoom out">&minus;</button>
       <button type="button" id="map-reset" class="map-btn map-reset" hidden>Whole map</button>
+      <a href="#story" id="tale-btn" class="map-btn tale-btn">Read the tale &darr;</a>
+    </div>
+  </section>
+
+  <!-- ============ THE TALE: one tax dollar's trip, told on the dot map as you scroll ============
+       js/story.js draws the map and moves the dots. Each .step below is one stop. -->
+  <section id="story" class="story" aria-label="The tale of one tax dollar">
+    <!-- Pinned to the top the whole time you're in the tale: jump to any chapter, or straight to your file -->
+      <nav class="tale-bar" aria-label="Chapters of the tale">
+        <a href="#landing" class="tale-home" id="tale-home" aria-label="Back to the map"><img src="assets/icons/icon-192.png" alt=""></a>
+        <div class="story-tabs">
+          <a href="#fee" data-ch="0">Fee</a>
+          <a href="#fi" data-ch="1">Fi</a>
+          <a href="#fo" data-ch="2">Fo</a>
+          <a href="#fund" data-ch="3">Fund</a>
+        </div>
+        <!-- read-aloud and its music box (js/readaloud.js); the music button only shows while reading -->
+        <div class="tale-right">
+        <div class="tale-audio" id="tale-audio" hidden>
+          <button type="button" class="tale-read" id="read-btn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="read-label">Read it to me</span>
+          </button>
+          <button type="button" class="tale-music" id="music-btn" aria-pressed="true" aria-label="Music box" title="Music box on or off" hidden>&#9835;</button>
+        </div>
+        <button type="button" class="tale-file" id="tale-file">Open my file</button>
+        </div>
+        <span class="tale-progress" id="tale-progress" aria-hidden="true"></span>
+      </nav>
+    <div class="story-stage">
+      <canvas id="story-map" class="story-map" aria-hidden="true"></canvas>
+    </div>
+
+    <div class="story-steps">
+      <!-- Every element marked data-read is read aloud, in order (js/readaloud.js), and recorded by
+           scripts/make-audio.py. data-say replaces the words spoken; data-voice="sam" is Uncle Sam's voice.
+           If you change any of this text, run scripts/make-audio.py again so the recording matches. -->
+
+      <div class="step step-open" id="once">
+        <article class="storybook">
+          <p class="opener-kicker">A tale of one tax dollar</p>
+          <h2 class="once" data-read>Once upon a time&hellip;</h2>
+          <p class="dropcap" data-read>You wake up, clock in, and trade your hours for a paycheck. That makes you the hero of this story.</p>
+          <p data-read>But at the top of a very tall beanstalk lives a giant who takes his share first. His name is <mark class="sam">Uncle Sam</mark>. He's big, he's loud, and he only ever says four words.</p>
+          <p class="chant" data-read data-voice="sam">Fee. Fi. Fo. Fund.</p>
+          <p data-read>This is the story of where his share goes, and how it finds its way back down to you.</p>
+        </article>
+      </div>
+
+      <div class="step step-open" id="fee">
+        <div class="opener">
+          <p class="opener-kicker">Chapter one of four</p>
+          <h2 class="chapter-word" data-read data-say="Fee!" data-voice="sam">Fee</h2>
+          <p class="def"><b>fee</b> /f&#275;/ <i>noun</i></p>
+          <p class="def-text" data-read>The slice of every paycheck that goes to taxes before you ever see it.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard stub">
+          <p class="scard-kicker"><span>Earnings statement</span><span>Your pay stub</span></p>
+          <h3 data-read>It starts with you.</h3>
+          <p data-read>See the yellow dot on the map? That's one of your tax dollars. Keep scrolling to follow it.</p>
+          <dl class="stub-rows">
+            <div><dt>Gross pay</dt><dd>your pay</dd></div>
+            <div><dt>Federal income tax</dt><dd>withheld</dd></div>
+            <div class="hl"><dt>This dollar</dt><dd>$1.00 &larr;</dd></div>
+          </dl>
+        </article>
+        <p class="snote" data-read>Social Security and Medicare come out of your paycheck too, each on its own line.</p>
+      </div>
+
+      <div class="step step-open" id="fi">
+        <div class="opener">
+          <p class="opener-kicker">Chapter two of four</p>
+          <h2 class="chapter-word" data-read data-say="Fi!" data-voice="sam">Fi</h2>
+          <p class="def"><b>fi</b> /f&#299;/ <i>short for fiscal</i></p>
+          <p class="def-text" data-read>The government's money pot. Your dollar climbs the beanstalk and lands in the federal budget in Washington.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard airmail">
+          <div class="airmail-inner">
+            <span class="stamp-box" aria-hidden="true"><img src="assets/icons/icon-192.png" alt=""><span>Fed post</span></span>
+            <p class="scard-kicker"><span>Via federal mail</span></p>
+            <h3 data-read>Every dot on the map is headed the same way.</h3>
+            <p data-read>Dollars from all 50 states end up in one big pot, and Congress decides how to spend it. Out of every $100:</p>
+            <ul class="per100" id="per100" data-read></ul>
+          </div>
+        </article>
+        <p class="snote" data-read>Federal is only one trip. Your state and city taxes take their own.</p>
+      </div>
+
+      <div class="step step-open step-dark" id="fo">
+        <div class="opener">
+          <p class="opener-kicker">Chapter three of four</p>
+          <h2 class="chapter-word" data-read data-say="Fo!" data-voice="sam">Fo</h2>
+          <p class="def"><b>fo</b> /f&#333;/ <i>short for formula</i></p>
+          <p class="def-text" data-read>The rules Uncle Sam uses to split the pot. Some money follows formulas based on population and need. Some follows people, like Social Security. Some follows federal jobs and contracts.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard ledger">
+          <p class="scard-kicker"><span>Uncle Sam's ledger</span><span>2023</span></p>
+          <h3 data-read>Only <mark>three states</mark> paid in more than they got back.</h3>
+          <p data-read>New Jersey, Massachusetts, and Washington State. Every other state got back more than its people and businesses paid in. New Jersey's gap was the biggest: $18.9 billion, about $2,011 a person.</p>
+          <p class="ledger-head">Biggest net receivers, per person</p>
+          <dl class="ledger-rows" data-read data-say="The biggest receivers, per person: Virginia, $16,650. New Mexico, $16,178. Alaska, $14,760. Maryland, $13,037. And West Virginia, $12,130.">
+            <div><dt>Virginia</dt><dd>+$16,650</dd></div>
+            <div><dt>New Mexico</dt><dd>+$16,178</dd></div>
+            <div><dt>Alaska</dt><dd>+$14,760</dd></div>
+            <div><dt>Maryland</dt><dd>+$13,037</dd></div>
+            <div><dt>West Virginia</dt><dd>+$12,130</dd></div>
+          </dl>
+          <p class="scard-src">Yellow dots: paid in more. White dots: the five biggest receivers. Source: <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">Rockefeller Institute of Government</a>, federal fiscal year 2023 (preliminary).</p>
+        </article>
+        <p class="snote" data-read>Virginia and Maryland border Washington, D.C., so they're home to lots of federal workers and contractors.</p>
+      </div>
+
+      <div class="step">
+        <article class="scard ledger">
+          <p class="scard-kicker"><span>Uncle Sam's ledger, page 2</span><span>California</span></p>
+          <h3 data-read>California usually gives Uncle Sam more than it gets back.</h3>
+          <p class="big-num" data-read data-say="101 billion dollars.">$101 billion</p>
+          <p data-read>That was the gap in 2022, not counting COVID relief, and the same was true in 6 of the 9 years from 2015 to 2023.</p>
+          <p class="scard-src">Source: <a href="https://calbudgetcenter.org/resources/is-california-a-donor-state-heres-how-much-it-pays-to-the-feds-vs-what-it-gets-back/" target="_blank" rel="noopener">California Budget &amp; Policy Center</a>, using Rockefeller Institute data.</p>
+        </article>
+        <p class="snote" data-read>In 2023, pandemic money tipped it the other way, by about $342 a person.</p>
+      </div>
+
+      <div class="step step-open" id="fund">
+        <div class="opener">
+          <p class="opener-kicker">Chapter four of four</p>
+          <h2 class="chapter-word" data-read data-say="Fund!" data-voice="sam">Fund</h2>
+          <p class="def"><b>fund</b> /f&#601;nd/ <i>verb</i></p>
+          <p class="def-text" data-read>What your dollar builds when it finally comes back down to you.</p>
+        </div>
+      </div>
+
+      <div class="step step-end">
+        <article class="scard postcard">
+          <p class="scard-kicker"><span>Greetings from home</span><span class="postmark" aria-hidden="true">$</span></p>
+          <h3 data-read>Home again.</h3>
+          <p data-read>Add in your state and city taxes, and your dollars become the road you drive, the school down the street, the park on the corner, and the fire truck that shows up in minutes. Some come back as checks, like your grandparents' Social Security.</p>
+        </article>
+        <p class="snote" data-read>Watch the map: the color spreads out from home.</p>
+      </div>
+
+      <div class="step step-open step-end" id="the-end">
+        <article class="storybook ending">
+          <p class="opener-kicker">The happy ending</p>
+          <h2 class="once" data-read>&hellip;and they all lived happily, and fundedly, ever after.</h2>
+          <p data-read>Turns out Uncle Sam isn't the villain. He's more like a very large accountant, and you get to check his math.</p>
+          <p data-read>You don't have to climb the beanstalk to have a say. Budgets are public, hearings are open, and you get a vote. One move for each chapter:</p>
+          <ol class="end-list">
+            <li data-read><b>Fee<span class="sr-only">:</span></b><span>Look at Box 2 of your W-2 to see how many of your dollars made the trip.</span></li>
+            <li data-read><b>Fi<span class="sr-only">:</span></b><span><a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener">Find your representative</a>, who votes on the federal budget.</span></li>
+            <li data-read><b>Fo<span class="sr-only">:</span></b><span>See how <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">your state's balance</a> with Washington stacks up.</span></li>
+            <li data-read><b>Fund<span class="sr-only">:</span></b><span>Show up to a city budget hearing, and <a href="https://vote.gov/" target="_blank" rel="noopener">register to vote</a>.</span></li>
+          </ol>
+          <p data-read>Every dot on the map is a zip code. Pick yours to see where your dollars went. <a href="footprint.html">See every way to leave a footprint</a>.</p>
+          <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
+          <p class="the-end" aria-hidden="true" data-read data-say="The end.">The end</p>
+        </article>
+      </div>
+
     </div>
   </section>
 
   <!-- ============ RESULTS: the collage ============ -->
   <section id="results" class="results" hidden aria-label="Where your tax dollars went">
     <header class="results-head">
-      <button type="button" id="back" class="back">New zip code</button>
       <div class="place">
-        <p class="place-zip" id="place-zip">95050</p>
-        <p class="place-name" id="place-name">Santa Clara, California</p>
+        <!-- your town, lettered big like the logo; the zip and state sit on the label under it -->
+        <p class="place-city" id="place-city">Santa Clara</p>
+        <p class="place-name" id="place-name"><span id="place-zip">95050</span> &middot; California</p>
       </div>
+      <nav class="results-nav" aria-label="Go somewhere else">
+        <button type="button" id="back" class="back">New zip code</button>
+        <button type="button" id="read-tale" class="back">Read the tale</button>
+        <a class="back" href="sources.html">Sources</a>
+      </nav>
     </header>
 
     <!-- The results are a stack of file folders: one per level of government -->
@@ -102,6 +279,11 @@
     <div class="folder" id="folder">
     <div class="frame">
       <p class="level-line" id="level-line"></p>
+      <!-- Your $100 as 100 little bills, one color per category; pointing at one lights up its sticker -->
+      <div class="hundred-wrap" id="hundred-wrap">
+        <div class="hundred" id="hundred" role="img"></div>
+        <p class="hundred-cap">One bill for every dollar. Point at a color to find its sticker.</p>
+      </div>
       <div class="collage" id="collage"></div>
 
       <div class="barely" id="barely">
@@ -134,6 +316,9 @@
   <script src="data/states.js"></script>
   <script src="js/map.js"></script>
   <script src="js/collage.js"></script>
+  <script src="js/actions.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/readaloud.js"></script>
 </body>
 </html>

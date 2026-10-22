@@ -13,17 +13,24 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-  <meta name="theme-color" content="#c9d9df">
+  <meta name="theme-color" content="#f4f1e8">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="on-results">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="hand"><feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.5" xChannelSelector="R" yChannelSelector="G"/></filter>
+  </svg>
   <main class="results sources">
     <header class="results-head sources-head">
-      <a class="back" href="./">Back to the map</a>
       <div class="place">
-        <h1 class="place-zip">Sources</h1>
+        <h1 class="place-city">Sources</h1>
         <p class="place-name">Where every number comes from</p>
       </div>
+      <nav class="results-nav" aria-label="Go somewhere else">
+        <a class="back" href="./">Back to the map</a>
+        <a class="back" href="./#story">Read the tale</a>
+        <a class="back foot-link" href="footprint.html"><img class="foot-ico" src="assets/icons/icon-192.png" alt="">Leave a footprint</a>
+      </nav>
     </header>
 
     <!-- the sources live in their own folder -->
@@ -99,6 +106,13 @@
               <td>2020</td>
               <td><a href="https://www.census.gov/geographies/reference-files/time-series/geo/relationship-files.2020.html" target="_blank" rel="noopener">U.S. Census Bureau, 2020 ZCTA relationship files</a></td>
               <td>Automatically, monthly</td>
+            </tr>
+            <tr>
+              <td>The tale</td>
+              <td>Which states pay in more federal tax than they get back</td>
+              <td>Federal fiscal 2023 (preliminary); California 2015 to 2023</td>
+              <td><a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">Rockefeller Institute of Government, Giving or Getting? (2025)</a>; <a href="https://calbudgetcenter.org/resources/is-california-a-donor-state-heres-how-much-it-pays-to-the-feds-vs-what-it-gets-back/" target="_blank" rel="noopener">California Budget &amp; Policy Center</a></td>
+              <td>By hand, when a new year's report comes out</td>
             </tr>
             <tr>
               <td>Map</td>
