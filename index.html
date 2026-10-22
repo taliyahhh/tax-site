@@ -73,9 +73,12 @@
 
       <form id="zip-form" class="zip-form" autocomplete="off">
         <label for="zip" class="zip-label">Type a zip or tap the map</label>
-        <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
+        <!-- the button sits right next to the zip box, so it isn't stuck at the bottom of the screen -->
+        <div class="zip-row">
+          <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
+          <button type="submit" id="go" class="go" disabled>Show me</button>
+        </div>
         <p id="zip-readout" class="zip-readout" aria-live="polite">Every dot is a zip code. Drag or zoom the map, then tap a spot.</p>
-        <button type="submit" id="go" class="go" disabled>Show me</button>
       </form>
     </div>
     <a class="map-sources" href="sources.html">Sources</a>
@@ -238,11 +241,16 @@
   <!-- ============ RESULTS: the collage ============ -->
   <section id="results" class="results" hidden aria-label="Where your tax dollars went">
     <header class="results-head">
-      <button type="button" id="back" class="back">New zip code</button>
       <div class="place">
-        <p class="place-zip" id="place-zip">95050</p>
-        <p class="place-name" id="place-name">Santa Clara, California</p>
+        <!-- your town, lettered big like the logo; the zip and state sit on the label under it -->
+        <p class="place-city" id="place-city">Santa Clara</p>
+        <p class="place-name" id="place-name"><span id="place-zip">95050</span> &middot; California</p>
       </div>
+      <nav class="results-nav" aria-label="Go somewhere else">
+        <button type="button" id="back" class="back">New zip code</button>
+        <button type="button" id="read-tale" class="back">Read the tale</button>
+        <a class="back" href="sources.html">Sources</a>
+      </nav>
     </header>
 
     <!-- The results are a stack of file folders: one per level of government -->

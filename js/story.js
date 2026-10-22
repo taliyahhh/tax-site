@@ -244,6 +244,40 @@
   window.addEventListener("scroll", kick, { passive: true });
   resize();
 
+  // ---- The logo as the chapter steps ----
+  // Each chapter opener draws the real logo (the word shapes defined in index.html's logo),
+  // with this chapter's word lettered in the yellow case and the other three as faint outlines.
+  // The lit word stomps in the first time you reach it.
+  const NS = "http://www.w3.org/2000/svg";
+  const WORDS = ["Fee", "Fi", "Fo", "Fund"];
+  section.querySelectorAll(".chapter-word").forEach((h, n) => {
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 900 420");
+    svg.setAttribute("class", "logo-step");
+    svg.setAttribute("aria-hidden", "true");
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("filter", "url(#logo-wob)");
+    g.setAttribute("stroke-linejoin", "round");
+    g.setAttribute("font-family", "Architects Daughter, cursive");
+    const use = (i, cls, fill, stroke, width) => {
+      const u = document.createElementNS(NS, "use");
+      u.setAttribute("href", "#lw" + i);
+      u.setAttribute("class", cls);
+      u.setAttribute("fill", fill); u.setAttribute("stroke", stroke); u.setAttribute("stroke-width", width);
+      g.appendChild(u);
+    };
+    for (let i = 0; i < 4; i++) if (i !== n) use(i, "off", "none", "currentColor", 3);
+    [["#111", 62], ["#eaff3a", 50], ["#111", 9], ["#111", 6]].forEach(([c, w]) => use(n, "on", c, c, w));
+    svg.appendChild(g);
+    h.parentNode.insertBefore(svg, h);
+    h.classList.add("sr-only");
+    h.textContent = WORDS[n] + ", chapter " + (n + 1) + " of 4";
+  });
+  const stomp = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("seen"); stomp.unobserve(e.target); }
+  }), { threshold: 0.5 });
+  section.querySelectorAll(".logo-step").forEach(el => stomp.observe(el));
+
   // ---- Links ----
   const go = el => el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   tabs.forEach(t => t.addEventListener("click", e => {

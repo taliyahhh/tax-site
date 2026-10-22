@@ -138,7 +138,7 @@
       band = { cx: (pad + formLeft) / 2, w: formLeft - pad * 2, cy: (bTop + bBottom) / 2, h: Math.max(60, bBottom - bTop) };
     } else {
       // zip box at the bottom, clear of the +/- and Sources buttons
-      const bottomPad = narrow ? 62 : 16;
+      const bottomPad = W < 520 ? 104 : narrow ? 62 : 16; // phones: the map buttons take two rows
       const formTop = Math.max(logoBottom + 40, H - bottomPad - fh);
       fy = formTop - fy0;
       band = { cx: W / 2, w: W, cy: (logoBottom + formTop) / 2, h: Math.max(60, formTop - logoBottom - 12) };
@@ -238,6 +238,13 @@
     showLanding();
   });
 
+  // From your file back to the map, then down into the tale
+  $("read-tale").addEventListener("click", () => {
+    history.pushState(null, "", location.pathname);
+    showLanding();
+    requestAnimationFrame(() => { const t = $("story"); if (t) t.scrollIntoView(); });
+  });
+
   window.addEventListener("popstate", route);
 
   function showLanding() {
@@ -265,8 +272,8 @@
     const city = await findCity(info);
     levels.push(city ? { key: "city", data: city } : { key: "city", missing: info.city });
 
-    $("place-zip").textContent = zip;
-    $("place-name").textContent = info.city + ", " + (STATE_NAMES[info.state] || info.state);
+    $("place-city").textContent = info.city;
+    $("place-name").innerHTML = `<span id="place-zip">${zip}</span> &middot; ${escape(STATE_NAMES[info.state] || info.state)}`;
 
     const nav = $("levels");
     nav.innerHTML = "";
@@ -293,6 +300,7 @@
     landing.hidden = true;
     results.hidden = false;
     document.body.classList.add("on-results");
+    placeTabs(); // after the results are showing, so the tabs can be measured
     window.scrollTo(0, 0);
     pick(0);
   }
@@ -323,6 +331,14 @@
       });
     } catch (e) {}
   }
+  // Tabs sit edge to edge (a little overlap, like real folders), measured so long town names still fit
+  function placeTabs() {
+    let x = 14;
+    [...$("levels").querySelectorAll(".level-btn")].forEach(b => { b.style.left = x + "px"; x += b.offsetWidth - 6; });
+  }
+  window.addEventListener("resize", () => { if (!results.hidden) placeTabs(); });
+  if (document.fonts) document.fonts.ready.then(() => { if (!results.hidden) placeTabs(); });
+
   // Put folder `front` at the front of the stack; the rest line up behind it
   function stackFolders(front) {
     const order = [front, ...levels.map((_, i) => i).filter(i => i !== front)];
