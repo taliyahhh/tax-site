@@ -90,17 +90,34 @@
   <!-- ============ THE TALE: one tax dollar's trip, told on the dot map as you scroll ============
        js/story.js draws the map and moves the dots. Each .step below is one stop. -->
   <section id="story" class="story" aria-label="The tale of one tax dollar">
+    <!-- Pinned to the top the whole time you're in the tale: jump to any chapter, or straight to your file -->
+      <nav class="tale-bar" aria-label="Chapters of the tale">
+        <a href="#landing" class="tale-home" id="tale-home" aria-label="Back to the map"><img src="assets/icons/icon-192.png" alt=""></a>
+        <div class="story-tabs">
+          <a href="#fee" data-ch="0">Fee</a>
+          <a href="#fi" data-ch="1">Fi</a>
+          <a href="#fo" data-ch="2">Fo</a>
+          <a href="#fund" data-ch="3">Fund</a>
+        </div>
+        <button type="button" class="tale-file" id="tale-file">Open my file</button>
+        <span class="tale-progress" id="tale-progress" aria-hidden="true"></span>
+      </nav>
     <div class="story-stage">
       <canvas id="story-map" class="story-map" aria-hidden="true"></canvas>
-      <nav class="story-tabs" aria-label="Chapters">
-        <a href="#fee" data-ch="0">Fee</a>
-        <a href="#fi" data-ch="1">Fi</a>
-        <a href="#fo" data-ch="2">Fo</a>
-        <a href="#fund" data-ch="3">Fund</a>
-      </nav>
     </div>
 
     <div class="story-steps">
+
+      <div class="step step-open" id="once">
+        <article class="storybook">
+          <p class="opener-kicker">A tale of one tax dollar</p>
+          <h2 class="once">Once upon a time&hellip;</h2>
+          <p class="dropcap">Jack traded his cow for a handful of magic beans. You trade your hours for a paycheck.</p>
+          <p>But before your pay ever reaches you, a giant at the top of a very tall beanstalk takes his share. He's big, he's loud, and he only ever says four words.</p>
+          <p class="chant">Fee. Fi. Fo. Fund.</p>
+          <p>This is the story of where his share goes, and how it finds its way back down to you.</p>
+        </article>
+      </div>
 
       <div class="step step-open" id="fee">
         <div class="opener">
@@ -199,10 +216,20 @@
           <p class="scard-kicker"><span>Greetings from home</span><span class="postmark" aria-hidden="true">$</span></p>
           <h3>And it comes back down.</h3>
           <p>Part of your dollar returns as the roads you drive, the schools down the street, the parks, the fire trucks. Your state and city add their own taxes to the pile.</p>
-          <p>Every dot on this map is a zip code. Pick yours to open the file on where it all went.</p>
-          <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
         </article>
-        <p class="snote">Your city's budget is public, and you can speak at its hearings.</p>
+        <p class="snote">Watch the map: the color spreads out from home.</p>
+      </div>
+
+      <div class="step step-open step-end" id="the-end">
+        <article class="storybook ending">
+          <p class="opener-kicker">The happy ending</p>
+          <h2 class="once">&hellip;and they all lived happily, and fundedly, ever after.</h2>
+          <p>Turns out the giant isn't the villain. He's more like a very large accountant. Your dollar comes back as the bus you ride, the teacher down the street, the firefighter who shows up in minutes, and the check that pays your grandma's rent.</p>
+          <p>And unlike Jack, you don't have to sneak up the beanstalk. Budgets are public, city hearings are open, and you get a vote.</p>
+          <p>Every dot on the map is a zip code. Pick yours to open the file on where it all went.</p>
+          <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
+          <p class="the-end" aria-hidden="true">The end</p>
+        </article>
       </div>
 
     </div>

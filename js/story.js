@@ -56,6 +56,7 @@
     ca: { x: 92, y: 290, s: 2.3 }
   };
   const STOPS = [
+    { cam: "full", dots: "zones", ripple: true },
     { cam: "full", dots: "plain", home: "Your dollar" },
     { cam: "home", dots: "plain", home: "Your dollar" },
     { cam: "full", dots: "plain", flow: "scrub", dc: true },
@@ -64,11 +65,14 @@
     { cam: "full", dots: "balance", dark: true },
     { cam: "ca", dots: "california", dark: true },
     { cam: "full", dots: "zones", ripple: true, home: "Home" },
-    { cam: "full", dots: "zones", ripple: true, home: "Home" }
+    { cam: "full", dots: "zones", ripple: true, home: "Home" },
+    { cam: "full", dots: "zones", ripple: true }
   ];
-  const CHAPTER = [0, 0, 1, 1, 2, 2, 2, 3, 3];
+  // which tab lights up at each stop (-1: the intro, before the first chapter)
+  const CHAPTER = [-1, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3];
   const steps = [...section.querySelectorAll(".step")];
   const tabs = [...section.querySelectorAll(".story-tabs a")];
+  const progress = document.getElementById("tale-progress");
 
   // ---- Out of every $100 (chapter Fi), from the same federal numbers as the results page ----
   const per100 = document.getElementById("per100");
@@ -109,9 +113,14 @@
       const ch = CHAPTER[active];
       tabs.forEach((t, i) => { if (i === ch) t.setAttribute("aria-current", "step"); else t.removeAttribute("aria-current"); });
     }
-    const a2 = steps[2].getBoundingClientRect(), a3 = steps[3].getBoundingClientRect();
+    // the trip to Washington plays out across the Fi opener and its card (stops 3 and 4)
+    const a2 = steps[3].getBoundingClientRect(), a3 = steps[4].getBoundingClientRect();
     const span = a2.height + a3.height * 0.55;
     scrub = Math.min(Math.max((mid - a2.top) / span, 0), 1);
+    // the yellow line under the chapter bar shows how far through the tale you are
+    const r = section.getBoundingClientRect();
+    const done = Math.min(Math.max(-r.top / Math.max(1, r.height - window.innerHeight), 0), 1);
+    if (progress) progress.style.transform = `scaleX(${done.toFixed(3)})`;
   }
 
   const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -243,12 +252,15 @@
   }));
   const tale = document.getElementById("tale-btn");
   if (tale) tale.addEventListener("click", e => { e.preventDefault(); go(section); });
-  // The end of the tale sends you back up to the map to type your zip
-  const cta = document.getElementById("story-cta");
-  if (cta) cta.addEventListener("click", () => {
+  // "Open my file" (end of the tale, or the chapter bar) sends you back up to the map to type your zip.
+  // The logo in the bar just goes back to the map.
+  const toMap = focus => {
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
-    setTimeout(() => { const z = document.getElementById("zip"); if (z) z.focus({ preventScroll: true }); }, reduced ? 0 : 700);
-  });
+    if (focus) setTimeout(() => { const z = document.getElementById("zip"); if (z) z.focus({ preventScroll: true }); }, reduced ? 0 : 700);
+  };
+  ["story-cta", "tale-file"].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener("click", () => toMap(true)); });
+  const home = document.getElementById("tale-home");
+  if (home) home.addEventListener("click", e => { e.preventDefault(); toMap(false); });
 
   window.TaxStory = { resize };
 })();
