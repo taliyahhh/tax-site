@@ -714,3 +714,199 @@ body:not(.on-results) .site-foot { display: none; }
 }
 .map-btn:hover { background: var(--hot); }
 .map-reset { font-size: 13px; text-transform: uppercase; }
+
+/* =========================================================
+   THE TALE: Fee, Fi, Fo, Fund (js/story.js)
+   The dot map stays put while the chapters scroll over it.
+   ========================================================= */
+.story { position: relative; background: var(--map-bg); }
+body.on-results .story { display: none; }
+.story-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.story-map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.story-stage::after { content: ""; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: multiply; pointer-events: none; }
+
+/* chapter tabs: black label boxes like the zip label; the current one turns yellow */
+.story-tabs {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  gap: 8px;
+}
+.story-tabs a {
+  font: 400 21px var(--hand);
+  color: var(--paper);
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 3px 16px 2px;
+  text-decoration: none;
+  filter: url(#hand);
+  transition: transform .2s cubic-bezier(.3,1.4,.5,1), background-color .25s;
+}
+.story-tabs a:nth-child(odd) { rotate: -1.5deg; }
+.story-tabs a:nth-child(even) { rotate: 1.5deg; }
+.story-tabs a:hover { transform: translateY(-3px); }
+.story-tabs a[aria-current] { background: var(--hot); color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+
+.story-steps { position: relative; z-index: 2; margin-top: -100vh; margin-top: -100svh; }
+.step {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 90px clamp(16px, 5vw, 72px) 48px;
+  pointer-events: none;
+}
+.step > * { pointer-events: auto; }
+.step-open { align-items: center; text-align: center; }
+
+/* chapter openers: the word lettered like the logo, with a dictionary line under it */
+.opener {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 600px;
+  padding: 24px clamp(18px, 4vw, 40px) 28px;
+  background: rgba(255, 253, 246, 0.93);
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.step-dark .opener { background: rgba(29, 29, 29, 0.94); color: var(--paper); border-color: var(--hot); box-shadow: 8px 8px 0 var(--hot); }
+.opener-kicker { margin: 0; font: 700 12px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.chapter-word {
+  margin: 0;
+  font-family: var(--hand);
+  font-weight: 400;
+  font-size: clamp(88px, 15vw, 200px);
+  line-height: 1;
+  color: var(--ink);
+  -webkit-text-stroke: 0.16em var(--hot);
+  paint-order: stroke fill;
+  filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 -3px 0 var(--ink)) url(#hand);
+  padding: 0 0.14em;
+  rotate: -3deg;
+}
+.step:nth-of-type(4n+3) .chapter-word { rotate: 2deg; }
+.def { margin: 4px 0 0; font: 700 15px var(--mono); }
+.def b { background: var(--hot); color: var(--ink); padding: 0 4px; }
+.def-text { margin: 0; max-width: 34ch; font: 400 clamp(19px, 2.2vw, 24px)/1.4 var(--hand); }
+
+/* story cards: the same paper, ink border, and hard shadow as the rest of the site */
+.scard {
+  width: min(430px, 100%);
+  padding: 22px 24px 24px;
+  background: linear-gradient(#ece7db 1px, transparent 1px) 0 0 / 100% 28px, #fffdf6;
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+.scard h3 { margin: 0 0 10px; font: 400 clamp(26px, 3vw, 32px)/1.15 var(--hand); }
+.scard p { margin: 0 0 12px; font-size: 16px; line-height: 1.55; }
+.scard-kicker {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 14px !important;
+  padding-bottom: 8px;
+  border-bottom: 2px solid currentColor;
+  font: 700 11px var(--mono) !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scard-src { font-size: 13px !important; color: #555; margin: 4px 0 0 !important; }
+.scard a { color: inherit; font-weight: 700; }
+
+/* Fee: a pay stub with a perforated edge */
+.stub { position: relative; padding-bottom: 30px; }
+.stub::after {
+  content: "";
+  position: absolute;
+  left: -3px; right: -3px; bottom: -3px;
+  height: 12px;
+  background: radial-gradient(circle at 8px 12px, var(--map-bg) 5px, transparent 5.5px) 0 0 / 16px 12px repeat-x;
+}
+.stub-rows { margin: 6px 0 0; font: 700 14px var(--mono); }
+.stub-rows div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; }
+.stub-rows dt, .stub-rows dd { margin: 0; }
+.stub-rows dd { color: #777; }
+.stub-rows .hl { background: var(--hot); margin: 4px -8px 0; padding: 5px 8px; }
+.stub-rows .hl dd { color: var(--ink); }
+
+/* Fi: an airmail envelope, striped in the brand colors */
+.airmail { padding: 10px; background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, var(--hot) 14px 28px, #fffdf6 28px 42px); }
+.airmail-inner { position: relative; padding: 20px 22px 18px; background: #fffdf6; }
+.airmail h3 { padding-right: 72px; }
+.stamp-box {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 62px; height: 72px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  background: var(--hot);
+  border: 2px dashed var(--ink);
+  rotate: 4deg;
+  font: 700 9px var(--mono);
+  text-transform: uppercase;
+}
+.stamp-box img { width: 28px; height: 28px; }
+.per100 { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; }
+.per100 li { display: flex; align-items: baseline; gap: 12px; border-top: 1px dashed #bbb; padding-top: 4px; font-size: 16px; }
+.p-num { min-width: 2.4em; font: 400 28px/1 var(--badge); }
+
+/* Fo: the giant's ledger, at night */
+.ledger {
+  background: linear-gradient(rgba(255,253,246,.07) 1px, transparent 1px) 0 0 / 100% 30px, var(--night);
+  color: var(--paper);
+  border-color: var(--hot);
+  box-shadow: 8px 8px 0 var(--hot);
+}
+.ledger .scard-kicker { color: var(--hot); }
+.ledger mark { background: var(--hot); color: var(--ink); padding: 0 4px; }
+.ledger .scard-src { color: #bbb; }
+.ledger-head { margin: 14px 0 6px !important; font: 700 11px var(--mono) !important; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hot); }
+.ledger-rows { margin: 0 0 12px; font: 700 14px var(--mono); }
+.ledger-rows div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #ffffff1f; }
+.ledger-rows dt, .ledger-rows dd { margin: 0; }
+.big-num { margin: 4px 0 10px !important; font: 400 clamp(52px, 7vw, 76px)/1 var(--badge) !important; color: var(--hot); }
+
+/* Fund: a postcard home, with the button back up to the map */
+.postcard { background: #fffdf6; }
+.postmark { width: 34px; height: 40px; display: grid; place-items: center; border: 2px dashed var(--ink); font: 400 22px var(--badge); letter-spacing: 0; }
+.story-cta { margin-top: 8px; }
+
+/* margin notes: handwriting on a yellow sticky */
+.snote {
+  margin: 0 0 0 clamp(12px, 4vw, 40px);
+  max-width: 330px;
+  padding: 8px 14px;
+  background: var(--sun-soft);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font: 400 19px/1.3 var(--hand);
+  rotate: -2deg;
+}
+.step:nth-of-type(even) .snote { rotate: 1.5deg; }
+
+/* the button on the landing map that drops you into the tale */
+.tale-btn { display: inline-flex; align-items: center; font-size: 15px; text-decoration: none; background: var(--hot); }
+.tale-btn:hover { background: var(--paper); }
+
+@media (max-width: 820px) {
+  .story-tabs { top: 10px; gap: 5px; }
+  .story-tabs a { font-size: 17px; padding: 2px 10px 1px; }
+  .step { padding-top: 70px; }
+  .scard { box-shadow: 5px 5px 0 var(--ink); }
+  .ledger { box-shadow: 5px 5px 0 var(--hot); }
+}

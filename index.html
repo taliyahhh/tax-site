@@ -83,6 +83,128 @@
       <button type="button" id="zoom-in" class="map-btn" aria-label="Zoom in">+</button>
       <button type="button" id="zoom-out" class="map-btn" aria-label="Zoom out">&minus;</button>
       <button type="button" id="map-reset" class="map-btn map-reset" hidden>Whole map</button>
+      <a href="#story" id="tale-btn" class="map-btn tale-btn">Read the tale &darr;</a>
+    </div>
+  </section>
+
+  <!-- ============ THE TALE: one tax dollar's trip, told on the dot map as you scroll ============
+       js/story.js draws the map and moves the dots. Each .step below is one stop. -->
+  <section id="story" class="story" aria-label="The tale of one tax dollar">
+    <div class="story-stage">
+      <canvas id="story-map" class="story-map" aria-hidden="true"></canvas>
+      <nav class="story-tabs" aria-label="Chapters">
+        <a href="#fee" data-ch="0">Fee</a>
+        <a href="#fi" data-ch="1">Fi</a>
+        <a href="#fo" data-ch="2">Fo</a>
+        <a href="#fund" data-ch="3">Fund</a>
+      </nav>
+    </div>
+
+    <div class="story-steps">
+
+      <div class="step step-open" id="fee">
+        <div class="opener">
+          <p class="opener-kicker">Chapter one of four</p>
+          <h2 class="chapter-word">Fee</h2>
+          <p class="def"><b>fee</b> /f&#275;/ <i>noun</i></p>
+          <p class="def-text">The slice of every paycheck that goes to taxes before you ever see it.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard stub">
+          <p class="scard-kicker"><span>Earnings statement</span><span>Your pay stub</span></p>
+          <h3>It starts with you.</h3>
+          <p>Before your pay reaches your account, a slice is withheld for federal taxes. That yellow dot is one of your dollars. Keep scrolling and follow it.</p>
+          <dl class="stub-rows">
+            <div><dt>Gross pay</dt><dd>your pay</dd></div>
+            <div><dt>Federal income tax</dt><dd>withheld</dd></div>
+            <div class="hl"><dt>This dollar</dt><dd>$1.00 &larr;</dd></div>
+          </dl>
+        </article>
+        <p class="snote">Box 2 on your W-2 is how many of your dollars took this trip last year.</p>
+      </div>
+
+      <div class="step step-open" id="fi">
+        <div class="opener">
+          <p class="opener-kicker">Chapter two of four</p>
+          <h2 class="chapter-word">Fi</h2>
+          <p class="def"><b>fi</b> /f&#299;/ <i>short for fiscal</i></p>
+          <p class="def-text">The government's money pot. Your dollar climbs the beanstalk and joins the federal budget in Washington.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard airmail">
+          <div class="airmail-inner">
+            <span class="stamp-box" aria-hidden="true"><img src="assets/icons/icon-192.png" alt=""><span>Fed post</span></span>
+            <p class="scard-kicker"><span>Via federal mail</span></p>
+            <h3>Every dot on the map is headed the same way.</h3>
+            <p>Dollars from all 50 states pile up in Washington. Congress decides how the whole pile is spent. Out of every $100:</p>
+            <ul class="per100" id="per100"></ul>
+          </div>
+        </article>
+        <p class="snote">Federal is only one trip. Your state and city taxes take their own.</p>
+      </div>
+
+      <div class="step step-open step-dark" id="fo">
+        <div class="opener">
+          <p class="opener-kicker">Chapter three of four</p>
+          <h2 class="chapter-word">Fo</h2>
+          <p class="def"><b>fo</b> /f&#333;/ <i>short for formula</i></p>
+          <p class="def-text">The rules the giant uses to split the pile. Some money follows formulas based on population and need. Some follows people, like Social Security. Some follows federal jobs and contracts.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <article class="scard ledger">
+          <p class="scard-kicker"><span>The giant's ledger</span><span>2023</span></p>
+          <h3>Only <mark>three states</mark> paid in more than they got back.</h3>
+          <p>New Jersey, Massachusetts, and Washington. Every other state received more federal money than its people and businesses sent. New Jersey's gap was the biggest: $18.9 billion, about $2,011 a person.</p>
+          <p class="ledger-head">Biggest net receivers, per person</p>
+          <dl class="ledger-rows">
+            <div><dt>Virginia</dt><dd>+$16,650</dd></div>
+            <div><dt>New Mexico</dt><dd>+$16,178</dd></div>
+            <div><dt>Alaska</dt><dd>+$14,760</dd></div>
+            <div><dt>Maryland</dt><dd>+$13,037</dd></div>
+            <div><dt>West Virginia</dt><dd>+$12,130</dd></div>
+          </dl>
+          <p class="scard-src">Yellow dots: paid in more. White dots: the five biggest receivers. Source: <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">Rockefeller Institute of Government</a>, federal fiscal year 2023 (preliminary).</p>
+        </article>
+        <p class="snote">Federal jobs, military bases, contracts, and higher need pull money toward a state.</p>
+      </div>
+
+      <div class="step">
+        <article class="scard ledger">
+          <p class="scard-kicker"><span>The giant's ledger, page 2</span><span>California</span></p>
+          <h3>California usually feeds the giant more than it gets back.</h3>
+          <p class="big-num">$101 billion</p>
+          <p>That was the gap in 2022, leaving out COVID relief. California paid in more than it got back in 6 of the 9 years from 2015 to 2023.</p>
+          <p class="scard-src">Source: <a href="https://calbudgetcenter.org/resources/is-california-a-donor-state-heres-how-much-it-pays-to-the-feds-vs-what-it-gets-back/" target="_blank" rel="noopener">California Budget &amp; Policy Center</a>, using Rockefeller Institute data.</p>
+        </article>
+        <p class="snote">In 2023, pandemic money tipped it the other way, by about $342 a person.</p>
+      </div>
+
+      <div class="step step-open" id="fund">
+        <div class="opener">
+          <p class="opener-kicker">Chapter four of four</p>
+          <h2 class="chapter-word">Fund</h2>
+          <p class="def"><b>fund</b> /f&#601;nd/ <i>verb</i></p>
+          <p class="def-text">What your dollar builds when it finally comes back down to you.</p>
+        </div>
+      </div>
+
+      <div class="step step-end">
+        <article class="scard postcard">
+          <p class="scard-kicker"><span>Greetings from home</span><span class="postmark" aria-hidden="true">$</span></p>
+          <h3>And it comes back down.</h3>
+          <p>Part of your dollar returns as the roads you drive, the schools down the street, the parks, the fire trucks. Your state and city add their own taxes to the pile.</p>
+          <p>Every dot on this map is a zip code. Pick yours to open the file on where it all went.</p>
+          <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
+        </article>
+        <p class="snote">Your city's budget is public, and you can speak at its hearings.</p>
+      </div>
+
     </div>
   </section>
 
@@ -135,5 +257,6 @@
   <script src="js/map.js"></script>
   <script src="js/collage.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/story.js"></script>
 </body>
 </html>
