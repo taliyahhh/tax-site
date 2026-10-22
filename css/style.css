@@ -773,9 +773,10 @@ body.on-results .story { display: none; }
   height: 62px;
   margin-bottom: -62px;
   box-sizing: border-box;
-  display: flex;
+  /* logo on the left, chapters in the middle, read-aloud and Open my file on the right */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 0 clamp(12px, 4vw, 40px);
   background: rgba(244, 241, 232, 0.95);
@@ -967,7 +968,7 @@ body.on-results .story { display: none; }
 
 @media (max-width: 520px) {
   .tale-file { display: none; }
-  .tale-bar { justify-content: flex-start; gap: 14px; }
+  .tale-bar { grid-template-columns: auto auto 1fr; gap: 10px; }
 }
 @media (max-width: 820px) {
   .story-tabs { gap: 5px; }
@@ -1133,3 +1134,51 @@ mark.sam { background: var(--hot); color: var(--ink); padding: 0 2px; margin-rig
 /* phones: the map button just says "Footprint" so it doesn't run into Read the tale */
 .show-sm { display: none; }
 @media (max-width: 520px) { .hide-sm { display: none; } .show-sm { display: inline; } }
+
+/* ---- Read it to me (js/readaloud.js) ---- */
+.tale-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.tale-audio { display: flex; align-items: center; gap: 8px; }
+.tale-audio[hidden] { display: none; }
+.tale-read, .tale-music {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  font: 400 18px var(--hand);
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 3px 12px;
+  filter: url(#hand);
+  cursor: pointer;
+}
+.tale-read:hover, .tale-music:hover { transform: translate(-1px, -1px); }
+.tale-read.is-reading { background: var(--hot); }
+.tale-read .waves { opacity: .35; }
+.tale-read.is-reading .waves { opacity: 1; animation: waves 1s ease-in-out infinite alternate; }
+@keyframes waves { from { opacity: .3; } to { opacity: 1; } }
+.tale-music { min-width: 38px; justify-content: center; font-size: 20px; padding: 3px 8px; }
+.tale-music[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+.tale-music[hidden] { display: none; }
+
+/* the line being read gets a yellow marker, like the rest of the site */
+.reading {
+  background: rgba(234, 255, 58, 0.6);
+  box-shadow: 0 0 0 6px rgba(234, 255, 58, 0.6);
+  border-radius: 2px;
+  transition: background .2s, box-shadow .2s;
+}
+.ledger .reading, .step-dark .reading { background: rgba(234, 255, 58, 0.16); box-shadow: 0 0 0 6px rgba(234, 255, 58, 0.16), 0 0 0 8px var(--hot); }
+.logo-step.reading, .snote.reading { background: transparent; box-shadow: 0 0 0 4px var(--hot), 0 0 0 7px var(--ink); }
+.snote.reading { background: var(--sun-soft); }
+
+@media (max-width: 820px) {
+  .read-label { display: none; }   /* phones: just the speaker icon */
+  .tale-read { padding: 3px 9px; }
+}
+@media (max-width: 400px) {
+  .tale-bar { gap: 8px; padding: 0 10px; }
+  .story-tabs a { padding: 2px 8px 1px; font-size: 16px; }
+  .tale-home img { width: 28px; height: 28px; }
+}

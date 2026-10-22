@@ -103,7 +103,17 @@
           <a href="#fo" data-ch="2">Fo</a>
           <a href="#fund" data-ch="3">Fund</a>
         </div>
+        <!-- read-aloud and its music box (js/readaloud.js); the music button only shows while reading -->
+        <div class="tale-right">
+        <div class="tale-audio" id="tale-audio" hidden>
+          <button type="button" class="tale-read" id="read-btn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path class="waves" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="read-label">Read it to me</span>
+          </button>
+          <button type="button" class="tale-music" id="music-btn" aria-pressed="true" aria-label="Music box" title="Music box on or off" hidden>&#9835;</button>
+        </div>
         <button type="button" class="tale-file" id="tale-file">Open my file</button>
+        </div>
         <span class="tale-progress" id="tale-progress" aria-hidden="true"></span>
       </nav>
     <div class="story-stage">
@@ -306,5 +316,6 @@
   <script src="js/actions.js"></script>
   <script src="js/app.js"></script>
   <script src="js/story.js"></script>
+  <script src="js/readaloud.js"></script>
 </body>
 </html>
