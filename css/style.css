@@ -1118,4 +1118,4 @@ p, li, dd { text-wrap: pretty; }
 }
 
 /* Uncle Sam's name, the first time the tale says it */
-mark.sam { background: var(--hot); color: var(--ink); padding: 0 4px; font-weight: 700; }
+mark.sam { background: var(--hot); color: var(--ink); padding: 0 2px; margin-right: -1px; font-weight: 700; }
