@@ -48,17 +48,38 @@
   }
 
   // ---- Picking the two voices from whatever this device has ----
-  // Each list is the most natural-sounding voices first: Apple's, then Google's (Chrome, Android),
-  // then Microsoft's (Edge, Windows). If a device has no man's voice, Uncle Sam uses the narrator's
-  // voice pitched down.
+  // Every voice gets a score and the best woman's and man's voice win. Natural-sounding voices score
+  // highest: Apple's Premium and Enhanced voices (if they're downloaded on the Mac), Microsoft's
+  // "Natural" voices (Edge), and Google's voices (Chrome). Apple's older built-in voices, like
+  // Samantha, sound robotic, so they're only used if nothing better is there. Novelty voices are never used.
   let narrator = null, sam = null;
-  const WOMEN = ["ava", "samantha", "allison", "susan", "victoria", "karen", "moira", "tessa", "serena", "google us english", "google uk english female", "aria", "jenny", "michelle", "zira"];
-  const MEN = ["daniel", "evan", "tom", "alex", "aaron", "arthur", "oliver", "rishi", "google uk english male", "guy", "christopher", "eric", "david", "mark"];
+  const WOMEN = ["ava", "zoe", "evelyn", "allison", "susan", "joelle", "noelle", "nicky", "google us english", "google uk english female", "aria", "jenny", "emma", "michelle", "sonia", "libby", "natasha", "samantha", "karen", "moira", "tessa", "serena", "victoria", "zira"];
+  const MEN = ["evan", "nathan", "tom", "aaron", "jamie", "oliver", "daniel", "arthur", "google uk english male", "andrew", "brian", "guy", "christopher", "eric", "ryan", "thomas", "william", "alex", "rishi", "david", "mark"];
+  const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|fred|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|junior|ralph|kathy|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i;
+  function score(v, names) {
+    const n = v.name.toLowerCase();
+    const i = names.findIndex(x => new RegExp("\\b" + x + "\\b").test(n));
+    if (i < 0 || NOVELTY.test(n)) return -1;
+    let s = 50 - i;                                   // earlier in the list = a little better
+    if (/premium|natural|neural/.test(n)) s += 300;   // the most human-sounding
+    else if (/enhanced/.test(n)) s += 200;
+    else if (/^google/.test(n)) s += 150;
+    else if (/^microsoft .*online/.test(n)) s += 150;
+    if (/^(samantha|alex|daniel|karen|moira|tessa|victoria)$/.test(n)) s -= 30; // Apple's older voices
+    if (!v.localService) s += 5;                      // online voices are usually smoother
+    return s;
+  }
+  function best(all, names) {
+    let top = null, topScore = -1;
+    all.forEach(v => { const sc = score(v, names); if (sc > topScore) { top = v; topScore = sc; } });
+    return top;
+  }
   function pickVoices() {
     const all = synth.getVoices().filter(v => /^en(-|_|$)/i.test(v.lang));
-    const find = names => names.map(n => all.find(v => new RegExp("\\b" + n + "\\b", "i").test(v.name))).find(Boolean);
-    narrator = find(WOMEN) || all[0] || null;
-    sam = find(MEN) || narrator;
+    narrator = best(all, WOMEN) || all.find(v => !NOVELTY.test(v.name)) || null;
+    sam = best(all, MEN) || narrator;
+    // hover the button to see which voices this device picked
+    readBtn.title = narrator ? `Narrator: ${narrator.name}${sam && sam !== narrator ? " · Uncle Sam: " + sam.name : ""}` : "";
   }
   pickVoices();
   if (synth.onvoiceschanged !== undefined) synth.addEventListener("voiceschanged", pickVoices);
@@ -77,6 +98,21 @@
     if (at >= queue.length) { stop(true); return; }
     const [el, text, who] = queue[at];
     light(el);
+    // one sentence at a time: some voices (Google's, in Chrome) cut off partway through long lines
+    // (a sentence ends at . ! ? followed by a space, so "$18.9 billion" stays in one piece)
+    const parts = text.split(/(?<=[.!?…]["')\]]*)\s+/).filter(Boolean);
+    let k = 0;
+    const sayPart = () => {
+      if (!reading) return;
+      if (k >= parts.length) { at++; setTimeout(speakNext, who === "sam" ? 450 : 250); return; }
+      const u = makeUtterance(parts[k++].trim(), who);
+      u.onend = sayPart;
+      u.onerror = e => { if (reading && e.error !== "interrupted" && e.error !== "canceled") sayPart(); };
+      synth.speak(u);
+    };
+    sayPart();
+  }
+  function makeUtterance(text, who) {
     const u = new SpeechSynthesisUtterance(text);
     const v = who === "sam" ? sam : narrator;
     if (v) u.voice = v;
@@ -85,9 +121,7 @@
     // (much deeper if he has to borrow the narrator's voice)
     if (who === "sam") { u.pitch = sam === narrator ? 0.4 : 0.8; u.rate = 0.8; u.volume = 1; }
     else { u.pitch = 1.0; u.rate = 0.9; u.volume = 1; }
-    u.onend = () => { if (reading) { at++; setTimeout(speakNext, who === "sam" ? 450 : 250); } };
-    u.onerror = e => { if (reading && e.error !== "interrupted" && e.error !== "canceled") { at++; speakNext(); } };
-    synth.speak(u);
+    return u;
   }
   // Start from whatever part of the tale is on screen now (or the beginning)
   function startIndex() {
