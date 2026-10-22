@@ -336,8 +336,10 @@
     let x = 14;
     [...$("levels").querySelectorAll(".level-btn")].forEach(b => { b.style.left = x + "px"; x += b.offsetWidth - 6; });
   }
-  window.addEventListener("resize", () => { if (!results.hidden) placeTabs(); });
-  if (document.fonts) document.fonts.ready.then(() => { if (!results.hidden) placeTabs(); });
+  // Line them up again whenever a tab changes size (the handwriting font loading in, a phone rotating)
+  const tabWatch = new ResizeObserver(() => { if (!results.hidden) placeTabs(); });
+  new MutationObserver(() => $("levels").querySelectorAll(".level-btn").forEach(b => tabWatch.observe(b)))
+    .observe($("levels"), { childList: true });
 
   // Put folder `front` at the front of the stack; the rest line up behind it
   function stackFolders(front) {

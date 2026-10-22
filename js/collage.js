@@ -18,7 +18,10 @@
     const items = Object.entries(level.values).map(([k, v]) => ({ cat: byKey[k], value: v }));
     const listed = items.reduce((t, i) => t + i.value, 0);
     const rest = level.total - listed;
-    if (rest > level.total * 0.002) items.push({ cat: byKey.other, value: rest });
+    // some data already has an "other" amount: add the leftover to it instead of making a second "Everything else"
+    const other = items.find(i => i.cat.key === "other");
+    if (other && rest > 0) other.value += rest;
+    else if (rest > level.total * 0.002) items.push({ cat: byKey.other, value: rest });
     items.forEach(i => (i.share = (i.value / level.total) * 100));
     return items.sort((a, b) => b.value - a.value);
   }
@@ -181,8 +184,10 @@
       if (jitter(key, 7) > 0.5) obj.classList.add("num-right");
       obj.setAttribute("aria-label", `${it.cat.label}: $${it.share.toFixed(2)} of every $100, ${money(it.value, level.unit)}`);
 
-      const dollars = Math.floor(it.share);
-      const cents = Math.round((it.share - dollars) * 100).toString().padStart(2, "0");
+      // round to the cent first, so 42.999 shows as $43.00 instead of $42.100
+      const allCents = Math.round(it.share * 100);
+      const dollars = Math.floor(allCents / 100);
+      const cents = String(allCents % 100).padStart(2, "0");
       const num = el("span", "num");
       num.append(el("span", "num-sign", "$"), el("span", "num-d", String(dollars)), el("span", "num-c", "." + cents));
 
