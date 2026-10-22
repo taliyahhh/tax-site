@@ -1116,3 +1116,6 @@ p, li, dd { text-wrap: pretty; }
   .level-btn { padding: 0 11px; gap: 5px; font-size: 17px; }
   .tab-n { width: 1.3em; height: 1.3em; font-size: 11px; }
 }
+
+/* Uncle Sam's name, the first time the tale says it */
+mark.sam { background: var(--hot); color: var(--ink); padding: 0 4px; font-weight: 700; }
