@@ -41,6 +41,10 @@
 }
 
 * { box-sizing: border-box; }
+/* The site has its own paper-and-ink colors. Without this, a computer in dark mode draws button text
+   in white, which made the New zip code and Read the tale buttons look blank. */
+:root { color-scheme: light; }
+button { color: var(--ink); }
 html, body { margin: 0; }
 body {
   background: var(--map-bg);
@@ -1063,7 +1067,7 @@ p, li, dd { text-wrap: pretty; }
   .tale-btn { order: -1; flex-basis: 100%; justify-content: center; }
 }
 
-/* ---- Your move: the 4th folder and move.html (js/actions.js) ---- */
+/* ---- Leave a footprint: the 4th folder and footprint.html (js/actions.js) ---- */
 .moves {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
@@ -1117,3 +1121,15 @@ p, li, dd { text-wrap: pretty; }
 
 /* Uncle Sam's name, the first time the tale says it */
 mark.sam { background: var(--hot); color: var(--ink); padding: 0 2px; margin-right: -1px; font-weight: 700; }
+
+/* the footprint logo next to 'Leave a footprint' (tab, buttons, page title) */
+.foot-ico { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: -0.2em; flex: none; }
+.foot-link { display: inline-flex; align-items: center; gap: 6px; }
+.level-btn[data-level="move"] .foot-ico, .level-btn .foot-ico { width: 22px; height: 22px; }
+.level-btn[aria-pressed="false"] .foot-ico { filter: invert(1) grayscale(1) brightness(2); }
+.foot-title { display: flex; align-items: center; gap: 0.15em; }
+.foot-big { width: 0.8em; height: 0.8em; object-fit: contain; flex: none; rotate: -12deg; filter: drop-shadow(3px 3px 0 var(--ink)); }
+
+/* phones: the map button just says "Footprint" so it doesn't run into Read the tale */
+.show-sm { display: none; }
+@media (max-width: 520px) { .hide-sm { display: none; } .show-sm { display: inline; } }

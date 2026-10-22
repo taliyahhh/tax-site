@@ -1,5 +1,5 @@
-// "Your move": things people can actually do after seeing where their money went.
-// Used by the 4th folder on the results page (js/app.js) and by move.html.
+// "Leave a footprint": things people can actually do after seeing where their money went.
+// Used by the 4th folder on the results page (js/app.js) and by footprint.html.
 // Every link here is to an official or nonpartisan source. When the town and state are known,
 // the state and city lines are filled in for that place.
 //

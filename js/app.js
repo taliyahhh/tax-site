@@ -288,12 +288,13 @@
       b.type = "button";
       b.className = "level-btn" + (lv.missing ? " is-missing" : "");
       b.dataset.level = lv.key;
-      const kind = { federal: "Nation", state: "State", city: "City", move: "Your move" }[lv.key];
-      const kindHtml = lv.key === "move" ? `<span class="tab-your">Your </span>move` : kind; // just "Move" on phones
+      const kind = { federal: "Nation", state: "State", city: "City", move: "Leave a footprint" }[lv.key];
+      // the last tab gets the footprint logo instead of a number, and just says "Footprint" on phones
+      const kindHtml = lv.key === "move" ? `<span class="tab-your">Leave a </span>footprint` : kind;
       const name = lv.data ? lv.data.short : lv.missing || kind;
       // numbered 1, 2, 3 and side by side: the nation, then your state, then your city
       b.style.setProperty("--i", i);
-      b.innerHTML = `<span class="tab-n" aria-hidden="true">${i + 1}</span><span class="tab-kind">${kindHtml}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
+      b.innerHTML = (lv.key === "move" ? `<img class="foot-ico" src="assets/icons/icon-192.png" alt="">` : `<span class="tab-n" aria-hidden="true">${i + 1}</span>`) + `<span class="tab-kind">${kindHtml}</span>` + (kind === name ? "" : ` <span class="tab-name">${escape(name)}</span>`);
       b.addEventListener("click", () => switchTo(i));
       sheet.appendChild(b);
       nav.appendChild(sheet);
@@ -393,9 +394,9 @@
       collage.style.height = "";
       $("hundred-wrap").hidden = true;
       barely.hidden = true;
-      $("level-line").innerHTML = `Now it's <b>your move</b>. <span>You've seen where the money went. Here's where to have a say, starting with the people who decide, and ending with help on your own taxes.</span>`;
+      $("level-line").innerHTML = `Every dollar leaves a footprint. <b>Now leave yours.</b> <span>You've seen where the money went. Here's where to have a say, starting with the people who decide, and ending with help on your own taxes.</span>`;
       collage.innerHTML = Actions.html(lv.place);
-      foot.innerHTML = `<p>Every link goes to an official government site or a nonpartisan tool, and opens in a new tab. City and state links search for your town's own pages. <a href="move.html">Open this list on its own page</a></p>`;
+      foot.innerHTML = `<p>Every link goes to an official government site or a nonpartisan tool, and opens in a new tab. City and state links search for your town's own pages. <a href="footprint.html">Open this list on its own page</a></p>`;
       return;
     }
     if (lv.missing) {
