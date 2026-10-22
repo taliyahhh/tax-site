@@ -84,6 +84,8 @@
     const rest = 100 - top.reduce((t, [, n]) => t + n, 0);
     per100.innerHTML = top.concat([["Everything else", rest]])
       .map(([name, n]) => `<li><span class="p-num">$${n}</span><span>${name}</span></li>`).join("");
+    // what Read it to me says for this list (scripts/make-audio.py builds the same sentence)
+    per100.setAttribute("data-say", top.map(([name, n]) => `$${n} for ${(name === "Social Security" ? name : name.charAt(0).toLowerCase() + name.slice(1)).replace(/&/g, "and")}`).join(", ") + `, and $${rest} for everything else.`);
   }
 
   // ---- State that animates toward its target every frame ----

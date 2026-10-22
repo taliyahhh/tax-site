@@ -1,1 +1,4 @@
 .data-work/
+
+# Kokoro voice previews (scripts/make-audio.py --samples)
+voice-samples/

@@ -1,9 +1,12 @@
 // "Read it to me": the tale read aloud, with a quiet music box underneath.
 //
-// Voices come from the browser's own speech (speechSynthesis), so there are no audio files and
-// nothing to license. They sound different on every device. A woman narrates the story, like someone
-// reading a bedtime book; Uncle Sam is a man's voice, slower and deeper, for his own lines (the
-// chapter words and his chant).
+// What gets read: every element in the tale marked data-read, in order (see index.html). data-say
+// replaces the words spoken, and data-voice="sam" is Uncle Sam.
+//
+// The voices are recordings made with the Kokoro voice model by scripts/make-audio.py, listed in
+// assets/audio/manifest.json: a woman narrates, like someone reading a bedtime book, and Uncle Sam
+// is a man's voice. Each file is named after a fingerprint of its words, so if a line's text changes
+// and hasn't been re-recorded yet, that line falls back to the device's own voice instead.
 //
 // The music box is an original melody played with the Web Audio API, very quietly, only while the
 // tale is being read. Its button (the music note) turns it off and remembers that choice.
@@ -13,38 +16,45 @@
   const wrap = document.getElementById("tale-audio");
   const readBtn = document.getElementById("read-btn");
   const musicBtn = document.getElementById("music-btn");
-  if (!section || !wrap || !synth || !window.SpeechSynthesisUtterance) return; // no speech: no button
-  wrap.hidden = false;
+  const canSpeak = !!(synth && window.SpeechSynthesisUtterance);
+  if (!section || !wrap) return;
+  // the recordings (the button shows once they load, or right away if the device can speak)
+  let files = {};
+  fetch("assets/audio/manifest.json").then(r => (r.ok ? r.json() : null)).then(m => {
+    if (m && m.files) files = m.files;
+    if (Object.keys(files).length) wrap.hidden = false;
+  }).catch(() => {});
+  if (canSpeak) wrap.hidden = false;
   const label = readBtn.querySelector(".read-label");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---- What gets read, in order: [element to highlight, words to say, who says them] ----
-  const WORDS = ["Fee", "Fi", "Fo", "Fund"];
-  const clean = el => el.textContent.replace(/\s+/g, " ").trim();
+  // The words follow the same rules as scripts/make-audio.py, so the recordings line up:
+  // data-say if there is one, otherwise the text, with a space between tags and none before punctuation.
+  function words(el) {
+    if (el.hasAttribute("data-say")) return el.getAttribute("data-say").replace(/\s+/g, " ").trim();
+    let out = "";
+    const walk = n => {
+      if (n.nodeType === 3) out += n.data;
+      else if (n.nodeType === 1) { out += " "; n.childNodes.forEach(walk); out += " "; }
+    };
+    el.childNodes.forEach(walk);
+    return out.replace(/\s+/g, " ").replace(/\s+([.,!?;:])/g, "$1").trim();
+  }
   function buildQueue() {
-    const q = [];
-    let chapter = 0;
-    section.querySelectorAll(".story-steps > .step").forEach(step => {
-      const opener = step.querySelector(".opener");
-      if (opener) {
-        // Uncle Sam booms the chapter word, then the narrator reads what it means
-        const logo = opener.querySelector(".logo-step") || opener;
-        q.push([logo, WORDS[chapter++] + "!", "sam"]);
-        const def = opener.querySelector(".def-text");
-        if (def) q.push([def, clean(def), "narrator"]);
-        return;
-      }
-      step.querySelectorAll(".once, .storybook > p:not(.opener-kicker):not(.the-end), .end-list li, .scard h3, .scard p:not(.scard-kicker):not(.scard-src):not(.ledger-head), .per100, .ledger-rows, .snote")
-        .forEach(el => {
-          if (el.closest(".stub-rows")) return;
-          let text = clean(el);
-          if (el.matches(".per100, .ledger-rows")) text = [...el.children].map(c => clean(c)).join(". ");
-          if (!text) return;
-          q.push([el, text, el.matches(".chant") ? "sam" : "narrator"]);
-        });
-      if (step.querySelector(".the-end")) q.push([step.querySelector(".the-end"), "The end.", "narrator"]);
-    });
-    return q;
+    return [...section.querySelectorAll("[data-read]")]
+      .map(el => {
+        // the chapter word is hidden behind the logo drawing, so light up the logo instead
+        const shown = el.classList.contains("chapter-word") && el.previousElementSibling ? el.previousElementSibling : el;
+        return [shown, words(el), el.getAttribute("data-voice") === "sam" ? "sam" : "narrator"];
+      })
+      .filter(([, text]) => text);
+  }
+  // The recording's file name: an FNV-1a fingerprint of "voice|words" (scripts/make-audio.py uses the same)
+  function key(who, text) {
+    let h = 0x811c9dc5;
+    for (const b of new TextEncoder().encode(who + "|" + text)) { h ^= b; h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, "0");
   }
 
   // ---- Picking the two voices from whatever this device has ----
@@ -75,17 +85,19 @@
     return top;
   }
   function pickVoices() {
-    const all = synth.getVoices().filter(v => /^en(-|_|$)/i.test(v.lang));
+    const all = (synth.getVoices() || []).filter(v => /^en(-|_|$)/i.test(v.lang));
     narrator = best(all, WOMEN) || all.find(v => !NOVELTY.test(v.name)) || null;
     sam = best(all, MEN) || narrator;
     // hover the button to see which voices this device picked
-    readBtn.title = narrator ? `Narrator: ${narrator.name}${sam && sam !== narrator ? " · Uncle Sam: " + sam.name : ""}` : "";
+    if (!Object.keys(files).length) readBtn.title = narrator ? `Narrator: ${narrator.name}${sam && sam !== narrator ? " · Uncle Sam: " + sam.name : ""}` : "";
   }
-  pickVoices();
-  if (synth.onvoiceschanged !== undefined) synth.addEventListener("voiceschanged", pickVoices);
+  if (canSpeak) {
+    pickVoices();
+    if (synth.onvoiceschanged !== undefined) synth.addEventListener("voiceschanged", pickVoices);
+  }
 
   // ---- Reading ----
-  let queue = [], at = 0, reading = false, lit = null;
+  let queue = [], at = 0, reading = false, lit = null, player = null;
   function light(el) {
     if (lit) lit.classList.remove("reading");
     lit = el;
@@ -98,13 +110,27 @@
     if (at >= queue.length) { stop(true); return; }
     const [el, text, who] = queue[at];
     light(el);
+    const next = () => { if (reading) { at++; setTimeout(speakNext, who === "sam" ? 450 : 300); } };
+    // a recording for this line? play it; if it won't play, use the device's voice
+    const file = files[key(who, text)];
+    if (file) {
+      player = new Audio("assets/audio/" + file);
+      player.onended = next;
+      player.onerror = () => { player = null; if (reading) speakDevice(text, who, next); };
+      player.play().catch(() => { if (reading && player) { player = null; speakDevice(text, who, next); } });
+      return;
+    }
+    speakDevice(text, who, next);
+  }
+  function speakDevice(text, who, next) {
+    if (!canSpeak) { next(); return; }
     // one sentence at a time: some voices (Google's, in Chrome) cut off partway through long lines
     // (a sentence ends at . ! ? followed by a space, so "$18.9 billion" stays in one piece)
     const parts = text.split(/(?<=[.!?…]["')\]]*)\s+/).filter(Boolean);
     let k = 0;
     const sayPart = () => {
       if (!reading) return;
-      if (k >= parts.length) { at++; setTimeout(speakNext, who === "sam" ? 450 : 250); return; }
+      if (k >= parts.length) { next(); return; }
       const u = makeUtterance(parts[k++].trim(), who);
       u.onend = sayPart;
       u.onerror = e => { if (reading && e.error !== "interrupted" && e.error !== "canceled") sayPart(); };
@@ -133,14 +159,15 @@
     queue = buildQueue();
     if (at <= 0 || at >= queue.length) at = startIndex();
     reading = true;
-    synth.cancel();
+    if (canSpeak) synth.cancel();
     setUI();
     if (musicOn) Music.start();
     speakNext();
   }
   function stop(finished) {
     reading = false;
-    synth.cancel();
+    if (canSpeak) synth.cancel();
+    if (player) { player.onended = player.onerror = null; player.pause(); player = null; }
     Music.stop();
     light(null);
     if (finished) at = 0; // next time starts from wherever you are
@@ -158,7 +185,9 @@
     const b = document.getElementById(id);
     if (b) b.addEventListener("click", () => { if (reading) stop(true); });
   });
-  window.addEventListener("pagehide", () => synth.cancel());
+  window.addEventListener("pagehide", () => { if (canSpeak) synth.cancel(); if (player) player.pause(); });
+
+  window.TaleReader = { lines: () => buildQueue().map(([, text, who]) => ({ who, text, key: key(who, text) })) };
 
   // ---- The music box ----
   let musicOn = true;

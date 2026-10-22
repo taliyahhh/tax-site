@@ -82,3 +82,19 @@ Share a direct link to results with `?zip=95050` at the end of the URL.
 ## Data notes
 
 Every source, year, and category mapping is listed on the site's Sources page (`sources.html`).
+
+## The tale's voices (Read it to me)
+
+The tale under the map can read itself aloud. The voices are recordings made with **Kokoro**, a free voice model (Apache 2.0 license), stored in `assets/audio/`. Any line without a recording uses the device's built-in voice instead.
+
+To record (or re-record after changing the tale's words), on a Mac:
+
+```
+conda create -n kokoro python=3.11 -y      # one time
+conda activate kokoro
+pip install kokoro soundfile               # one time
+python scripts/make-audio.py --samples     # optional: hear voice options in voice-samples/
+python scripts/make-audio.py               # record the tale
+```
+
+Then commit `assets/audio/` and push. The lines that get read are the ones marked `data-read` in `index.html`.

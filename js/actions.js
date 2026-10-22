@@ -13,7 +13,7 @@
     const town = place && place.city, state = place && place.stateName;
     return [
       {
-        n: 1, kicker: "The nation", title: "Talk to the people who split the pile",
+        n: 1, kicker: "The nation", title: "Talk to the people who split the pot",
         items: [
           { label: "Find your U.S. representative", note: "Type your zip code to get their name, website, and phone number.", url: "https://www.house.gov/representatives/find-your-representative" },
           { label: "Find your two U.S. senators", note: "Pick your state from the list.", url: "https://www.senate.gov/senators/senators-contact.htm" },

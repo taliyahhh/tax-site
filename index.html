@@ -72,7 +72,7 @@
       </div>
 
       <form id="zip-form" class="zip-form" autocomplete="off">
-        <label for="zip" class="zip-label">Type your zip or pick a spot on the map, and we&rsquo;ll tell you the tale of your taxes</label>
+        <label for="zip" class="zip-label">Type a zip or tap the map for the tale of your taxes</label>
         <!-- the button sits between the label and the zip box, so it's never stuck at the bottom of the screen -->
         <button type="submit" id="go" class="go" disabled>Show me</button>
         <input id="zip" name="zip" inputmode="numeric" maxlength="5" placeholder="_____" aria-describedby="zip-readout">
@@ -121,47 +121,50 @@
     </div>
 
     <div class="story-steps">
+      <!-- Every element marked data-read is read aloud, in order (js/readaloud.js), and recorded by
+           scripts/make-audio.py. data-say replaces the words spoken; data-voice="sam" is Uncle Sam's voice.
+           If you change any of this text, run scripts/make-audio.py again so the recording matches. -->
 
       <div class="step step-open" id="once">
         <article class="storybook">
           <p class="opener-kicker">A tale of one tax dollar</p>
-          <h2 class="once">Once upon a time&hellip;</h2>
-          <p class="dropcap">You wake up, clock in, and trade your hours for a paycheck. That makes you the hero of this story.</p>
-          <p>But before your pay ever reaches you, a giant at the top of a very tall beanstalk takes his share. His name is <mark class="sam">Uncle Sam</mark>. He's big, he's loud, and he only ever says four words.</p>
-          <p class="chant">Fee. Fi. Fo. Fund.</p>
-          <p>This is the story of where his share goes, and how it finds its way back down to you.</p>
+          <h2 class="once" data-read>Once upon a time&hellip;</h2>
+          <p class="dropcap" data-read>You wake up, clock in, and trade your hours for a paycheck. That makes you the hero of this story.</p>
+          <p data-read>But at the top of a very tall beanstalk lives a giant who takes his share first. His name is <mark class="sam">Uncle Sam</mark>. He's big, he's loud, and he only ever says four words.</p>
+          <p class="chant" data-read data-voice="sam">Fee. Fi. Fo. Fund.</p>
+          <p data-read>This is the story of where his share goes, and how it finds its way back down to you.</p>
         </article>
       </div>
 
       <div class="step step-open" id="fee">
         <div class="opener">
           <p class="opener-kicker">Chapter one of four</p>
-          <h2 class="chapter-word">Fee</h2>
+          <h2 class="chapter-word" data-read data-say="Fee!" data-voice="sam">Fee</h2>
           <p class="def"><b>fee</b> /f&#275;/ <i>noun</i></p>
-          <p class="def-text">The slice of every paycheck that goes to taxes before you ever see it.</p>
+          <p class="def-text" data-read>The slice of every paycheck that goes to taxes before you ever see it.</p>
         </div>
       </div>
 
       <div class="step">
         <article class="scard stub">
           <p class="scard-kicker"><span>Earnings statement</span><span>Your pay stub</span></p>
-          <h3>It starts with you.</h3>
-          <p>Before your pay reaches your account, a slice is withheld for federal taxes. That yellow dot is one of your dollars. Keep scrolling and follow it.</p>
+          <h3 data-read>It starts with you.</h3>
+          <p data-read>See the yellow dot on the map? That's one of your tax dollars. Keep scrolling to follow it.</p>
           <dl class="stub-rows">
             <div><dt>Gross pay</dt><dd>your pay</dd></div>
             <div><dt>Federal income tax</dt><dd>withheld</dd></div>
             <div class="hl"><dt>This dollar</dt><dd>$1.00 &larr;</dd></div>
           </dl>
         </article>
-        <p class="snote">Box 2 on your W-2 is how many of your dollars took this trip last year.</p>
+        <p class="snote" data-read>Social Security and Medicare come out of your paycheck too, each on its own line.</p>
       </div>
 
       <div class="step step-open" id="fi">
         <div class="opener">
           <p class="opener-kicker">Chapter two of four</p>
-          <h2 class="chapter-word">Fi</h2>
+          <h2 class="chapter-word" data-read data-say="Fi!" data-voice="sam">Fi</h2>
           <p class="def"><b>fi</b> /f&#299;/ <i>short for fiscal</i></p>
-          <p class="def-text">The government's money pot. Your dollar climbs the beanstalk and joins the federal budget in Washington.</p>
+          <p class="def-text" data-read>The government's money pot. Your dollar climbs the beanstalk and lands in the federal budget in Washington.</p>
         </div>
       </div>
 
@@ -170,30 +173,30 @@
           <div class="airmail-inner">
             <span class="stamp-box" aria-hidden="true"><img src="assets/icons/icon-192.png" alt=""><span>Fed post</span></span>
             <p class="scard-kicker"><span>Via federal mail</span></p>
-            <h3>Every dot on the map is headed the same way.</h3>
-            <p>Dollars from all 50 states pile up in Washington. Congress decides how the whole pile is spent. Out of every $100:</p>
-            <ul class="per100" id="per100"></ul>
+            <h3 data-read>Every dot on the map is headed the same way.</h3>
+            <p data-read>Dollars from all 50 states end up in one big pot, and Congress decides how to spend it. Out of every $100:</p>
+            <ul class="per100" id="per100" data-read></ul>
           </div>
         </article>
-        <p class="snote">Federal is only one trip. Your state and city taxes take their own.</p>
+        <p class="snote" data-read>Federal is only one trip. Your state and city taxes take their own.</p>
       </div>
 
       <div class="step step-open step-dark" id="fo">
         <div class="opener">
           <p class="opener-kicker">Chapter three of four</p>
-          <h2 class="chapter-word">Fo</h2>
+          <h2 class="chapter-word" data-read data-say="Fo!" data-voice="sam">Fo</h2>
           <p class="def"><b>fo</b> /f&#333;/ <i>short for formula</i></p>
-          <p class="def-text">The rules Uncle Sam uses to split the pile. Some money follows formulas based on population and need. Some follows people, like Social Security. Some follows federal jobs and contracts.</p>
+          <p class="def-text" data-read>The rules Uncle Sam uses to split the pot. Some money follows formulas based on population and need. Some follows people, like Social Security. Some follows federal jobs and contracts.</p>
         </div>
       </div>
 
       <div class="step">
         <article class="scard ledger">
           <p class="scard-kicker"><span>Uncle Sam's ledger</span><span>2023</span></p>
-          <h3>Only <mark>three states</mark> paid in more than they got back.</h3>
-          <p>New Jersey, Massachusetts, and Washington. Every other state received more federal money than its people and businesses sent. New Jersey's gap was the biggest: $18.9 billion, about $2,011 a person.</p>
+          <h3 data-read>Only <mark>three states</mark> paid in more than they got back.</h3>
+          <p data-read>New Jersey, Massachusetts, and Washington State. Every other state got back more than its people and businesses paid in. New Jersey's gap was the biggest: $18.9 billion, about $2,011 a person.</p>
           <p class="ledger-head">Biggest net receivers, per person</p>
-          <dl class="ledger-rows">
+          <dl class="ledger-rows" data-read data-say="The biggest receivers, per person: Virginia, $16,650. New Mexico, $16,178. Alaska, $14,760. Maryland, $13,037. And West Virginia, $12,130.">
             <div><dt>Virginia</dt><dd>+$16,650</dd></div>
             <div><dt>New Mexico</dt><dd>+$16,178</dd></div>
             <div><dt>Alaska</dt><dd>+$14,760</dd></div>
@@ -202,53 +205,53 @@
           </dl>
           <p class="scard-src">Yellow dots: paid in more. White dots: the five biggest receivers. Source: <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">Rockefeller Institute of Government</a>, federal fiscal year 2023 (preliminary).</p>
         </article>
-        <p class="snote">Federal jobs, military bases, contracts, and higher need pull money toward a state.</p>
+        <p class="snote" data-read>Virginia and Maryland border Washington, D.C., so they're home to lots of federal workers and contractors.</p>
       </div>
 
       <div class="step">
         <article class="scard ledger">
           <p class="scard-kicker"><span>Uncle Sam's ledger, page 2</span><span>California</span></p>
-          <h3>California usually feeds Uncle Sam more than it gets back.</h3>
-          <p class="big-num">$101 billion</p>
-          <p>That was the gap in 2022, leaving out COVID relief. California paid in more than it got back in 6 of the 9 years from 2015 to 2023.</p>
+          <h3 data-read>California usually gives Uncle Sam more than it gets back.</h3>
+          <p class="big-num" data-read data-say="101 billion dollars.">$101 billion</p>
+          <p data-read>That was the gap in 2022, not counting COVID relief, and the same was true in 6 of the 9 years from 2015 to 2023.</p>
           <p class="scard-src">Source: <a href="https://calbudgetcenter.org/resources/is-california-a-donor-state-heres-how-much-it-pays-to-the-feds-vs-what-it-gets-back/" target="_blank" rel="noopener">California Budget &amp; Policy Center</a>, using Rockefeller Institute data.</p>
         </article>
-        <p class="snote">In 2023, pandemic money tipped it the other way, by about $342 a person.</p>
+        <p class="snote" data-read>In 2023, pandemic money tipped it the other way, by about $342 a person.</p>
       </div>
 
       <div class="step step-open" id="fund">
         <div class="opener">
           <p class="opener-kicker">Chapter four of four</p>
-          <h2 class="chapter-word">Fund</h2>
+          <h2 class="chapter-word" data-read data-say="Fund!" data-voice="sam">Fund</h2>
           <p class="def"><b>fund</b> /f&#601;nd/ <i>verb</i></p>
-          <p class="def-text">What your dollar builds when it finally comes back down to you.</p>
+          <p class="def-text" data-read>What your dollar builds when it finally comes back down to you.</p>
         </div>
       </div>
 
       <div class="step step-end">
         <article class="scard postcard">
           <p class="scard-kicker"><span>Greetings from home</span><span class="postmark" aria-hidden="true">$</span></p>
-          <h3>And it comes back down.</h3>
-          <p>Part of your dollar returns as the roads you drive, the schools down the street, the parks, the fire trucks. Your state and city add their own taxes to the pile.</p>
+          <h3 data-read>Home again.</h3>
+          <p data-read>Add in your state and city taxes, and your dollars become the road you drive, the school down the street, the park on the corner, and the fire truck that shows up in minutes. Some come back as checks, like your grandparents' Social Security.</p>
         </article>
-        <p class="snote">Watch the map: the color spreads out from home.</p>
+        <p class="snote" data-read>Watch the map: the color spreads out from home.</p>
       </div>
 
       <div class="step step-open step-end" id="the-end">
         <article class="storybook ending">
           <p class="opener-kicker">The happy ending</p>
-          <h2 class="once">&hellip;and they all lived happily, and fundedly, ever after.</h2>
-          <p>Turns out Uncle Sam isn't the villain. He's more like a very large accountant. Your dollar comes back as the bus you ride, the teacher down the street, the firefighter who shows up in minutes, and the check that pays your grandma's rent.</p>
-          <p>And you don't have to climb the beanstalk to have a say. Budgets are public, city hearings are open, and you get a vote. Your four moves, one for each chapter:</p>
+          <h2 class="once" data-read>&hellip;and they all lived happily, and fundedly, ever after.</h2>
+          <p data-read>Turns out Uncle Sam isn't the villain. He's more like a very large accountant, and you get to check his math.</p>
+          <p data-read>You don't have to climb the beanstalk to have a say. Budgets are public, hearings are open, and you get a vote. One move for each chapter:</p>
           <ol class="end-list">
-            <li><b>Fee</b><span>Look at Box 2 of your W-2 to see how many of your dollars made the trip.</span></li>
-            <li><b>Fi</b><span><a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener">Find your representative</a>, the person who votes on the federal budget.</span></li>
-            <li><b>Fo</b><span>See how <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">your state's balance</a> with Washington stacks up.</span></li>
-            <li><b>Fund</b><span>Show up to a city budget hearing, and <a href="https://vote.gov/" target="_blank" rel="noopener">register to vote</a>.</span></li>
+            <li data-read><b>Fee<span class="sr-only">:</span></b><span>Look at Box 2 of your W-2 to see how many of your dollars made the trip.</span></li>
+            <li data-read><b>Fi<span class="sr-only">:</span></b><span><a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener">Find your representative</a>, who votes on the federal budget.</span></li>
+            <li data-read><b>Fo<span class="sr-only">:</span></b><span>See how <a href="https://rockinst.org/?p=37556" target="_blank" rel="noopener">your state's balance</a> with Washington stacks up.</span></li>
+            <li data-read><b>Fund<span class="sr-only">:</span></b><span>Show up to a city budget hearing, and <a href="https://vote.gov/" target="_blank" rel="noopener">register to vote</a>.</span></li>
           </ol>
-          <p>Every dot on the map is a zip code. Pick yours to open the file on where it all went. <a href="footprint.html">See every way to leave a footprint</a>.</p>
+          <p data-read>Every dot on the map is a zip code. Pick yours to see where your dollars went. <a href="footprint.html">See every way to leave a footprint</a>.</p>
           <button type="button" class="go story-cta" id="story-cta">Open my file &uarr;</button>
-          <p class="the-end" aria-hidden="true">The end</p>
+          <p class="the-end" aria-hidden="true" data-read data-say="The end.">The end</p>
         </article>
       </div>
 
